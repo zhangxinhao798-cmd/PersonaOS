@@ -1,33 +1,46 @@
 # PersonaOS
 
-> PersonaOS is an operating system for minds, not just another chatbot.
 > Don't replace your thinking. Expand it.
 
-PersonaOS is a modular personal AI operating system.
+An open-source operating system for creating, evolving, and interacting with digital minds.
 
-## Features
+Built for builders, researchers, and curious minds.
 
-- Persona System
-- Knowledge Base
-- Long-term Memory
-- Personality Evolution
-- Confidence Tracking
+## Vision
+
+> Build minds.
+>
+> Not bots.
+
+## Core Components
+
+- Persona Engine
+- Character Engine
+- Knowledge Engine
+- Memory Engine
+- Evolution Engine
+- Confidence Engine
 
 ## Roadmap
 
-### v0.1 Foundation
+### Phase 1 — Foundation
+
 - Local LLM
 - Open WebUI
-- Basic Persona System
+- Persona Engine
 
-### v0.2 Memory
+### Phase 2 — Memory
+
 - Long-term Memory
+- Session Memory
 
-### v0.3 Persona Mixer
-- Multiple personality combinations
+### Phase 3 — Intelligence
 
-### v0.4 Confidence System
-- Source tracking
+- Persona Mixer
+- Confidence Engine
 
-### v0.5 Scene Personality
-- Automatic personality switching
+## Philosophy
+
+AI should expand human thinking, not replace it.
+
+PersonaOS exists to build digital minds that help people think better, learn faster, and grow continuously.
