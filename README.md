@@ -1,5 +1,6 @@
 # PersonaOS
 
+> PersonaOS is an operating system for minds, not just another chatbot.
 > Don't replace your thinking. Expand it.
 
 PersonaOS is a modular personal AI operating system.
