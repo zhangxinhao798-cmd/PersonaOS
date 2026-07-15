@@ -86,6 +86,36 @@ class ConfidenceEngine:
         memory.confidence = self.calculate_confidence(memory)
         return memory.confidence
 
+    def evaluate(
+        self,
+        memories: list[MemoryRecord],
+        knowledge_records: list | None = None,
+    ) -> dict:
+        """Evaluate reliability signals for orchestration context."""
+
+        memory_scores = [
+            self.calculate_confidence(memory)
+            for memory in memories
+        ]
+        knowledge_records = knowledge_records or []
+
+        if not memory_scores:
+            return {
+                "score": 0.0,
+                "factors": {
+                    "memory_scores": [],
+                    "knowledge_record_count": len(knowledge_records),
+                },
+            }
+
+        return {
+            "score": sum(memory_scores) / len(memory_scores),
+            "factors": {
+                "memory_scores": memory_scores,
+                "knowledge_record_count": len(knowledge_records),
+            },
+        }
+
     def _clamp(self, value: float) -> float:
         """Clamp a confidence value to the valid confidence range."""
 
