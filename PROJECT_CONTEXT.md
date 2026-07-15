@@ -106,6 +106,19 @@ PersonaOS coordinates engines but does not own engine logic. Persona, memory, kn
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
+The current Persona layer now supports structured import and version snapshots through explicit data and transformation boundaries:
+
+```text
+PersonaSource
+    -> PersonaImporter
+    -> PersonaProfileBuilder
+    -> PersonaProfile
+    -> PersonaVersion
+    -> PersonaLibrary
+```
+
+This flow defines how external persona information can be represented, deterministically converted into import results, transformed into profile structure, captured as version snapshots, and prepared for library management. It does not yet imply persistence, runtime activation, LLM integration, or automatic persona modification.
+
 ## 4. Current Implementation Status
 
 PersonaOS is currently an early architectural foundation with all six core engines complete at v1/foundation level: Persona Engine, Memory Engine, Confidence Engine, Knowledge Engine, Skill Engine, and Evolution Engine.
@@ -166,6 +179,13 @@ Completed so far:
 - Persona-aware memory interpretation from active persona perspective.
 - PersonaOS fusion integration through `PersonaOS.process_context()`.
 - Fusion results in the shared context boundary alongside unchanged raw memories.
+- Persona Import Pipeline completed through data and deterministic transformation boundaries.
+- `PersonaSource` model for external persona information sources.
+- `PersonaImportResult` model for import analysis output.
+- `PersonaImporter` deterministic boundary for converting sources into import results.
+- `PersonaProfileBuilder` deterministic boundary for converting import results into `PersonaProfile`.
+- Persona Versioning data boundary completed through `PersonaVersion`.
+- Persona version snapshots now support profile snapshots and source tracking.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -200,6 +220,11 @@ Current verification status:
 - `tests/test_fusion_context.py` verifies `FusionContext` defaults and stored values.
 - `tests/test_persona_memory_fusion.py` verifies persona-memory fusion output, persona-specific interpretations, relevance scoring, and raw memory preservation.
 - `tests/test_persona_os_fusion_integration.py` verifies PersonaOS fusion initialization, context fusion results, and raw memory preservation.
+- `tests/test_persona_source.py` verifies external persona source data.
+- `tests/test_persona_import.py` verifies persona import result data.
+- `tests/test_persona_importer.py` verifies deterministic persona importing.
+- `tests/test_persona_profile_builder.py` verifies import-result to profile transformation.
+- `tests/test_persona_version.py` verifies persona version snapshots and source tracking.
 - `tests/test_confidence.py` verifies initial confidence calculation, confidence increase with positive evidence, confidence decrease with negative evidence, and 0-1 range clamping.
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
@@ -212,7 +237,8 @@ Current implementation limits:
 - There is no persistence layer yet.
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
-- PersonaMemoryFusion provides persona-aware memory interpretation in v1 form, but persona libraries, persona import, persistence, and advanced persona-specific memory scopes are not implemented yet.
+- PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
+- Persona import and versioning boundaries exist, but Persona Library lifecycle management, import review workflow, persistence, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
@@ -268,7 +294,7 @@ Different personas may eventually load different skills. For example, one person
 
 Personality consistency is a central goal. PersonaOS should preserve stable identity over time while allowing controlled refinement. The Evolution Engine should help prevent personality drift by ensuring that durable persona changes are explicit, justified, and traceable.
 
-Persona-Memory integration now allows persona traits to influence deterministic memory priority. Integration Phase Step 2 adds `PersonaMemoryFusion`, which produces persona-aware interpretations of retrieved memories without changing raw memories or merging PersonaEngine and MemoryEngine. Future design should expand this into persona libraries, persona import, memory importance, confidence evaluation, and retrieval preference without collapsing persona and memory into the same system.
+Persona-Memory integration now allows persona traits to influence deterministic memory priority. Integration Phase Step 2 adds `PersonaMemoryFusion`, which produces persona-aware interpretations of retrieved memories without changing raw memories or merging PersonaEngine and MemoryEngine. The Persona layer now also includes structured import and version snapshot boundaries from `PersonaSource` through `PersonaVersion`. Future design should expand this into Persona Library workflow, import review, memory importance, confidence evaluation, and retrieval preference without collapsing persona and memory into the same system.
 
 ## 7. Skill System
 
@@ -396,7 +422,9 @@ Current status: Memory Layer v1 complete.
 - PersonaEngine tests exist.
 - Persona-Memory integration layer exists.
 - Persona-memory fusion layer exists.
-- Next work should add Persona Library / Persona Import Pipeline.
+- Persona Import Pipeline boundaries exist.
+- Persona Versioning boundary exists.
+- Next work should complete Persona Library Workflow.
 - Add persona profiles.
 - Support multiple personas.
 - Connect personas to memory scopes, skill permissions, and operating constraints.
@@ -454,10 +482,10 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Begin Persona Library / Persona Import Pipeline.
-- Define persona profile loading, validation, and selection boundaries.
+- Complete Persona Library Workflow.
+- Define persona lifecycle management and import review boundaries.
 - Add cross-engine tests for PersonaOS runtime behavior.
 - Plan later integration between knowledge evidence and Confidence Engine evaluation.
 - Keep ConfidenceEngine focused on evaluation rather than storage.
 
-The project has completed Integration Phase Step 2. The best next work is small, well-tested backend progress on Persona Library / Persona Import Pipeline while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, and evolution responsibilities.
+The project has completed the Persona Import Pipeline boundaries and Persona Versioning data boundary. The best next work is small, well-tested backend progress on Persona Library Workflow while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, and evolution responsibilities.

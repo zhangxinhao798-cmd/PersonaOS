@@ -96,6 +96,14 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added persona-aware memory interpretation while preserving PersonaEngine and MemoryEngine boundaries.
 - Integrated persona-memory fusion into PersonaOS orchestration.
 - Added fusion tests for interpretation differences, relevance scoring, PersonaOS fusion integration, and raw memory preservation.
+- Completed Persona Import Pipeline data and transformation boundaries.
+- Added `PersonaSource` for external persona information sources.
+- Added `PersonaImportResult` for future persona analysis/import output.
+- Added deterministic `PersonaImporter` boundary.
+- Added `PersonaProfileBuilder` for converting import results into persona profiles.
+- Completed Persona Versioning data boundary.
+- Added `PersonaVersion` for profile snapshots, source tracking, version metadata, and change notes.
+- Synchronized project status around Persona Library Workflow as the current phase after Persona Import Pipeline and Persona Versioning completion.
 
 ### Design Decisions
 
@@ -180,13 +188,16 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Integration Phase Step 2 is complete.
 - `FusionContext` and `PersonaMemoryFusion` now provide persona-aware memory interpretation.
 - PersonaOS now includes fusion results in the orchestration context while preserving raw memory records.
+- Persona Import Pipeline boundaries are complete.
+- Persona Versioning data boundary is complete.
+- Current phase is Persona Library Workflow.
 - Current recorded test status: all tests passing, `47 passed`.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Begin Persona Library / Persona Import Pipeline.
-- Define how persona profiles can be loaded, validated, and selected without weakening engine boundaries.
+- Complete Persona Library Workflow.
+- Define persona lifecycle management and import review workflow without weakening engine boundaries.
 - Expand confidence handling for knowledge evidence in a future step.
 - Add persistent memory storage in a future memory phase.
 - Expand Evolution Engine versioning and rollback in a future phase.

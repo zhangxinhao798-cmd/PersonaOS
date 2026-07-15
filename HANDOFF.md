@@ -15,6 +15,8 @@ All six core engines have v1 implementations:
 
 Integration Phase Step 1 is complete.
 Integration Phase Step 2 is complete.
+Persona Import Pipeline boundaries are complete.
+Persona Versioning data boundary is complete.
 
 Current completed integration state:
 
@@ -28,6 +30,11 @@ Current completed integration state:
 - `PersonaMemoryFusion` added as a separate fusion layer.
 - PersonaOS now orchestrates persona-memory fusion after raw memory retrieval.
 - Fusion results are included in context while raw memories remain unchanged.
+- `PersonaSource` added for external persona information sources.
+- `PersonaImportResult` added for import analysis output.
+- `PersonaImporter` added as a deterministic import boundary.
+- `PersonaProfileBuilder` added to transform import results into profile data.
+- `PersonaVersion` added for profile snapshots and source tracking.
 
 
 ## Architecture Rules
@@ -51,17 +58,19 @@ Integration tests have been added for PersonaOS initialization, context processi
 
 Fusion tests have been added for `FusionContext`, `PersonaMemoryFusion`, persona-specific interpretations, relevance scoring, PersonaOS fusion integration, and raw memory preservation.
 
+Persona Import Pipeline tests cover persona sources, import results, deterministic importer behavior, and profile building. Persona Versioning tests cover profile snapshots, source ID tracking, and empty defaults.
+
 Codex environment note: during recent Integration Phase work, `pytest` was unavailable in the active local Python environment. Fallback verification used `python -m compileall backend tests` and direct integration smoke checks.
 
 
 ## Current Phase
 
-Integration Phase.
+Persona Library Workflow.
 
 
 ## Next Goal
 
-Begin Persona Library / Persona Import Pipeline.
+Complete Persona Library Workflow.
 
 Integration Phase Step 1 completed:
 
@@ -79,11 +88,25 @@ Integration Phase Step 2 completed:
 4. Integrated fusion into PersonaOS orchestration.
 5. Added fusion tests while preserving raw memory records.
 
+Persona Import Pipeline completed:
+
+1. Added `PersonaSource`.
+2. Added `PersonaImportResult`.
+3. Added deterministic `PersonaImporter`.
+4. Added `PersonaProfileBuilder`.
+5. Preserved engine boundaries and avoided LLM, persistence, and runtime integration.
+
+Persona Versioning completed:
+
+1. Added `PersonaVersion`.
+2. Added profile snapshot boundary.
+3. Added source tracking boundary.
+
 ## Next Recommended Phase
 
-Persona Library / Persona Import Pipeline.
+Persona Library Workflow.
 
-The next work should define how persona profiles are loaded, validated, selected, and prepared for future multi-persona support while keeping PersonaEngine, MemoryEngine, and PersonaMemoryFusion separate.
+The next work should define PersonaLibrary lifecycle management and import review workflow while keeping PersonaEngine, MemoryEngine, PersonaSelector, PersonaImporter, and PersonaMemoryFusion separate.
 
 
 ## Important Constraints

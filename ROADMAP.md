@@ -64,6 +64,15 @@ Completed:
 - Persona-aware memory interpretation.
 - PersonaOS fusion integration.
 - Fusion tests.
+- Persona Import Pipeline:
+  - [x] PersonaSource
+  - [x] PersonaImportResult
+  - [x] PersonaImporter
+  - [x] PersonaProfileBuilder
+- Persona Versioning:
+  - [x] PersonaVersion data model
+  - [x] profile snapshot boundary
+  - [x] source tracking boundary
 
 ### Step 2: Persona + Memory Fusion
 
@@ -77,16 +86,28 @@ Completed:
 - Added fusion results to PersonaOS context output.
 - Preserve separation between PersonaEngine and MemoryEngine.
 
-### Next: Persona Library / Persona Import Pipeline
+### Current Phase: Persona Library Workflow
 
-The next integration priority is to define how persona profiles can be loaded, validated, selected, and prepared for future multi-persona support.
+The current integration priority is to complete Persona Library workflow now that persona import and versioning boundaries exist.
 
 Goals:
 
 - Define persona library boundaries.
-- Add a clear persona import pipeline.
-- Validate persona profile data before use.
+- Add PersonaLibrary lifecycle management.
+- Add persona import review workflow.
+- Validate persona profile data before library use.
 - Preserve separation between persona identity, memory storage, and fusion interpretation.
+
+Current focus:
+
+- Complete Persona Library workflow.
+
+Next steps:
+
+1. PersonaLibrary lifecycle management
+2. Persona import review workflow
+3. Persona runtime preparation
+4. LLM Adapter boundary (Qwen3/Ollama)
 
 ## Phase 2: Memory System
 
@@ -210,4 +231,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Persona Library / Persona Import Pipeline.
+The immediate next focus is to complete Persona Library workflow.
