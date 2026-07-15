@@ -73,6 +73,11 @@ Completed:
   - [x] PersonaVersion data model
   - [x] profile snapshot boundary
   - [x] source tracking boundary
+- Persona Library Workflow:
+  - [x] PersonaLibraryEntry model boundary
+  - [x] lifecycle state boundary on library records
+  - [x] current version reference boundary
+  - [x] profile, version, and source reference linkage
 
 ### Step 2: Persona + Memory Fusion
 
@@ -98,9 +103,15 @@ Goals:
 - Validate persona profile data before library use.
 - Preserve separation between persona identity, memory storage, and fusion interpretation.
 
+Progress:
+
+- Added `PersonaLibraryEntry` as the lifecycle owner for persona library records.
+- Connected `PersonaProfile`, `PersonaVersion` records, source references, lifecycle state, and current version reference.
+- Preserved PersonaEngine, LLM/Ollama, persistence, and runtime orchestration boundaries.
+
 Current focus:
 
-- Complete Persona Library workflow.
+- Complete Persona Library lifecycle operations.
 
 Next steps:
 

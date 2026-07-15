@@ -104,6 +104,8 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Completed Persona Versioning data boundary.
 - Added `PersonaVersion` for profile snapshots, source tracking, version metadata, and change notes.
 - Synchronized project status around Persona Library Workflow as the current phase after Persona Import Pipeline and Persona Versioning completion.
+- Added `PersonaLibraryEntry` as the lifecycle owner for persona library records.
+- Connected `PersonaLibraryEntry` to `PersonaProfile`, `PersonaVersion` records, source references, lifecycle state, and the current version reference.
 
 ### Design Decisions
 
@@ -135,6 +137,9 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Context data is treated as a communication boundary between engines and orchestration, not as storage or engine behavior.
 - Confidence orchestration belongs to `ConfidenceEngine`, while PersonaOS only calls it as part of the pipeline.
 - Persona-memory fusion belongs to `PersonaMemoryFusion`; PersonaOS orchestrates it, while PersonaEngine and MemoryEngine remain separate.
+- `PersonaLibraryEntry` owns mutable library lifecycle state.
+- `PersonaVersion` remains the immutable historical snapshot boundary for persona profile history.
+- Persona Library Workflow progress does not change PersonaEngine, add LLM/Ollama integration, add persistence, or change runtime orchestration.
 
 ### Current Status
 
@@ -190,13 +195,14 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - PersonaOS now includes fusion results in the orchestration context while preserving raw memory records.
 - Persona Import Pipeline boundaries are complete.
 - Persona Versioning data boundary is complete.
+- PersonaLibraryEntry model boundary is complete.
 - Current phase is Persona Library Workflow.
-- Current recorded test status: all tests passing, `47 passed`.
+- Current recorded test status: all tests passing, `101 passed`.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Complete Persona Library Workflow.
+- Complete Persona Library lifecycle operations.
 - Define persona lifecycle management and import review workflow without weakening engine boundaries.
 - Expand confidence handling for knowledge evidence in a future step.
 - Add persistent memory storage in a future memory phase.
