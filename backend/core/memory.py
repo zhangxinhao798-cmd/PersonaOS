@@ -1,5 +1,7 @@
 """Memory Engine skeleton."""
 
+from backend.models.memory_record import MemoryRecord
+
 
 class MemoryEngine:
     """Manages experience-derived continuity for a digital mind.
@@ -9,5 +11,16 @@ class MemoryEngine:
     raw conversation history and external knowledge.
     """
 
-    pass
+    def __init__(self) -> None:
+        self._memories: list[MemoryRecord] = []
 
+    def create_memory(self, memory: MemoryRecord) -> MemoryRecord:
+        """Store a persistent memory and return it."""
+
+        self._memories.append(memory)
+        return memory
+
+    def get_memories(self) -> list[MemoryRecord]:
+        """Return all stored memories."""
+
+        return self._memories
