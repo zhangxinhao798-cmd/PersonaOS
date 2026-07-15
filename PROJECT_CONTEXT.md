@@ -70,7 +70,7 @@ backend/
     main.py
 ```
 
-`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`. Persona-Memory integration now allows persona memory preferences to influence memory priority without merging the engines. Knowledge Engine v1 manages structured source-backed knowledge records with deterministic retrieval.
+`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`. Persona-Memory integration now allows persona memory preferences to influence memory priority without merging the engines. Knowledge Engine v1 manages structured source-backed knowledge records with deterministic retrieval. Skill Engine v1 manages governed capability records.
 
 `backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and acts as the initial backend assembly point.
 
@@ -83,7 +83,7 @@ The current engines are:
 - Persona Engine: Coordinates identity traits through a profile-backed foundation and exposes memory preferences.
 - Memory Engine: Manages experience-derived continuity. Memory Layer v1 is complete with in-memory creation, retrieval filtering, update, forgetting, lifecycle state support, keyword retrieval, and persona-aware priority calculation.
 - Knowledge Engine: Manages structured source-backed reference information through Knowledge Engine v1.
-- Skill Engine: Intended to manage governed capabilities available to a digital mind.
+- Skill Engine: Manages governed capability records through Skill Engine v1.
 - Confidence Engine: Evaluates memory confidence with deterministic source, evidence, confirmation, and uncertainty signals.
 - Evolution Engine: Intended to govern controlled long-term change.
 
@@ -91,7 +91,7 @@ The architecture documentation also describes a future Context Engine. No `Conte
 
 ## 4. Current Implementation Status
 
-PersonaOS is currently an early architectural foundation with Memory Layer v1 complete, Persona system foundation in place, the first Persona-Memory integration layer complete, Confidence Engine v1 complete, and Knowledge Engine v1 complete.
+PersonaOS is currently an early architectural foundation with Memory Layer v1 complete, Persona system foundation in place, the first Persona-Memory integration layer complete, Confidence Engine v1 complete, Knowledge Engine v1 complete, and Skill Engine v1 complete.
 
 Completed so far:
 
@@ -127,6 +127,12 @@ Completed so far:
 - `KnowledgeEngine.retrieve_knowledge()`.
 - `KnowledgeEngine.update_knowledge()`.
 - Deterministic keyword-based knowledge retrieval.
+- Skill Engine v1 implementation in `backend/core/skill.py`.
+- `SkillRecord` for governed PersonaOS capabilities.
+- `SkillEngine.create_skill()`.
+- `SkillEngine.get_skills()`.
+- `SkillEngine.update_skill()`.
+- `SkillEngine.remove_skill()`.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -139,6 +145,7 @@ Completed so far:
 - Persona-Memory integration tests in `tests/test_persona_memory_integration.py`.
 - ConfidenceEngine tests in `tests/test_confidence.py`.
 - KnowledgeEngine tests in `tests/test_knowledge.py`.
+- SkillEngine tests in `tests/test_skill.py`.
 
 Current verification status:
 
@@ -153,7 +160,8 @@ Current verification status:
 - `tests/test_persona_memory_integration.py` verifies persona memory preferences, active persona access from MemoryEngine, base priority calculation, and persona-influenced memory priority.
 - `tests/test_confidence.py` verifies initial confidence calculation, confidence increase with positive evidence, confidence decrease with negative evidence, and 0-1 range clamping.
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
-- Current recorded test status: all tests passing, `39 passed`.
+- `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
+- Current recorded test status: all tests passing, `43 passed`.
 
 Current implementation limits:
 
@@ -162,7 +170,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
-- Skill and Evolution engines are placeholders.
+- Evolution Engine is still a placeholder.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
@@ -221,7 +229,9 @@ Persona-Memory integration now allows persona traits to influence deterministic 
 
 Skills are modular capabilities.
 
-The Skill Engine is intended to manage what a digital mind can do, not who it is. Skills may represent tools, workflows, external integrations, local actions, domain routines, or multi-step procedures.
+The Skill Engine manages what a digital mind can do, not who it is. Skills may represent tools, workflows, external integrations, local actions, domain routines, or multi-step procedures.
+
+Skill Engine v1 is complete. The current implementation includes `SkillRecord` with `name`, `description`, `category`, `confidence`, and `metadata`, and supports `create_skill()`, `get_skills()`, `update_skill()`, and `remove_skill()`. Skills remain in-memory only, and execution, permission enforcement, and evaluation are future work.
 
 Future skill direction includes:
 
@@ -346,9 +356,10 @@ Current status: Memory Layer v1 complete.
 
 ### Phase 4: Skill System
 
-- Current status: next implementation phase.
-- Define skill descriptors.
-- Add skill loading and registration.
+- Current status: Skill Engine v1 complete.
+- `SkillRecord` exists.
+- `SkillEngine` supports create, get, update, and remove operations.
+- Future work should add skill loading and registration.
 - Add permission and governance metadata.
 - Explore a skill marketplace or registry concept.
 - Connect skills with personas and context.
@@ -365,6 +376,7 @@ Current status: Memory Layer v1 complete.
 
 ### Phase 6: Evolution And Self-Improvement
 
+- Current status: next implementation phase.
 - Define evolution proposals.
 - Add versioning and traceability.
 - Add approval workflows for durable changes.
@@ -393,10 +405,10 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Begin Skill Engine v1.
-- Define skill descriptors and metadata.
-- Add basic skill registration and selection boundaries.
+- Begin Evolution Engine v1.
+- Define evolution proposal records and metadata.
+- Add basic proposal creation, approval, versioning, and rollback boundaries.
 - Plan later integration between knowledge evidence and Confidence Engine evaluation.
 - Keep ConfidenceEngine focused on evaluation rather than storage.
 
-The project is currently moving from Memory, Persona, Confidence, and Knowledge foundations into Skill Engine v1. The best next work is small, well-tested backend progress that adds governed capabilities without blurring persona, memory, knowledge, or confidence responsibilities.
+The project is currently moving from Memory, Persona, Confidence, Knowledge, and Skill foundations into Evolution Engine v1. The best next work is small, well-tested backend progress that adds controlled change management without blurring persona, memory, knowledge, skill, or confidence responsibilities.
