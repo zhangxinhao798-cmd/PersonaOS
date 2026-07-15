@@ -9,7 +9,7 @@ from backend.models.persona_library import PersonaSource
 
 
 def make_entry(persona_id: str, name: str) -> PersonaLibraryEntry:
-    return PersonaLibraryEntry(
+    entry = PersonaLibraryEntry(
         id=persona_id,
         name=name,
         description=f"{name} selector test entry.",
@@ -25,6 +25,8 @@ def make_entry(persona_id: str, name: str) -> PersonaLibraryEntry:
             examples=["Select a library entry before activation."],
         ),
     )
+    entry.approve(reviewer="test-reviewer", notes="Approved for selection.")
+    return entry
 
 
 def test_select_existing_persona() -> None:
@@ -52,6 +54,20 @@ def test_selecting_unknown_persona_returns_none() -> None:
     selector = PersonaSelector(library)
 
     selected = selector.select("missing")
+
+    assert selected is None
+    assert selector.get_current() is None
+
+
+def test_rejected_persona_cannot_be_selected() -> None:
+    library = PersonaLibraryEngine()
+    entry = PersonaLibraryEntry(id="architect", name="Architect")
+    entry.submit_for_review(reviewer="test-reviewer")
+    entry.reject(reviewer="test-reviewer", notes="Blocked from selection.")
+    library.add_persona(entry)
+    selector = PersonaSelector(library)
+
+    selected = selector.select("architect")
 
     assert selected is None
     assert selector.get_current() is None

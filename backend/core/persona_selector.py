@@ -21,6 +21,8 @@ class PersonaSelector:
         persona = self._persona_library.get_persona(persona_id)
         if persona is None:
             return None
+        if not persona.is_selectable():
+            return None
 
         self._current = persona
         return persona
