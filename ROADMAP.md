@@ -44,9 +44,35 @@ Completed or in progress:
 
 This phase remains active while the project fills in core models and keeps documentation aligned with implementation.
 
-## Phase 2: Memory System
+## Integration Phase
 
 Status: Current
+
+This phase connects the completed v1 engines through explicit orchestration flows while preserving engine boundaries.
+
+Completed:
+
+- Integration Phase Step 1.
+- Context boundary layer.
+- PersonaOS Orchestrator v1.
+- ContextBuilder.
+- Integration tests.
+- Confidence orchestration correction so confidence preparation belongs to the Confidence Engine.
+
+### Step 2: Persona + Memory Fusion
+
+The next integration step is to make Persona influence how Memory is retrieved, interpreted, and prioritized.
+
+Goals:
+
+- Add persona-aware memory retrieval.
+- Weight memory relevance by persona traits.
+- Support different persona interpretations of the same memory.
+- Preserve separation between PersonaEngine and MemoryEngine.
+
+## Phase 2: Memory System
+
+Status: Memory Layer v1 complete
 
 The current MemoryEngine stores `MemoryRecord` objects in a simple in-memory list. The next stage is to grow this into a structured memory system while keeping behavior small, testable, and modular.
 
@@ -166,4 +192,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is improving MemoryEngine from a simple in-memory list into a structured memory system.
+The immediate next focus is Integration Phase Step 2: Persona + Memory Fusion.
