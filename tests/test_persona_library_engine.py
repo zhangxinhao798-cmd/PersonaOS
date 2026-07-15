@@ -4,8 +4,8 @@ from backend.core import PersonaLibraryEngine
 from backend.models import (
     PersonaKnowledge,
     PersonaLibraryEntry,
-    PersonaSource,
 )
+from backend.models.persona_library import PersonaSource
 
 
 def make_entry(persona_id: str, name: str) -> PersonaLibraryEntry:

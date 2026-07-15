@@ -3,8 +3,8 @@
 from backend.models import (
     PersonaKnowledge,
     PersonaLibraryEntry,
-    PersonaSource,
 )
+from backend.models.persona_library import PersonaSource
 
 
 def test_persona_source_creation() -> None:

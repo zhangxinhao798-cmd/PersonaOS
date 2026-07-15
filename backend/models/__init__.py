@@ -4,5 +4,8 @@ from backend.models.fusion import FusionContext
 from backend.models.persona_library import (
     PersonaKnowledge,
     PersonaLibraryEntry,
-    PersonaSource,
+    PersonaSource as PersonaLibrarySource,
 )
+from backend.models.persona_import import PersonaImportResult
+from backend.models.persona_profile import PersonaProfile
+from backend.models.persona_source import PersonaSource
