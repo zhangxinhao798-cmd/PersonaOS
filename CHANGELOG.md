@@ -106,6 +106,10 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Synchronized project status around Persona Library Workflow as the current phase after Persona Import Pipeline and Persona Versioning completion.
 - Added `PersonaLibraryEntry` as the lifecycle owner for persona library records.
 - Connected `PersonaLibraryEntry` to `PersonaProfile`, `PersonaVersion` records, source references, lifecycle state, and the current version reference.
+- Added Persona Library lifecycle management with draft, reviewing, approved, and archived states.
+- Added Persona Review workflow for review submission, approval, and rejection.
+- Added Persona Activation workflow for approved personas with valid current version references.
+- Added integration verification coverage for the PersonaSource to activated PersonaSelector lifecycle.
 
 ### Design Decisions
 
@@ -140,6 +144,12 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - `PersonaLibraryEntry` owns mutable library lifecycle state.
 - `PersonaVersion` remains the immutable historical snapshot boundary for persona profile history.
 - Persona Library Workflow progress does not change PersonaEngine, add LLM/Ollama integration, add persistence, or change runtime orchestration.
+- `PersonaActivationManager` controls activation availability without mutating PersonaEngine or PersonaVersion snapshots.
+- `PersonaSelector` selects only approved, active persona entries with valid current version references.
+- Persona data remains independent from LLM/model provider state.
+- Runtime Intelligence should begin with replaceable LLM adapter and provider abstraction boundaries.
+- Documented future Expression Layer direction including voice, speech style, TTS, and multimodal interface possibilities.
+- Expression capabilities remain future architectural directions only.
 
 ### Current Status
 
@@ -196,14 +206,17 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Persona Import Pipeline boundaries are complete.
 - Persona Versioning data boundary is complete.
 - PersonaLibraryEntry model boundary is complete.
-- Current phase is Persona Library Workflow.
-- Current recorded test status: all tests passing, `101 passed`.
+- Persona Library lifecycle foundation is complete, including review, activation, and integration verification.
+- Current phase is Runtime Intelligence preparation.
+- Current recorded verification status: 120 test functions discovered with fallback verification passing.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Complete Persona Library lifecycle operations.
-- Define persona lifecycle management and import review workflow without weakening engine boundaries.
+- Prepare Runtime Intelligence boundaries.
+- Define an LLM adapter boundary without weakening engine boundaries.
+- Add a model configuration layer and provider abstraction.
+- Plan runtime context assembly from existing PersonaOS context outputs.
 - Expand confidence handling for knowledge evidence in a future step.
 - Add persistent memory storage in a future memory phase.
 - Expand Evolution Engine versioning and rollback in a future phase.

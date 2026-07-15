@@ -111,16 +111,45 @@ The current Persona layer now supports structured import and version snapshots t
 ```text
 PersonaSource
     -> PersonaImporter
+    -> PersonaImportResult
     -> PersonaProfileBuilder
     -> PersonaProfile
     -> PersonaVersion
     -> PersonaLibraryEntry
+    -> PersonaReview
+    -> PersonaActivation
     -> PersonaLibrary
 ```
 
 This flow defines how external persona information can be represented, deterministically converted into import results, transformed into profile structure, captured as version snapshots, and prepared for library management. It does not yet imply persistence, runtime activation, LLM integration, or automatic persona modification.
 
-The current Persona Library architecture now includes `PersonaLibraryEntry` as the lifecycle owner for persona library records. A library entry connects persona identity, lifecycle state, the current version reference, the linked `PersonaProfile`, linked `PersonaVersion` records, and source references. `PersonaLibraryEntry` owns mutable library lifecycle state, while `PersonaVersion` remains the immutable historical snapshot boundary.
+The current Persona Library architecture now includes lifecycle, review, and activation boundaries. `PersonaLibraryEntry` is the lifecycle owner for persona library records. A library entry connects persona identity, lifecycle state, review status, activation history, the current version reference, the linked `PersonaProfile`, linked `PersonaVersion` records, and source references. `PersonaVersion` remains the immutable historical snapshot boundary.
+
+Current Persona Library responsibility boundaries:
+
+- `PersonaLibraryEntry` owns mutable library lifecycle state, review availability, activation records, current version reference, source references, and selectability checks.
+- `PersonaVersion` preserves immutable persona profile snapshots and source tracking for historical traceability.
+- `PersonaActivationManager` activates only approved personas with a valid current version reference and preserves activation history by marking activations inactive instead of deleting them.
+- `PersonaSelector` performs runtime selection only after the library entry reports that it is approved, active, and backed by a valid version reference.
+
+The current implemented Persona flow is:
+
+```text
+PersonaSource
+    -> PersonaImporter
+    -> PersonaImportResult
+    -> PersonaProfileBuilder
+    -> PersonaProfile
+    -> PersonaVersion
+    -> PersonaLibraryEntry
+    -> PersonaReview
+    -> PersonaActivation
+    -> PersonaSelector
+```
+
+This flow remains local, deterministic, and model-provider independent. Persona data remains separate from runtime model calls and no LLM, Ollama, persistence, or frontend behavior has been introduced.
+
+Future PersonaOS directions may include an Expression Layer responsible for how a digital mind communicates its identity. This may include voice characteristics, speech style, TTS integration, and multimodal interfaces. Expression should remain separate from Persona identity storage, Memory, Knowledge, Skills, Confidence, Evolution, and model providers.
 
 ## 4. Current Implementation Status
 
@@ -191,6 +220,10 @@ Completed so far:
 - Persona version snapshots now support profile snapshots and source tracking.
 - Persona Library Workflow started through the `PersonaLibraryEntry` model boundary.
 - `PersonaLibraryEntry` connects `PersonaProfile`, `PersonaVersion` records, source references, lifecycle state, and the current version reference.
+- Persona Library lifecycle management completed through `PersonaLibraryEntry`.
+- Persona review workflow completed through review submission, approval, and rejection boundaries.
+- Persona activation workflow completed through `PersonaActivationManager`.
+- Persona selection now requires an approved, active persona with a valid current version reference.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -231,11 +264,13 @@ Current verification status:
 - `tests/test_persona_profile_builder.py` verifies import-result to profile transformation.
 - `tests/test_persona_version.py` verifies persona version snapshots and source tracking.
 - `tests/test_persona_library_entry.py` verifies PersonaLibraryEntry initialization, lifecycle state defaults, and current version reference storage.
+- `tests/test_persona_activation.py` verifies activation rules, inactive behavior, valid version requirements, and immutable version snapshots.
+- `tests/test_persona_library_lifecycle_integration.py` verifies the PersonaSource to activated PersonaSelector lifecycle flow.
 - `tests/test_confidence.py` verifies initial confidence calculation, confidence increase with positive evidence, confidence decrease with negative evidence, and 0-1 range clamping.
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
 - `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
-- Current recorded test status: all tests passing, `101 passed`.
+- Current recorded test status: 120 test functions discovered with fallback verification passing.
 
 Current implementation limits:
 
@@ -244,7 +279,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, and library entry boundaries exist, but Persona Library lifecycle operations, import review workflow, persistence, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, and activation boundaries exist, but persistence, Runtime Intelligence, LLM adapter integration, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
@@ -300,7 +335,7 @@ Different personas may eventually load different skills. For example, one person
 
 Personality consistency is a central goal. PersonaOS should preserve stable identity over time while allowing controlled refinement. The Evolution Engine should help prevent personality drift by ensuring that durable persona changes are explicit, justified, and traceable.
 
-Persona-Memory integration now allows persona traits to influence deterministic memory priority. Integration Phase Step 2 adds `PersonaMemoryFusion`, which produces persona-aware interpretations of retrieved memories without changing raw memories or merging PersonaEngine and MemoryEngine. The Persona layer now also includes structured import, version snapshot, and library entry boundaries from `PersonaSource` through `PersonaLibraryEntry`. Future design should expand this into Persona Library lifecycle operations, import review, memory importance, confidence evaluation, and retrieval preference without collapsing persona and memory into the same system.
+Persona-Memory integration now allows persona traits to influence deterministic memory priority. Integration Phase Step 2 adds `PersonaMemoryFusion`, which produces persona-aware interpretations of retrieved memories without changing raw memories or merging PersonaEngine and MemoryEngine. The Persona layer now also includes structured import, version snapshot, library lifecycle, review, and activation boundaries from `PersonaSource` through `PersonaSelector`. Future design should expand this into Runtime Intelligence preparation, memory importance, confidence evaluation, and retrieval preference without collapsing persona and memory into the same system.
 
 ## 7. Skill System
 
@@ -431,7 +466,8 @@ Current status: Memory Layer v1 complete.
 - Persona Import Pipeline boundaries exist.
 - Persona Versioning boundary exists.
 - PersonaLibraryEntry model boundary exists.
-- Next work should complete Persona Library Workflow.
+- Persona Library lifecycle, review, activation, and integration verification coverage exist.
+- Next work should prepare Runtime Intelligence boundaries.
 - Add persona profiles.
 - Support multiple personas.
 - Connect personas to memory scopes, skill permissions, and operating constraints.
@@ -489,10 +525,10 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Complete Persona Library Workflow.
-- Define persona lifecycle management and import review boundaries.
-- Add cross-engine tests for PersonaOS runtime behavior.
-- Plan later integration between knowledge evidence and Confidence Engine evaluation.
-- Keep ConfidenceEngine focused on evaluation rather than storage.
+- Prepare Runtime Intelligence boundaries.
+- Introduce an LLM adapter boundary without binding PersonaOS to one provider.
+- Add model configuration and provider abstraction layers.
+- Plan runtime context assembly from persona, memory, knowledge, confidence, and fusion outputs.
+- Keep persona data independent from LLM/model provider state.
 
-The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, and PersonaLibraryEntry model boundary. The best next work is small, well-tested backend progress on Persona Library lifecycle operations while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, and evolution responsibilities.
+The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, and Persona Library lifecycle foundation. The best next work is small, well-tested backend progress on Runtime Intelligence preparation while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, and model-provider responsibilities.

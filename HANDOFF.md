@@ -18,6 +18,7 @@ Integration Phase Step 2 is complete.
 Persona Import Pipeline boundaries are complete.
 Persona Versioning data boundary is complete.
 PersonaLibraryEntry model boundary is complete.
+Persona Library lifecycle and activation foundation is complete.
 
 Current completed integration state:
 
@@ -38,6 +39,10 @@ Current completed integration state:
 - `PersonaVersion` added for profile snapshots and source tracking.
 - `PersonaLibraryEntry` added as the lifecycle owner for persona library records.
 - `PersonaLibraryEntry` connects `PersonaProfile`, `PersonaVersion` records, source references, lifecycle state, and the current version reference.
+- Persona Library lifecycle states added: draft, reviewing, approved, and archived.
+- Persona review workflow added for submission, approval, and rejection.
+- `PersonaActivationManager` added for approved persona activation with valid version references.
+- Persona selection now requires an approved, active persona with a valid current version reference.
 
 
 ## Architecture Rules
@@ -57,25 +62,25 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded full-suite status is 101 tests passing.
+Latest recorded verification status is 120 test functions discovered with fallback verification passing.
 
 Integration tests have been added for PersonaOS initialization, context processing, confidence boundary ownership, empty context handling, and orchestration flow.
 
 Fusion tests have been added for `FusionContext`, `PersonaMemoryFusion`, persona-specific interpretations, relevance scoring, PersonaOS fusion integration, and raw memory preservation.
 
-Persona Import Pipeline tests cover persona sources, import results, deterministic importer behavior, and profile building. Persona Versioning tests cover profile snapshots, source ID tracking, and empty defaults. PersonaLibraryEntry tests cover initialization, lifecycle state defaults, and current version reference storage.
+Persona Import Pipeline tests cover persona sources, import results, deterministic importer behavior, and profile building. Persona Versioning tests cover profile snapshots, source ID tracking, and empty defaults. PersonaLibraryEntry tests cover initialization, lifecycle state defaults, and current version reference storage. Persona Library lifecycle tests now cover review, activation, selection availability, and the end-to-end source-to-activation flow.
 
 Codex environment note: during recent Integration Phase work, `pytest` was unavailable in the active local Python environment. Fallback verification used `python -m compileall backend tests` and direct integration smoke checks.
 
 
 ## Current Phase
 
-Persona Library Workflow.
+Persona Library lifecycle and activation completed.
 
 
 ## Next Goal
 
-Complete Persona Library Workflow.
+Runtime Intelligence preparation.
 
 Integration Phase Step 1 completed:
 
@@ -111,13 +116,29 @@ Persona Library Workflow progress:
 
 1. Added `PersonaLibraryEntry` as the mutable lifecycle owner for library records.
 2. Connected persona identity, `PersonaProfile`, `PersonaVersion` records, source references, lifecycle state, and current version reference.
-3. Preserved PersonaEngine, runtime orchestration, LLM/Ollama, and persistence boundaries.
+3. Added lifecycle states: draft, reviewing, approved, and archived.
+4. Added review submission, approval, and rejection.
+5. Added activation only for approved personas with valid version references.
+6. Added integration verification for the full PersonaSource to activated PersonaSelector flow.
+7. Preserved PersonaEngine, runtime orchestration, LLM/Ollama, and persistence boundaries.
 
 ## Next Recommended Phase
 
-Persona Library Workflow.
+Runtime Intelligence preparation.
 
-The next work should define PersonaLibrary lifecycle operations and import review workflow while keeping PersonaEngine, MemoryEngine, PersonaSelector, PersonaImporter, and PersonaMemoryFusion separate.
+The next work should introduce an LLM adapter boundary, model configuration layer, provider abstraction, and runtime context assembly preparation. Model providers should remain replaceable, and persona data must remain independent from LLM/provider state.
+
+## Future Considerations
+
+Future extension:
+
+- Expression Layer
+- Voice Layer
+- Speech Style Modeling
+- TTS Integration
+- Multimodal Persona Interface
+
+These are long-term expression and interface extensions. They are not part of Runtime Intelligence implementation and should not be treated as current backend work.
 
 
 ## Important Constraints

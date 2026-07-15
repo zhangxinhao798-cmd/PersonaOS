@@ -78,6 +78,15 @@ Completed:
   - [x] lifecycle state boundary on library records
   - [x] current version reference boundary
   - [x] profile, version, and source reference linkage
+  - [x] Persona Library lifecycle management
+  - [x] Persona review workflow
+  - [x] Persona activation workflow
+  - [x] Persona Library lifecycle integration verification
+- Runtime Intelligence Phase preparation:
+  - [ ] LLM Adapter boundary
+  - [ ] model configuration layer
+  - [ ] provider abstraction
+  - [ ] runtime context assembly
 
 ### Step 2: Persona + Memory Fusion
 
@@ -91,9 +100,9 @@ Completed:
 - Added fusion results to PersonaOS context output.
 - Preserve separation between PersonaEngine and MemoryEngine.
 
-### Current Phase: Persona Library Workflow
+### Completed Phase: Persona Library Workflow
 
-The current integration priority is to complete Persona Library workflow now that persona import and versioning boundaries exist.
+Persona Library workflow is complete at the lifecycle foundation level now that persona import and versioning boundaries exist.
 
 Goals:
 
@@ -107,18 +116,23 @@ Progress:
 
 - Added `PersonaLibraryEntry` as the lifecycle owner for persona library records.
 - Connected `PersonaProfile`, `PersonaVersion` records, source references, lifecycle state, and current version reference.
+- Added lifecycle states for draft, reviewing, approved, and archived records.
+- Added review submission, approval, and rejection workflow.
+- Added activation workflow for approved personas with valid current version references.
+- Added end-to-end integration verification for the import-to-activation lifecycle.
 - Preserved PersonaEngine, LLM/Ollama, persistence, and runtime orchestration boundaries.
 
 Current focus:
 
-- Complete Persona Library lifecycle operations.
+- Runtime Intelligence Phase preparation.
 
 Next steps:
 
-1. PersonaLibrary lifecycle management
-2. Persona import review workflow
-3. Persona runtime preparation
-4. LLM Adapter boundary (Qwen3/Ollama)
+1. LLM Adapter boundary
+2. Model configuration layer
+3. Provider abstraction
+4. Runtime context assembly
+5. Keep persona data independent from model providers
 
 ## Phase 2: Memory System
 
@@ -223,6 +237,34 @@ Goals:
 
 Evolution should be deliberate, traceable, and reversible where possible. Durable changes should not happen as accidental side effects of ordinary interaction.
 
+## Future Extensions: Expression Layer
+
+PersonaOS should eventually support expression capabilities that allow a digital mind to communicate its identity through multiple modalities.
+
+Possible future directions:
+
+- Voice Layer
+  - Give personas distinct voice characteristics.
+  - Keep voice identity separate from persona core data.
+
+- Speech Style Modeling
+  - Model vocabulary preferences, sentence patterns, tone, and communication habits.
+  - Preserve separation between personality identity and generated output style.
+
+- Persona Expression Layer
+  - Provide a dedicated layer for expressing persona traits through language, voice, and interaction style.
+  - Avoid mixing expression behavior with memory, knowledge, or identity storage.
+
+- TTS Integration
+  - Support replaceable text-to-speech providers.
+  - Keep audio generation independent from persona architecture.
+
+- Multimodal Persona Interface
+  - Support future visual, audio, and interactive interfaces.
+  - Maintain the same architecture boundaries across different interfaces.
+
+These capabilities belong to future expression and interface layers. They should be built after Runtime Intelligence and core architecture stabilization.
+
 ## Long-Term Vision
 
 Future directions may include:
@@ -242,4 +284,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is to complete Persona Library workflow.
+The immediate next focus is Runtime Intelligence Phase preparation.
