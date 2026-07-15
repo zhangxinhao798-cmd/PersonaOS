@@ -53,6 +53,10 @@ Each development day should have a section:
 - Added `SkillRecord` with name, description, category, confidence, and metadata.
 - Added `SkillEngine` support for create, get, update, and remove operations.
 - Added Skill Engine tests.
+- Implemented Evolution Engine v1.
+- Added `EvolutionRecord` with target, change, reason, confidence, and timestamp.
+- Added `EvolutionEngine` support for propose, get, and apply operations.
+- Added Evolution Engine tests.
 - Updated project handoff/status documents to record Memory Layer v1 completion.
 - Established Memory and Persona as connected foundations.
 
@@ -66,10 +70,12 @@ Each development day should have a section:
 - `backend/core/confidence.py`
 - `backend/core/knowledge.py`
 - `backend/core/skill.py`
+- `backend/core/evolution.py`
 - `tests/test_persona_memory_integration.py`
 - `tests/test_confidence.py`
 - `tests/test_knowledge.py`
 - `tests/test_skill.py`
+- `tests/test_evolution.py`
 - `tests/test_memory_retrieval.py`
 - `tests/test_memory_update.py`
 - `tests/test_memory_forget.py`
@@ -81,12 +87,13 @@ Each development day should have a section:
 - `CHANGELOG.md`
 
 ### Tests
-- Test suite result recorded: `43 passed`.
+- Test suite result recorded: `47 passed`.
 - Memory behavior covered by tests for creation, retrieval filtering, update, forgetting, keyword retrieval, and PersonaOS memory retrieval integration.
 - Persona behavior covered by tests for default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
 - Confidence behavior covered by tests for initial calculation, positive evidence, negative evidence, and 0-1 range clamping.
 - Knowledge behavior covered by tests for creation, deterministic keyword retrieval, update, and unrelated-record exclusion.
 - Skill behavior covered by tests for creation, retrieval, update, and removal.
+- Evolution behavior covered by tests for proposal creation, retrieval, application, and history preservation.
 
 ### Design Decisions
 - Memory forgetting changes lifecycle state to `MemoryState.FORGOTTEN` instead of deleting the memory object.
@@ -104,6 +111,8 @@ Each development day should have a section:
 - Knowledge retrieval v1 uses deterministic keyword matching before introducing indexing, semantic retrieval, or external APIs.
 - SkillEngine owns skill records only and keeps capabilities separate from persona identity.
 - Skill Engine v1 remains in-memory only; execution, permission enforcement, and evaluation are deferred.
+- Evolution proposals are explicit and controlled.
+- Evolution Engine v1 does not automatically modify Persona, Memory, or other engines.
 
 ### Problems / Notes
 - Memory lifecycle needed an explicit state model before update and forget behavior could be represented cleanly.
@@ -113,9 +122,10 @@ Each development day should have a section:
 - Confidence Engine v1 is complete as a deterministic memory confidence evaluator.
 - Knowledge Engine v1 is complete as a deterministic source-backed knowledge manager.
 - Skill Engine v1 is complete as a deterministic governed capability manager.
+- Evolution Engine v1 is complete as a deterministic controlled-change proposal manager.
 
 ### Next Session
-- Begin Evolution Engine v1.
-- Define evolution proposal records and metadata.
-- Add basic proposal creation, approval, versioning, and rollback boundaries.
+- Begin Integration Phase.
+- Connect core engines through explicit orchestration flows.
+- Add cross-engine tests for PersonaOS runtime behavior.
 - Plan later connection between knowledge evidence and Confidence Engine evaluation.

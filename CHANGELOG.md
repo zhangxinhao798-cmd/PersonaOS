@@ -73,6 +73,17 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added `SkillEngine.update_skill()`.
 - Added `SkillEngine.remove_skill()`.
 - Added Skill Engine tests for creation, retrieval, update, and removal.
+- Implemented Evolution Engine v1.
+- Added `EvolutionRecord` for controlled change proposals with:
+  - `target`
+  - `change`
+  - `reason`
+  - `confidence`
+  - `timestamp`
+- Added `EvolutionEngine.propose_evolution()`.
+- Added `EvolutionEngine.get_evolutions()`.
+- Added `EvolutionEngine.apply_evolution()`.
+- Added Evolution Engine tests for proposal creation, retrieval, application, and history preservation.
 
 ### Design Decisions
 
@@ -98,13 +109,21 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Knowledge retrieval v1 uses deterministic keyword matching before indexing, semantic retrieval, or external sources are introduced.
 - SkillEngine owns skill records only and keeps capabilities separate from persona identity.
 - Skill Engine v1 uses in-memory storage while persistence, execution, permissions, and evaluation remain future work.
+- Evolution proposals are explicit and controlled.
+- Evolution Engine v1 does not automatically modify Persona, Memory, or other engines.
 
 ### Current Status
 
 - The project has a clear conceptual architecture documented in `docs/`.
 - The backend package exists and can initialize a `PersonaOS` runtime object.
 - Runtime startup prints engine readiness messages.
-- Core engine classes exist, with Memory, Persona, Confidence, Knowledge, and Skill now implemented at v1/foundation level.
+- All six core engines are now implemented at v1/foundation level:
+  - Persona Engine
+  - Memory Engine
+  - Confidence Engine
+  - Knowledge Engine
+  - Skill Engine
+  - Evolution Engine
 - `MemoryRecord` exists as the first concrete model.
 - `MemoryState` exists for lifecycle-aware memory records.
 - Memory Layer v1 is complete.
@@ -132,14 +151,19 @@ PersonaOS is currently in its early foundation stage. The project is architectur
   - `get_skills()`
   - `update_skill()`
   - `remove_skill()`
-- Current recorded test status: all tests passing, `43 passed`.
-- Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and evolution governance are not implemented yet.
+- Evolution Engine v1 is complete.
+- `EvolutionEngine` currently supports:
+  - `propose_evolution()`
+  - `get_evolutions()`
+  - `apply_evolution()`
+- Current recorded test status: all tests passing, `47 passed`.
+- Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Begin Evolution Engine v1.
-- Define evolution proposal records and metadata.
-- Add basic proposal creation, approval, versioning, and rollback boundaries.
+- Begin Integration Phase.
+- Connect core engines through explicit orchestration flows.
+- Add cross-engine tests for PersonaOS runtime behavior.
 - Connect Knowledge Engine outputs to Confidence Engine evaluation later.
 - Add persistent memory storage in a future memory phase.
-- Add Evolution Engine proposal and versioning models.
+- Expand Evolution Engine versioning and rollback in a future phase.

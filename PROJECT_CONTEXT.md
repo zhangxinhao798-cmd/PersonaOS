@@ -70,7 +70,7 @@ backend/
     main.py
 ```
 
-`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`. Persona-Memory integration now allows persona memory preferences to influence memory priority without merging the engines. Knowledge Engine v1 manages structured source-backed knowledge records with deterministic retrieval. Skill Engine v1 manages governed capability records.
+`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`. Persona-Memory integration now allows persona memory preferences to influence memory priority without merging the engines. Knowledge Engine v1 manages structured source-backed knowledge records with deterministic retrieval. Skill Engine v1 manages governed capability records. Evolution Engine v1 manages explicit controlled-change proposals without mutating other engines automatically.
 
 `backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and acts as the initial backend assembly point.
 
@@ -85,13 +85,13 @@ The current engines are:
 - Knowledge Engine: Manages structured source-backed reference information through Knowledge Engine v1.
 - Skill Engine: Manages governed capability records through Skill Engine v1.
 - Confidence Engine: Evaluates memory confidence with deterministic source, evidence, confirmation, and uncertainty signals.
-- Evolution Engine: Intended to govern controlled long-term change.
+- Evolution Engine: Manages explicit controlled-change proposals through Evolution Engine v1.
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
 ## 4. Current Implementation Status
 
-PersonaOS is currently an early architectural foundation with Memory Layer v1 complete, Persona system foundation in place, the first Persona-Memory integration layer complete, Confidence Engine v1 complete, Knowledge Engine v1 complete, and Skill Engine v1 complete.
+PersonaOS is currently an early architectural foundation with all six core engines complete at v1/foundation level: Persona Engine, Memory Engine, Confidence Engine, Knowledge Engine, Skill Engine, and Evolution Engine.
 
 Completed so far:
 
@@ -133,6 +133,11 @@ Completed so far:
 - `SkillEngine.get_skills()`.
 - `SkillEngine.update_skill()`.
 - `SkillEngine.remove_skill()`.
+- Evolution Engine v1 implementation in `backend/core/evolution.py`.
+- `EvolutionRecord` for controlled change proposals.
+- `EvolutionEngine.propose_evolution()`.
+- `EvolutionEngine.get_evolutions()`.
+- `EvolutionEngine.apply_evolution()`.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -146,6 +151,7 @@ Completed so far:
 - ConfidenceEngine tests in `tests/test_confidence.py`.
 - KnowledgeEngine tests in `tests/test_knowledge.py`.
 - SkillEngine tests in `tests/test_skill.py`.
+- EvolutionEngine tests in `tests/test_evolution.py`.
 
 Current verification status:
 
@@ -161,7 +167,8 @@ Current verification status:
 - `tests/test_confidence.py` verifies initial confidence calculation, confidence increase with positive evidence, confidence decrease with negative evidence, and 0-1 range clamping.
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
-- Current recorded test status: all tests passing, `43 passed`.
+- `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
+- Current recorded test status: all tests passing, `47 passed`.
 
 Current implementation limits:
 
@@ -170,7 +177,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
-- Evolution Engine is still a placeholder.
+- All six core engines now have v1/foundation implementations.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
@@ -303,7 +310,9 @@ Confidence is not just a probability score. It is broader reliability awareness.
 
 Evolution in PersonaOS means controlled long-term improvement.
 
-The Evolution Engine is intended to govern durable changes to persona, behavior, preferences, operating rules, skill usage, confidence policies, and other long-term patterns. Evolution should not happen automatically just because an interaction occurred.
+The Evolution Engine governs durable changes to persona, behavior, preferences, operating rules, skill usage, confidence policies, and other long-term patterns. Evolution should not happen automatically just because an interaction occurred.
+
+Evolution Engine v1 is complete. The current implementation includes `EvolutionRecord` with `target`, `change`, `reason`, `confidence`, and `timestamp`, and supports `propose_evolution()`, `get_evolutions()`, and `apply_evolution()`. Evolution proposals are explicit and controlled. Applying an evolution records the decision inside the Evolution Engine, but does not automatically modify Persona, Memory, or any other engine.
 
 Future evolution mechanisms should include:
 
@@ -376,9 +385,10 @@ Current status: Memory Layer v1 complete.
 
 ### Phase 6: Evolution And Self-Improvement
 
-- Current status: next implementation phase.
-- Define evolution proposals.
-- Add versioning and traceability.
+- Current status: Evolution Engine v1 complete.
+- `EvolutionRecord` exists.
+- `EvolutionEngine` supports propose, get, and apply operations.
+- Future work should add versioning and traceability.
 - Add approval workflows for durable changes.
 - Add rollback support.
 - Add drift detection and confidence-aware evolution thresholds.
@@ -405,10 +415,10 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Begin Evolution Engine v1.
-- Define evolution proposal records and metadata.
-- Add basic proposal creation, approval, versioning, and rollback boundaries.
+- Begin Integration Phase.
+- Connect core engines through explicit orchestration flows.
+- Add cross-engine tests for PersonaOS runtime behavior.
 - Plan later integration between knowledge evidence and Confidence Engine evaluation.
 - Keep ConfidenceEngine focused on evaluation rather than storage.
 
-The project is currently moving from Memory, Persona, Confidence, Knowledge, and Skill foundations into Evolution Engine v1. The best next work is small, well-tested backend progress that adds controlled change management without blurring persona, memory, knowledge, skill, or confidence responsibilities.
+The project is currently moving from six complete v1 core engines into the Integration Phase. The best next work is small, well-tested backend progress that connects engines through explicit orchestration without blurring persona, memory, knowledge, skill, confidence, or evolution responsibilities.
