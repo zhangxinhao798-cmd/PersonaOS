@@ -34,6 +34,18 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added the first basic `MemoryEngine` implementation with in-memory storage.
 - Added memory tests for creating and retrieving stored memories.
 - Added `PROJECT_CONTEXT.md` as a long-term handoff document for future developers and AI assistants.
+- Completed Memory Layer v1.
+- Added MemoryRecord lifecycle support.
+- Added `MemoryState` support for memory lifecycle states.
+- Added `MemoryEngine.update_memory()`.
+- Added `MemoryEngine.forget_memory()`.
+- Added MemoryEngine retrieval filtering through `retrieve_memory()`.
+- Added `MemoryRetriever` v1 for keyword-based memory retrieval.
+- Added PersonaOS memory retrieval integration test.
+- Expanded memory test coverage for retrieval, update, forgetting, and retriever behavior.
+- Added `PersonaProfile` as the persistent persona identity model.
+- Implemented the first profile-backed `PersonaEngine`.
+- Added PersonaEngine tests for default profile creation, trait storage, trait retrieval, profile access, and persona description.
 
 ### Design Decisions
 
@@ -47,6 +59,11 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Evolution is controlled growth, not automatic uncontrolled personality change.
 - The Python backend is prioritized before frontend work.
 - Current implementations are intentionally lightweight and incremental.
+- Memory Layer v1 uses in-memory storage intentionally; persistence is deferred to a future phase.
+- Memory forgetting marks records as forgotten instead of deleting objects.
+- Memory retrieval begins with simple keyword matching before semantic retrieval or vector search.
+- `PersonaProfile` is the source of truth for persona identity data; `PersonaEngine` manages behavior around that profile.
+- Persona traits should later influence memory importance, confidence evaluation, and retrieval preference.
 
 ### Current Status
 
@@ -55,18 +72,28 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Runtime startup prints engine readiness messages.
 - Core engine classes exist, but most are still placeholders.
 - `MemoryRecord` exists as the first concrete model.
-- `MemoryEngine` currently stores memories in an internal in-memory list.
-- Tests exist for runtime initialization and initial memory behavior.
-- Persistent storage, retrieval ranking, persona configuration, skill loading, knowledge indexing, confidence assessment, and evolution governance are not implemented yet.
+- `MemoryState` exists for lifecycle-aware memory records.
+- Memory Layer v1 is complete.
+- `MemoryEngine` currently supports:
+  - `create_memory()`
+  - `get_memories()`
+  - `retrieve_memory()`
+  - `update_memory()`
+  - `forget_memory()`
+- `MemoryRetriever` v1 is complete.
+- PersonaOS memory retrieval integration test is complete.
+- Persona system foundation is complete with `PersonaProfile`, `PersonaEngine`, and PersonaEngine tests.
+- Memory system and Persona system are now connected foundations.
+- Current recorded test status: all tests passing, `27 passed`.
+- Persistent storage, consolidation, advanced retrieval ranking, persona-memory influence, skill loading, knowledge indexing, confidence assessment, and evolution governance are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Expand `MemoryEngine` while keeping behavior simple and tested.
-- Add persistent memory storage.
-- Add memory retrieval by category, importance, confidence, source, and timestamp.
-- Add tests for memory filtering and persistence.
-- Create persona configuration models.
-- Connect personas with memory scopes and skill permissions.
+- Improve Persona-Memory interaction.
+- Use persona traits to influence memory importance.
+- Use persona traits to influence confidence evaluation.
+- Use persona traits to influence retrieval preference.
+- Add persistent memory storage in a future memory phase.
 - Begin defining the Skill Engine interface and skill descriptor model.
 - Add Knowledge Engine record models and retrieval boundaries.
 - Add Confidence Engine assessment models.

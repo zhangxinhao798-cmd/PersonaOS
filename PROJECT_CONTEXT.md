@@ -53,6 +53,7 @@ backend/
         __init__.py
         persona.py
         memory.py
+        retrieval.py
         knowledge.py
         skill.py
         confidence.py
@@ -63,22 +64,24 @@ backend/
     models/
         __init__.py
         schemas.py
+        persona_profile.py
         memory_record.py
+        memory_state.py
     main.py
 ```
 
-`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. Most are currently placeholders with responsibility docstrings, while `MemoryEngine` has the first minimal implementation.
+`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`.
 
 `backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and acts as the initial backend assembly point.
 
-`backend/models/` contains shared model definitions. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the first concrete lightweight model, `MemoryRecord`.
+`backend/models/` contains shared model definitions. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
 
 `backend/main.py` contains the backend entry point. It provides `create_app()` and prints a minimal startup log when run with `python -m backend.main`.
 
 The current engines are:
 
-- Persona Engine: Intended to coordinate identity, behavior, and the active operating frame.
-- Memory Engine: Manages experience-derived continuity. Currently implemented as a simple in-memory list.
+- Persona Engine: Coordinates identity traits through a profile-backed foundation.
+- Memory Engine: Manages experience-derived continuity. Memory Layer v1 is complete with in-memory creation, retrieval filtering, update, forgetting, lifecycle state support, and keyword retrieval.
 - Knowledge Engine: Intended to manage source-backed reference information.
 - Skill Engine: Intended to manage governed capabilities available to a digital mind.
 - Confidence Engine: Intended to evaluate reliability awareness, uncertainty, and risk.
@@ -88,7 +91,7 @@ The architecture documentation also describes a future Context Engine. No `Conte
 
 ## 4. Current Implementation Status
 
-PersonaOS is currently an early architectural foundation.
+PersonaOS is currently an early architectural foundation with Memory Layer v1 complete and Persona system foundation in place.
 
 Completed so far:
 
@@ -106,23 +109,41 @@ Completed so far:
   - `Evolution Engine: OK`
   - `PersonaOS Ready.`
 - Lightweight `MemoryRecord` model in `backend/models/memory_record.py`.
-- First simple `MemoryEngine` implementation in `backend/core/memory.py`.
+- `MemoryState` lifecycle enum in `backend/models/memory_state.py`.
+- MemoryRecord lifecycle support through the `state` field.
+- Memory Layer v1 implementation in `backend/core/memory.py`.
+- `MemoryRetriever` v1 keyword retrieval engine in `backend/core/retrieval.py`.
+- `PersonaProfile` model in `backend/models/persona_profile.py`.
+- Profile-backed `PersonaEngine` implementation in `backend/core/persona.py`.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
+- Memory retrieval tests in `tests/test_memory_retrieval.py`.
+- Memory update tests in `tests/test_memory_update.py`.
+- Memory forgetting tests in `tests/test_memory_forget.py`.
+- MemoryRetriever tests in `tests/test_retrieval.py`.
+- PersonaOS memory retrieval integration test in `tests/test_persona_memory.py`.
+- PersonaEngine tests in `tests/test_persona.py`.
 
 Current verification status:
 
 - `tests/test_runtime.py` verifies that `create_app()` returns a `PersonaOS` instance with Persona, Memory, Knowledge, Skill, Confidence, and Evolution engines initialized.
 - `tests/test_memory.py` verifies that `MemoryEngine.create_memory()` stores and returns a memory, and that `get_memories()` returns stored memories.
-- Earlier work noted that `pytest` was not installed in one environment. The repository now has `pytest.ini`, and the tests are written in pytest style. Future agents should run the test suite in the active environment before and after changes.
+- `tests/test_memory_retrieval.py` verifies MemoryEngine retrieval filtering.
+- `tests/test_memory_update.py` verifies MemoryEngine lifecycle field updates.
+- `tests/test_memory_forget.py` verifies forgotten memory state behavior without deletion.
+- `tests/test_retrieval.py` verifies MemoryRetriever relevance, limits, and irrelevant-memory exclusion.
+- `tests/test_persona_memory.py` verifies PersonaOS memory retrieval integration.
+- `tests/test_persona.py` verifies default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
+- Current recorded test status: all tests passing, `27 passed`.
 
 Current implementation limits:
 
 - Memory storage is in-memory only.
 - There is no persistence layer yet.
-- There is no retrieval ranking, filtering, update, consolidation, or forgetting logic yet.
-- Persona, Knowledge, Skill, Confidence, and Evolution engines are placeholders.
+- Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
+- Persona traits exist in v1 form, but persona-memory influence is not implemented yet.
+- Knowledge, Skill, Confidence, and Evolution engines are placeholders.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
@@ -155,12 +176,17 @@ The current concrete `MemoryRecord` model contains:
 - `importance`: A signal for how much the memory should matter if relevant.
 - `source`: Where the memory came from.
 - `timestamp`: When the memory was created or recorded.
+- `state`: The memory lifecycle state, defaulting to `MemoryState.NEW`.
 
 Importance and confidence are intentionally separate. A memory can be important but uncertain, or reliable but minor.
+
+Memory Layer v1 is complete. The current implementation supports `create_memory()`, `get_memories()`, `retrieve_memory()`, `update_memory()`, and `forget_memory()`. `MemoryRetriever` v1 adds keyword-based retrieval over memory content and category, weighted by confidence and importance.
 
 ## 6. Persona System
 
 The Persona system is intended to make identity explicit.
+
+The current foundation includes `PersonaProfile` and `PersonaEngine`. `PersonaProfile` stores persistent identity data, including name, traits, values, style, and boundaries. `PersonaEngine` manages behavior around the active profile, including trait updates, trait lookup, profile access, and readable persona description.
 
 Future goals include supporting multiple personalities or personas within a shared PersonaOS environment. Each persona should be able to have its own identity, preferences, behavioral rules, boundaries, memory scope, knowledge access, and skill permissions.
 
@@ -169,6 +195,8 @@ Persona configuration will likely become a first-class part of the backend. A pe
 Different personas may eventually load different skills. For example, one persona may be configured for software engineering workflows while another may be configured for writing, research, or operations. Skill access should remain governed and separate from identity.
 
 Personality consistency is a central goal. PersonaOS should preserve stable identity over time while allowing controlled refinement. The Evolution Engine should help prevent personality drift by ensuring that durable persona changes are explicit, justified, and traceable.
+
+Future persona-memory design should allow persona traits to influence memory importance, confidence evaluation, and retrieval preference without collapsing persona and memory into the same system.
 
 ## 7. Skill System
 
@@ -257,19 +285,27 @@ Evolution is especially important for preventing uncontrolled personality change
 - Preserve modular engine boundaries.
 - Keep documentation aligned with code.
 
-Current status: partially complete. The backend skeleton, runtime initialization, `MemoryRecord`, basic `MemoryEngine`, and initial tests exist.
+Current status: complete for the initial foundation scope. The backend skeleton, runtime initialization, memory models, Memory Layer v1, and test coverage exist.
 
 ### Phase 2: Memory System
 
-- Add persistent storage for memories.
-- Add memory retrieval beyond returning all records.
-- Add memory ranking by relevance, importance, confidence, category, and recency.
-- Add update, consolidation, and forgetting behavior.
-- Add tests for persistence and retrieval behavior.
+Current status: Memory Layer v1 complete.
+
+- `MemoryRecord` lifecycle support exists.
+- `MemoryState` support exists.
+- `MemoryEngine` supports create, get, retrieve, update, and forget operations.
+- `MemoryRetriever` v1 supports keyword-based relevance retrieval.
+- PersonaOS memory retrieval integration test exists.
+- Future work should add persistent storage, consolidation, advanced ranking, and lifecycle auditing.
 
 ### Phase 3: Persona System
 
-- Define persona configuration structures.
+- Current status: Persona system foundation complete.
+- `PersonaProfile` exists.
+- `PersonaEngine` is profile-backed.
+- Persona trait management exists.
+- PersonaEngine tests exist.
+- Next work should improve Persona-Memory interaction.
 - Add persona profiles.
 - Support multiple personas.
 - Connect personas to memory scopes, skill permissions, and operating constraints.
@@ -321,12 +357,11 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Improve `MemoryEngine` while keeping it simple and tested.
-- Add persistent memory storage.
-- Add memory retrieval by category, importance, confidence, source, and timestamp.
-- Create persona configuration models.
+- Improve Persona-Memory interaction.
+- Use persona traits to influence memory importance.
+- Use persona traits to influence confidence evaluation.
+- Use persona traits to influence retrieval preference.
 - Connect personas with memory scopes and skill permissions.
-- Begin defining the Skill Engine interface.
-- Expand tests around runtime initialization, memory records, and memory engine behavior.
+- Add tests for persona-memory influence.
 
-The project is currently in the foundation stage. The best next work is small, well-tested backend progress that turns the documented architecture into simple, inspectable runtime behavior.
+The project is currently moving from separate Memory and Persona foundations into Persona-Memory interaction. The best next work is small, well-tested backend progress that makes persona traits influence memory behavior without blurring engine boundaries.
