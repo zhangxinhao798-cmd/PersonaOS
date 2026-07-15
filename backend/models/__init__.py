@@ -2,6 +2,8 @@
 
 from backend.models.fusion import FusionContext
 from backend.models.persona_library import (
+    PersonaActivation,
+    PersonaActivationStatus,
     PersonaLibraryLifecycleState,
     PersonaKnowledge,
     PersonaLibraryEntry,

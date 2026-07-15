@@ -159,7 +159,8 @@ def test_persona_library_entry_approve_changes_availability() -> None:
     assert review.status == PersonaReviewStatus.APPROVED
     assert entry.review_status == PersonaReviewStatus.APPROVED
     assert entry.lifecycle_state == PersonaLibraryLifecycleState.APPROVED
-    assert entry.is_selectable() is True
+    assert entry.is_approved_for_activation() is True
+    assert entry.is_selectable() is False
 
 
 def test_persona_library_entry_reject_blocks_selection() -> None:

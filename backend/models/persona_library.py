@@ -39,6 +39,13 @@ class PersonaReviewStatus(str, Enum):
     REJECTED = "rejected"
 
 
+class PersonaActivationStatus(str, Enum):
+    """Activation status values for runtime-selectable personas."""
+
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+
+
 @dataclass
 class PersonaReview:
     """Human review record for a persona library entry."""
@@ -52,6 +59,21 @@ class PersonaReview:
 
     def __post_init__(self) -> None:
         self.status = PersonaReviewStatus(self.status)
+
+
+@dataclass
+class PersonaActivation:
+    """Activation record for a persona library entry."""
+
+    activation_id: str = field(default_factory=str)
+    persona_entry_id: str = field(default_factory=str)
+    persona_version_id: str = field(default_factory=str)
+    activated_at: str = field(default_factory=str)
+    activated_by: str = field(default_factory=str)
+    status: PersonaActivationStatus = PersonaActivationStatus.ACTIVE
+
+    def __post_init__(self) -> None:
+        self.status = PersonaActivationStatus(self.status)
 
 
 @dataclass
@@ -87,6 +109,7 @@ class PersonaLibraryEntry:
     profile: PersonaProfile | None = None
     versions: list[PersonaVersion] = field(default_factory=list)
     reviews: list[PersonaReview] = field(default_factory=list)
+    activations: list[PersonaActivation] = field(default_factory=list)
     source_ids: list[str] = field(default_factory=list)
     source: PersonaSource = field(default_factory=PersonaSource)
     traits: list[str] = field(default_factory=list)
@@ -97,6 +120,8 @@ class PersonaLibraryEntry:
             self.lifecycle_state
         )
         self.review_status = PersonaReviewStatus(self.review_status)
+        for activation in self.activations:
+            activation.status = PersonaActivationStatus(activation.status)
 
     def can_transition_to(
         self,
@@ -189,11 +214,38 @@ class PersonaLibraryEntry:
         return review
 
     def is_selectable(self) -> bool:
-        """Return whether the entry is approved for persona selection."""
+        """Return whether the entry is approved and active for selection."""
+
+        return (
+            self.is_approved_for_activation()
+            and self.is_active()
+            and self.has_valid_current_version()
+        )
+
+    def is_approved_for_activation(self) -> bool:
+        """Return whether review and lifecycle approve activation."""
 
         return (
             self.lifecycle_state == PersonaLibraryLifecycleState.APPROVED
             and self.review_status == PersonaReviewStatus.APPROVED
+        )
+
+    def is_active(self) -> bool:
+        """Return whether the entry has an active activation record."""
+
+        return any(
+            activation.status == PersonaActivationStatus.ACTIVE
+            for activation in self.activations
+        )
+
+    def has_valid_current_version(self) -> bool:
+        """Return whether current_version_id references a stored version."""
+
+        if not self.current_version_id:
+            return False
+        return any(
+            version.id == self.current_version_id
+            for version in self.versions
         )
 
     def _create_review(

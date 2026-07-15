@@ -1,18 +1,31 @@
 """Tests for persona selection layer."""
 
-from backend.core import PersonaLibraryEngine, PersonaSelector
+from backend.core import (
+    PersonaActivationManager,
+    PersonaLibraryEngine,
+    PersonaSelector,
+)
 from backend.models import (
     PersonaKnowledge,
     PersonaLibraryEntry,
+    PersonaVersion,
 )
 from backend.models.persona_library import PersonaSource
 
 
 def make_entry(persona_id: str, name: str) -> PersonaLibraryEntry:
+    version = PersonaVersion(
+        id=f"{persona_id}-version-1",
+        persona_name=name,
+        version="1.0",
+        profile_snapshot={"name": name},
+    )
     entry = PersonaLibraryEntry(
         id=persona_id,
         name=name,
         description=f"{name} selector test entry.",
+        current_version_id=version.id,
+        versions=[version],
         source=PersonaSource(
             source_type="test",
             title=f"{name} source",
@@ -26,6 +39,7 @@ def make_entry(persona_id: str, name: str) -> PersonaLibraryEntry:
         ),
     )
     entry.approve(reviewer="test-reviewer", notes="Approved for selection.")
+    PersonaActivationManager().activate(entry, activated_by="test-runner")
     return entry
 
 
