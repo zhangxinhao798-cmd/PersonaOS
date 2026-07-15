@@ -8,6 +8,7 @@ from backend.core.persona import PersonaEngine
 from backend.core.skill import SkillEngine
 from backend.engine.context_builder import ContextBuilder
 from backend.engine.persona_os import PersonaOS
+from backend.fusion import PersonaMemoryFusion
 from backend.models.context import PersonaOSContext
 from backend.models.memory_record import MemoryRecord
 
@@ -38,6 +39,7 @@ def test_persona_os_initialization() -> None:
 
     assert isinstance(persona_os.persona_engine, PersonaEngine)
     assert isinstance(persona_os.memory_engine, MemoryEngine)
+    assert isinstance(persona_os.persona_memory_fusion, PersonaMemoryFusion)
     assert isinstance(persona_os.knowledge_engine, KnowledgeEngine)
     assert isinstance(persona_os.skill_engine, SkillEngine)
     assert isinstance(persona_os.confidence_engine, ConfidenceEngine)
@@ -51,6 +53,7 @@ def test_process_context_returns_context() -> None:
     assert isinstance(context, PersonaOSContext)
     assert context.persona is not None
     assert context.memories is not None
+    assert context.fusion_memory is not None
     assert context.knowledge is not None
     assert context.confidence is not None
 
@@ -123,6 +126,11 @@ def test_orchestration_flow() -> None:
             calls.append("knowledge")
             return super().retrieve_knowledge(query)
 
+    class RecordingPersonaMemoryFusion(PersonaMemoryFusion):
+        def fuse(self, persona, memory):
+            calls.append("fusion")
+            return super().fuse(persona, memory)
+
     class RecordingConfidenceEngine(ConfidenceEngine):
         def evaluate(
             self,
@@ -140,6 +148,7 @@ def test_orchestration_flow() -> None:
             memories,
             knowledge_records,
             confidence_data,
+            fusions=None,
         ) -> PersonaOSContext:
             calls.append("context_builder")
             return super().build_context(
@@ -148,6 +157,7 @@ def test_orchestration_flow() -> None:
                 memories=memories,
                 knowledge_records=knowledge_records,
                 confidence_data=confidence_data,
+                fusions=fusions,
             )
 
     memory_engine = RecordingMemoryEngine()
@@ -163,6 +173,7 @@ def test_orchestration_flow() -> None:
     persona_os = PersonaOS(
         persona_engine=RecordingPersonaEngine(),
         memory_engine=memory_engine,
+        persona_memory_fusion=RecordingPersonaMemoryFusion(),
         knowledge_engine=knowledge_engine,
         confidence_engine=RecordingConfidenceEngine(),
         context_builder=RecordingContextBuilder(),
@@ -174,9 +185,11 @@ def test_orchestration_flow() -> None:
     assert calls == [
         "persona",
         "memory",
+        "fusion",
         "knowledge",
         "confidence",
         "context_builder",
     ]
     assert len(context.memories.memories) == 1
+    assert len(context.fusion_memory.fusions) == 1
     assert len(context.knowledge.knowledge_records) == 1

@@ -102,3 +102,54 @@ def test_original_memory_data_is_unchanged() -> None:
         memory.timestamp,
         memory.state,
     ) == original_state
+
+
+def test_same_memory_different_personas_produce_different_interpretations() -> None:
+    fusion = PersonaMemoryFusion()
+    memory = MemoryRecord(
+        content="user investment loss",
+        category="episodic",
+        confidence=0.8,
+        importance=0.9,
+        source="test",
+        timestamp="2026-07-15T00:00:00Z",
+    )
+    investment_persona = make_persona(
+        "Value Investor",
+        {"focus": "investment value loss"},
+    )
+    reflection_persona = make_persona(
+        "Reflective Coach",
+        {"focus": "self reflection loss"},
+    )
+
+    investment_result = fusion.fuse(investment_persona, memory)
+    reflection_result = fusion.fuse(reflection_persona, memory)
+
+    assert investment_result != reflection_result
+    assert investment_result.interpretation != reflection_result.interpretation
+
+
+def test_persona_relevance_affects_scoring() -> None:
+    fusion = PersonaMemoryFusion()
+    memory = MemoryRecord(
+        content="user investment loss",
+        category="episodic",
+        confidence=0.8,
+        importance=0.9,
+        source="test",
+        timestamp="2026-07-15T00:00:00Z",
+    )
+    related_persona = make_persona(
+        "Value Investor",
+        {"focus": "investment loss value"},
+    )
+    unrelated_persona = make_persona(
+        "Gardener",
+        {"focus": "plants soil watering"},
+    )
+
+    related_result = fusion.fuse(related_persona, memory)
+    unrelated_result = fusion.fuse(unrelated_persona, memory)
+
+    assert related_result.relevance_score > unrelated_result.relevance_score

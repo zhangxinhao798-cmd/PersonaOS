@@ -58,17 +58,35 @@ Completed:
 - ContextBuilder.
 - Integration tests.
 - Confidence orchestration correction so confidence preparation belongs to the Confidence Engine.
+- Integration Phase Step 2.
+- `FusionContext`.
+- `PersonaMemoryFusion`.
+- Persona-aware memory interpretation.
+- PersonaOS fusion integration.
+- Fusion tests.
 
 ### Step 2: Persona + Memory Fusion
 
-The next integration step is to make Persona influence how Memory is retrieved, interpreted, and prioritized.
+This integration step makes Persona influence how Memory is interpreted after retrieval while preserving engine boundaries.
+
+Completed:
+
+- Added persona-aware memory interpretation.
+- Weighted fusion relevance by persona traits and values.
+- Supported different persona interpretations of the same memory.
+- Added fusion results to PersonaOS context output.
+- Preserve separation between PersonaEngine and MemoryEngine.
+
+### Next: Persona Library / Persona Import Pipeline
+
+The next integration priority is to define how persona profiles can be loaded, validated, selected, and prepared for future multi-persona support.
 
 Goals:
 
-- Add persona-aware memory retrieval.
-- Weight memory relevance by persona traits.
-- Support different persona interpretations of the same memory.
-- Preserve separation between PersonaEngine and MemoryEngine.
+- Define persona library boundaries.
+- Add a clear persona import pipeline.
+- Validate persona profile data before use.
+- Preserve separation between persona identity, memory storage, and fusion interpretation.
 
 ## Phase 2: Memory System
 
@@ -192,4 +210,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Integration Phase Step 2: Persona + Memory Fusion.
+The immediate next focus is Persona Library / Persona Import Pipeline.
