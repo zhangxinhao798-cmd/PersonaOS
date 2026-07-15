@@ -44,6 +44,11 @@ Each development day should have a section:
 - Added `calculate_confidence()` for memory confidence evaluation.
 - Added `update_confidence()` for deterministic evidence-based confidence updates.
 - Added confidence tests.
+- Implemented Knowledge Engine v1.
+- Added `KnowledgeRecord` for structured source-backed knowledge.
+- Added `KnowledgeEngine` support for create, get, retrieve, and update operations.
+- Added deterministic keyword-based knowledge retrieval.
+- Added Knowledge Engine tests.
 - Updated project handoff/status documents to record Memory Layer v1 completion.
 - Established Memory and Persona as connected foundations.
 
@@ -55,8 +60,10 @@ Each development day should have a section:
 - `backend/models/persona_profile.py`
 - `backend/core/persona.py`
 - `backend/core/confidence.py`
+- `backend/core/knowledge.py`
 - `tests/test_persona_memory_integration.py`
 - `tests/test_confidence.py`
+- `tests/test_knowledge.py`
 - `tests/test_memory_retrieval.py`
 - `tests/test_memory_update.py`
 - `tests/test_memory_forget.py`
@@ -68,10 +75,11 @@ Each development day should have a section:
 - `CHANGELOG.md`
 
 ### Tests
-- Test suite result recorded: `31 passed`.
+- Test suite result recorded: `39 passed`.
 - Memory behavior covered by tests for creation, retrieval filtering, update, forgetting, keyword retrieval, and PersonaOS memory retrieval integration.
 - Persona behavior covered by tests for default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
 - Confidence behavior covered by tests for initial calculation, positive evidence, negative evidence, and 0-1 range clamping.
+- Knowledge behavior covered by tests for creation, deterministic keyword retrieval, update, and unrelated-record exclusion.
 
 ### Design Decisions
 - Memory forgetting changes lifecycle state to `MemoryState.FORGOTTEN` instead of deleting the memory object.
@@ -85,6 +93,8 @@ Each development day should have a section:
 - Persona-Memory integration preserves engine boundaries.
 - ConfidenceEngine evaluates confidence only and does not own memory storage.
 - Confidence Engine v1 uses source reliability, repeated confirmation, evidence strength, and uncertainty penalty.
+- KnowledgeEngine owns structured knowledge records only and remains separate from memory storage.
+- Knowledge retrieval v1 uses deterministic keyword matching before introducing indexing, semantic retrieval, or external APIs.
 
 ### Problems / Notes
 - Memory lifecycle needed an explicit state model before update and forget behavior could be represented cleanly.
@@ -92,9 +102,10 @@ Each development day should have a section:
 - The project is still backend-first and architecture-first.
 - Memory system and Persona system are now connected foundations through persona-aware memory priority.
 - Confidence Engine v1 is complete as a deterministic memory confidence evaluator.
+- Knowledge Engine v1 is complete as a deterministic source-backed knowledge manager.
 
 ### Next Session
-- Begin Knowledge Engine v1.
-- Define knowledge records and source metadata.
-- Add basic knowledge retrieval boundaries.
+- Begin Skill Engine v1.
+- Define skill descriptors and source metadata.
+- Add basic skill registration and selection boundaries.
 - Plan later connection between knowledge evidence and Confidence Engine evaluation.

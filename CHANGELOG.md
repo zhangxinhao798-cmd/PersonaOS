@@ -53,6 +53,14 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added `ConfidenceEngine.calculate_confidence()`.
 - Added `ConfidenceEngine.update_confidence()`.
 - Added confidence tests for initial calculation, positive evidence, negative evidence, and 0-1 range clamping.
+- Implemented Knowledge Engine v1.
+- Added `KnowledgeRecord` for structured source-backed knowledge.
+- Added `KnowledgeEngine.create_knowledge()`.
+- Added `KnowledgeEngine.get_knowledge()`.
+- Added `KnowledgeEngine.retrieve_knowledge()`.
+- Added `KnowledgeEngine.update_knowledge()`.
+- Added deterministic keyword-based knowledge retrieval.
+- Added Knowledge Engine tests for creation, retrieval, update, and unrelated-record exclusion.
 
 ### Design Decisions
 
@@ -74,13 +82,15 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Persona-Memory integration keeps PersonaEngine and MemoryEngine separate: PersonaEngine exposes preferences, while MemoryEngine calculates memory priority.
 - ConfidenceEngine evaluates confidence only and does not own memory storage.
 - Confidence Engine v1 uses deterministic factors: source reliability, repeated confirmation, evidence strength, and uncertainty penalty.
+- KnowledgeEngine owns knowledge records only and remains separate from MemoryEngine.
+- Knowledge retrieval v1 uses deterministic keyword matching before indexing, semantic retrieval, or external sources are introduced.
 
 ### Current Status
 
 - The project has a clear conceptual architecture documented in `docs/`.
 - The backend package exists and can initialize a `PersonaOS` runtime object.
 - Runtime startup prints engine readiness messages.
-- Core engine classes exist, but most are still placeholders.
+- Core engine classes exist, with Memory, Persona, Confidence, and Knowledge now implemented at v1/foundation level.
 - `MemoryRecord` exists as the first concrete model.
 - `MemoryState` exists for lifecycle-aware memory records.
 - Memory Layer v1 is complete.
@@ -96,15 +106,20 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Memory system and Persona system are now connected foundations.
 - Persona-Memory integration layer is complete.
 - Confidence Engine v1 is complete.
-- Current recorded test status: all tests passing, `31 passed`.
-- Persistent storage, consolidation, advanced retrieval ranking, skill loading, knowledge indexing, and evolution governance are not implemented yet.
+- Knowledge Engine v1 is complete.
+- `KnowledgeEngine` currently supports:
+  - `create_knowledge()`
+  - `get_knowledge()`
+  - `retrieve_knowledge()`
+  - `update_knowledge()`
+- Current recorded test status: all tests passing, `39 passed`.
+- Persistent storage, consolidation, advanced retrieval ranking, skill loading, advanced knowledge indexing, and evolution governance are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Begin Knowledge Engine v1.
-- Define knowledge records and source metadata.
-- Add basic knowledge retrieval boundaries.
+- Begin Skill Engine v1.
+- Define skill records/descriptors and metadata.
+- Add basic skill registration and selection boundaries.
 - Connect Knowledge Engine outputs to Confidence Engine evaluation later.
 - Add persistent memory storage in a future memory phase.
-- Begin defining the Skill Engine interface and skill descriptor model.
 - Add Evolution Engine proposal and versioning models.
