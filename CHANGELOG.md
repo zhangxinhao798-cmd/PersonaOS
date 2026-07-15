@@ -49,6 +49,10 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added PersonaEngine memory preference interface.
 - Added MemoryEngine persona-aware priority calculation.
 - Added Persona-Memory integration tests.
+- Implemented Confidence Engine v1.
+- Added `ConfidenceEngine.calculate_confidence()`.
+- Added `ConfidenceEngine.update_confidence()`.
+- Added confidence tests for initial calculation, positive evidence, negative evidence, and 0-1 range clamping.
 
 ### Design Decisions
 
@@ -68,6 +72,8 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - `PersonaProfile` is the source of truth for persona identity data; `PersonaEngine` manages behavior around that profile.
 - Persona traits should later influence memory importance, confidence evaluation, and retrieval preference.
 - Persona-Memory integration keeps PersonaEngine and MemoryEngine separate: PersonaEngine exposes preferences, while MemoryEngine calculates memory priority.
+- ConfidenceEngine evaluates confidence only and does not own memory storage.
+- Confidence Engine v1 uses deterministic factors: source reliability, repeated confirmation, evidence strength, and uncertainty penalty.
 
 ### Current Status
 
@@ -89,17 +95,16 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Persona system foundation is complete with `PersonaProfile`, `PersonaEngine`, and PersonaEngine tests.
 - Memory system and Persona system are now connected foundations.
 - Persona-Memory integration layer is complete.
+- Confidence Engine v1 is complete.
 - Current recorded test status: all tests passing, `31 passed`.
-- Persistent storage, consolidation, advanced retrieval ranking, deeper persona-memory influence, skill loading, knowledge indexing, confidence assessment, and evolution governance are not implemented yet.
+- Persistent storage, consolidation, advanced retrieval ranking, skill loading, knowledge indexing, and evolution governance are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Improve persona-aware memory retrieval.
-- Expand persona trait influence on memory importance.
-- Add confidence hooks for persona-memory behavior.
-- Add retrieval preference tests for persona-specific memory behavior.
+- Begin Knowledge Engine v1.
+- Define knowledge records and source metadata.
+- Add basic knowledge retrieval boundaries.
+- Connect Knowledge Engine outputs to Confidence Engine evaluation later.
 - Add persistent memory storage in a future memory phase.
 - Begin defining the Skill Engine interface and skill descriptor model.
-- Add Knowledge Engine record models and retrieval boundaries.
-- Add Confidence Engine assessment models.
 - Add Evolution Engine proposal and versioning models.

@@ -84,14 +84,14 @@ The current engines are:
 - Memory Engine: Manages experience-derived continuity. Memory Layer v1 is complete with in-memory creation, retrieval filtering, update, forgetting, lifecycle state support, keyword retrieval, and persona-aware priority calculation.
 - Knowledge Engine: Intended to manage source-backed reference information.
 - Skill Engine: Intended to manage governed capabilities available to a digital mind.
-- Confidence Engine: Intended to evaluate reliability awareness, uncertainty, and risk.
+- Confidence Engine: Evaluates memory confidence with deterministic source, evidence, confirmation, and uncertainty signals.
 - Evolution Engine: Intended to govern controlled long-term change.
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
 ## 4. Current Implementation Status
 
-PersonaOS is currently an early architectural foundation with Memory Layer v1 complete, Persona system foundation in place, and the first Persona-Memory integration layer complete.
+PersonaOS is currently an early architectural foundation with Memory Layer v1 complete, Persona system foundation in place, the first Persona-Memory integration layer complete, and Confidence Engine v1 complete.
 
 Completed so far:
 
@@ -117,6 +117,9 @@ Completed so far:
 - Profile-backed `PersonaEngine` implementation in `backend/core/persona.py`.
 - PersonaEngine memory preference interface.
 - MemoryEngine persona-aware priority calculation.
+- Confidence Engine v1 implementation in `backend/core/confidence.py`.
+- `ConfidenceEngine.calculate_confidence()`.
+- `ConfidenceEngine.update_confidence()`.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -127,6 +130,7 @@ Completed so far:
 - PersonaOS memory retrieval integration test in `tests/test_persona_memory.py`.
 - PersonaEngine tests in `tests/test_persona.py`.
 - Persona-Memory integration tests in `tests/test_persona_memory_integration.py`.
+- ConfidenceEngine tests in `tests/test_confidence.py`.
 
 Current verification status:
 
@@ -139,6 +143,7 @@ Current verification status:
 - `tests/test_persona_memory.py` verifies PersonaOS memory retrieval integration.
 - `tests/test_persona.py` verifies default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
 - `tests/test_persona_memory_integration.py` verifies persona memory preferences, active persona access from MemoryEngine, base priority calculation, and persona-influenced memory priority.
+- `tests/test_confidence.py` verifies initial confidence calculation, confidence increase with positive evidence, confidence decrease with negative evidence, and 0-1 range clamping.
 - Current recorded test status: all tests passing, `31 passed`.
 
 Current implementation limits:
@@ -147,7 +152,8 @@ Current implementation limits:
 - There is no persistence layer yet.
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
-- Knowledge, Skill, Confidence, and Evolution engines are placeholders.
+- Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
+- Knowledge, Skill, and Evolution engines are placeholders.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
@@ -248,6 +254,17 @@ AI systems need confidence awareness because fluent generation can sound certain
 
 The Confidence Engine is intended to help PersonaOS evaluate reliability. It should distinguish between verified knowledge, remembered experience, inferred assumptions, weak evidence, missing context, and uncertainty.
 
+Confidence Engine v1 evaluates confidence for `MemoryRecord` objects. It supports `calculate_confidence(memory)` and `update_confidence(memory, evidence_strength)`.
+
+Current confidence factors include:
+
+- Source reliability.
+- Repeated confirmation.
+- Evidence strength.
+- Uncertainty penalty.
+
+The Confidence Engine evaluates confidence only. It does not own memory storage, does not modify MemoryEngine behavior, and does not call external models.
+
 Future confidence work should include:
 
 - Evidence evaluation.
@@ -326,6 +343,7 @@ Current status: Memory Layer v1 complete.
 
 ### Phase 5: Knowledge And Reasoning
 
+- Current next phase: begin Knowledge Engine v1.
 - Define knowledge record models.
 - Add knowledge source ingestion.
 - Add retrieval and source metadata.
@@ -362,11 +380,10 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Improve persona-aware memory retrieval.
-- Expand persona trait influence on memory importance.
-- Add confidence hooks for persona-memory behavior.
-- Use persona traits to influence retrieval preference.
-- Connect personas with memory scopes and skill permissions.
-- Add tests for persona-memory influence.
+- Begin Knowledge Engine v1.
+- Define knowledge records and source metadata.
+- Add basic knowledge retrieval boundaries.
+- Plan later integration between knowledge evidence and Confidence Engine evaluation.
+- Keep ConfidenceEngine focused on evaluation rather than storage.
 
-The project is currently moving from first Persona-Memory integration into richer persona-aware retrieval and confidence behavior. The best next work is small, well-tested backend progress that makes persona traits influence memory behavior without blurring engine boundaries.
+The project is currently moving from Memory, Persona, and Confidence foundations into Knowledge Engine v1. The best next work is small, well-tested backend progress that adds source-backed knowledge without blurring memory, persona, or confidence responsibilities.

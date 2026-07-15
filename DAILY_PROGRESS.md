@@ -40,6 +40,10 @@ Each development day should have a section:
 - Added PersonaEngine memory preference interface.
 - Added MemoryEngine persona-aware priority calculation.
 - Added Persona-Memory integration tests.
+- Implemented Confidence Engine v1.
+- Added `calculate_confidence()` for memory confidence evaluation.
+- Added `update_confidence()` for deterministic evidence-based confidence updates.
+- Added confidence tests.
 - Updated project handoff/status documents to record Memory Layer v1 completion.
 - Established Memory and Persona as connected foundations.
 
@@ -50,7 +54,9 @@ Each development day should have a section:
 - `backend/core/retrieval.py`
 - `backend/models/persona_profile.py`
 - `backend/core/persona.py`
+- `backend/core/confidence.py`
 - `tests/test_persona_memory_integration.py`
+- `tests/test_confidence.py`
 - `tests/test_memory_retrieval.py`
 - `tests/test_memory_update.py`
 - `tests/test_memory_forget.py`
@@ -65,6 +71,7 @@ Each development day should have a section:
 - Test suite result recorded: `31 passed`.
 - Memory behavior covered by tests for creation, retrieval filtering, update, forgetting, keyword retrieval, and PersonaOS memory retrieval integration.
 - Persona behavior covered by tests for default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
+- Confidence behavior covered by tests for initial calculation, positive evidence, negative evidence, and 0-1 range clamping.
 
 ### Design Decisions
 - Memory forgetting changes lifecycle state to `MemoryState.FORGOTTEN` instead of deleting the memory object.
@@ -76,15 +83,18 @@ Each development day should have a section:
 - Persona traits should later influence memory importance, confidence evaluation, and retrieval preference.
 - PersonaEngine exposes memory preferences; MemoryEngine consumes those preferences to calculate deterministic memory priority.
 - Persona-Memory integration preserves engine boundaries.
+- ConfidenceEngine evaluates confidence only and does not own memory storage.
+- Confidence Engine v1 uses source reliability, repeated confirmation, evidence strength, and uncertainty penalty.
 
 ### Problems / Notes
 - Memory lifecycle needed an explicit state model before update and forget behavior could be represented cleanly.
 - Retrieval was intentionally kept simple to avoid introducing external dependencies before the architecture stabilizes.
 - The project is still backend-first and architecture-first.
 - Memory system and Persona system are now connected foundations through persona-aware memory priority.
+- Confidence Engine v1 is complete as a deterministic memory confidence evaluator.
 
 ### Next Session
-- Improve persona-aware memory retrieval.
-- Expand persona trait influence on memory importance.
-- Add confidence hooks for persona-memory behavior.
-- Add retrieval preference tests for persona-specific memory behavior.
+- Begin Knowledge Engine v1.
+- Define knowledge records and source metadata.
+- Add basic knowledge retrieval boundaries.
+- Plan later connection between knowledge evidence and Confidence Engine evaluation.
