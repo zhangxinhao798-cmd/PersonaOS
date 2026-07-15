@@ -46,6 +46,9 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added `PersonaProfile` as the persistent persona identity model.
 - Implemented the first profile-backed `PersonaEngine`.
 - Added PersonaEngine tests for default profile creation, trait storage, trait retrieval, profile access, and persona description.
+- Added PersonaEngine memory preference interface.
+- Added MemoryEngine persona-aware priority calculation.
+- Added Persona-Memory integration tests.
 
 ### Design Decisions
 
@@ -64,6 +67,7 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Memory retrieval begins with simple keyword matching before semantic retrieval or vector search.
 - `PersonaProfile` is the source of truth for persona identity data; `PersonaEngine` manages behavior around that profile.
 - Persona traits should later influence memory importance, confidence evaluation, and retrieval preference.
+- Persona-Memory integration keeps PersonaEngine and MemoryEngine separate: PersonaEngine exposes preferences, while MemoryEngine calculates memory priority.
 
 ### Current Status
 
@@ -84,15 +88,16 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - PersonaOS memory retrieval integration test is complete.
 - Persona system foundation is complete with `PersonaProfile`, `PersonaEngine`, and PersonaEngine tests.
 - Memory system and Persona system are now connected foundations.
-- Current recorded test status: all tests passing, `27 passed`.
-- Persistent storage, consolidation, advanced retrieval ranking, persona-memory influence, skill loading, knowledge indexing, confidence assessment, and evolution governance are not implemented yet.
+- Persona-Memory integration layer is complete.
+- Current recorded test status: all tests passing, `31 passed`.
+- Persistent storage, consolidation, advanced retrieval ranking, deeper persona-memory influence, skill loading, knowledge indexing, confidence assessment, and evolution governance are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Improve Persona-Memory interaction.
-- Use persona traits to influence memory importance.
-- Use persona traits to influence confidence evaluation.
-- Use persona traits to influence retrieval preference.
+- Improve persona-aware memory retrieval.
+- Expand persona trait influence on memory importance.
+- Add confidence hooks for persona-memory behavior.
+- Add retrieval preference tests for persona-specific memory behavior.
 - Add persistent memory storage in a future memory phase.
 - Begin defining the Skill Engine interface and skill descriptor model.
 - Add Knowledge Engine record models and retrieval boundaries.

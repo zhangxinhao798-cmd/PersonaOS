@@ -1,5 +1,6 @@
 """Memory Engine skeleton."""
 
+from backend.core.persona import PersonaEngine
 from backend.models.memory_record import MemoryRecord
 from backend.models.memory_state import MemoryState
 
@@ -12,8 +13,20 @@ class MemoryEngine:
     raw conversation history and external knowledge.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, persona_engine: PersonaEngine | None = None) -> None:
         self._memories: list[MemoryRecord] = []
+        self._persona_engine = persona_engine
+
+    def set_persona_engine(self, persona_engine: PersonaEngine) -> PersonaEngine:
+        """Set the active persona engine used for memory preferences."""
+
+        self._persona_engine = persona_engine
+        return persona_engine
+
+    def get_persona_engine(self) -> PersonaEngine | None:
+        """Return the active persona engine, if one has been configured."""
+
+        return self._persona_engine
 
     def create_memory(self, memory: MemoryRecord) -> MemoryRecord:
         """Store a persistent memory and return it."""
@@ -102,3 +115,31 @@ class MemoryEngine:
 
         memory.state = MemoryState.FORGOTTEN
         return memory
+
+    def calculate_memory_priority(self, memory: MemoryRecord) -> float:
+        """Calculate deterministic memory priority from memory and persona.
+
+        The base score uses memory importance and confidence. If an active
+        persona provides memory preferences, category and keyword matches add
+        small deterministic boosts. Future versions can replace this with more
+        nuanced ranking while preserving the Persona/Memory boundary.
+        """
+
+        priority = memory.importance + memory.confidence
+
+        if self._persona_engine is None:
+            return priority
+
+        preferences = self._persona_engine.get_memory_preferences()
+        preferred_categories = preferences["preferred_categories"]
+        priority_keywords = preferences["priority_keywords"]
+
+        if memory.category.lower() in preferred_categories:
+            priority += 1.0
+
+        searchable_text = f"{memory.content} {memory.category}".lower()
+        for keyword in priority_keywords:
+            if keyword in searchable_text:
+                priority += 0.5
+
+        return priority

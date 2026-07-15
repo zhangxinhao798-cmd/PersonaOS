@@ -3,6 +3,16 @@
 from backend.models.persona_profile import PersonaProfile
 
 
+def _split_preference(value: str) -> list[str]:
+    """Split a comma-separated persona preference into normalized items."""
+
+    return [
+        item.strip().lower()
+        for item in value.split(",")
+        if item.strip()
+    ]
+
+
 class PersonaEngine:
     """Coordinates identity, behavior, and the active operating frame.
 
@@ -34,6 +44,30 @@ class PersonaEngine:
         """Return the current persona profile."""
 
         return self._profile
+
+    def get_memory_preferences(self) -> dict[str, list[str]]:
+        """Return persona preferences that may influence memory behavior.
+
+        This is the first simple interface between Persona and Memory.
+        Future versions can replace these trait conventions with structured
+        persona configuration while preserving the same engine boundary.
+        """
+
+        preferred_categories = []
+        priority_keywords = []
+
+        category_trait = self.get_trait("memory_category")
+        if category_trait is not None:
+            preferred_categories.extend(_split_preference(category_trait))
+
+        keyword_trait = self.get_trait("memory_keywords")
+        if keyword_trait is not None:
+            priority_keywords.extend(_split_preference(keyword_trait))
+
+        return {
+            "preferred_categories": preferred_categories,
+            "priority_keywords": priority_keywords,
+        }
 
     def describe_persona(self) -> str:
         """Return a readable description of the current persona profile.

@@ -37,6 +37,9 @@ Each development day should have a section:
 - Added `PersonaProfile` as the persistent persona identity model.
 - Implemented profile-backed `PersonaEngine`.
 - Added PersonaEngine tests.
+- Added PersonaEngine memory preference interface.
+- Added MemoryEngine persona-aware priority calculation.
+- Added Persona-Memory integration tests.
 - Updated project handoff/status documents to record Memory Layer v1 completion.
 - Established Memory and Persona as connected foundations.
 
@@ -47,6 +50,7 @@ Each development day should have a section:
 - `backend/core/retrieval.py`
 - `backend/models/persona_profile.py`
 - `backend/core/persona.py`
+- `tests/test_persona_memory_integration.py`
 - `tests/test_memory_retrieval.py`
 - `tests/test_memory_update.py`
 - `tests/test_memory_forget.py`
@@ -58,7 +62,7 @@ Each development day should have a section:
 - `CHANGELOG.md`
 
 ### Tests
-- Test suite result recorded: `27 passed`.
+- Test suite result recorded: `31 passed`.
 - Memory behavior covered by tests for creation, retrieval filtering, update, forgetting, keyword retrieval, and PersonaOS memory retrieval integration.
 - Persona behavior covered by tests for default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
 
@@ -70,15 +74,17 @@ Each development day should have a section:
 - `PersonaProfile` is the source of truth for persona identity state.
 - `PersonaEngine` manages persona behavior around the active profile.
 - Persona traits should later influence memory importance, confidence evaluation, and retrieval preference.
+- PersonaEngine exposes memory preferences; MemoryEngine consumes those preferences to calculate deterministic memory priority.
+- Persona-Memory integration preserves engine boundaries.
 
 ### Problems / Notes
 - Memory lifecycle needed an explicit state model before update and forget behavior could be represented cleanly.
 - Retrieval was intentionally kept simple to avoid introducing external dependencies before the architecture stabilizes.
 - The project is still backend-first and architecture-first.
-- Memory system and Persona system are now connected foundations.
+- Memory system and Persona system are now connected foundations through persona-aware memory priority.
 
 ### Next Session
-- Improve Persona-Memory interaction.
-- Connect persona traits to memory importance.
-- Explore persona-aware retrieval preferences.
-- Add tests for persona-memory influence.
+- Improve persona-aware memory retrieval.
+- Expand persona trait influence on memory importance.
+- Add confidence hooks for persona-memory behavior.
+- Add retrieval preference tests for persona-specific memory behavior.

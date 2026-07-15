@@ -70,7 +70,7 @@ backend/
     main.py
 ```
 
-`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`.
+`backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`. Persona-Memory integration now allows persona memory preferences to influence memory priority without merging the engines.
 
 `backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and acts as the initial backend assembly point.
 
@@ -80,8 +80,8 @@ backend/
 
 The current engines are:
 
-- Persona Engine: Coordinates identity traits through a profile-backed foundation.
-- Memory Engine: Manages experience-derived continuity. Memory Layer v1 is complete with in-memory creation, retrieval filtering, update, forgetting, lifecycle state support, and keyword retrieval.
+- Persona Engine: Coordinates identity traits through a profile-backed foundation and exposes memory preferences.
+- Memory Engine: Manages experience-derived continuity. Memory Layer v1 is complete with in-memory creation, retrieval filtering, update, forgetting, lifecycle state support, keyword retrieval, and persona-aware priority calculation.
 - Knowledge Engine: Intended to manage source-backed reference information.
 - Skill Engine: Intended to manage governed capabilities available to a digital mind.
 - Confidence Engine: Intended to evaluate reliability awareness, uncertainty, and risk.
@@ -91,7 +91,7 @@ The architecture documentation also describes a future Context Engine. No `Conte
 
 ## 4. Current Implementation Status
 
-PersonaOS is currently an early architectural foundation with Memory Layer v1 complete and Persona system foundation in place.
+PersonaOS is currently an early architectural foundation with Memory Layer v1 complete, Persona system foundation in place, and the first Persona-Memory integration layer complete.
 
 Completed so far:
 
@@ -115,6 +115,8 @@ Completed so far:
 - `MemoryRetriever` v1 keyword retrieval engine in `backend/core/retrieval.py`.
 - `PersonaProfile` model in `backend/models/persona_profile.py`.
 - Profile-backed `PersonaEngine` implementation in `backend/core/persona.py`.
+- PersonaEngine memory preference interface.
+- MemoryEngine persona-aware priority calculation.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -124,6 +126,7 @@ Completed so far:
 - MemoryRetriever tests in `tests/test_retrieval.py`.
 - PersonaOS memory retrieval integration test in `tests/test_persona_memory.py`.
 - PersonaEngine tests in `tests/test_persona.py`.
+- Persona-Memory integration tests in `tests/test_persona_memory_integration.py`.
 
 Current verification status:
 
@@ -135,14 +138,15 @@ Current verification status:
 - `tests/test_retrieval.py` verifies MemoryRetriever relevance, limits, and irrelevant-memory exclusion.
 - `tests/test_persona_memory.py` verifies PersonaOS memory retrieval integration.
 - `tests/test_persona.py` verifies default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
-- Current recorded test status: all tests passing, `27 passed`.
+- `tests/test_persona_memory_integration.py` verifies persona memory preferences, active persona access from MemoryEngine, base priority calculation, and persona-influenced memory priority.
+- Current recorded test status: all tests passing, `31 passed`.
 
 Current implementation limits:
 
 - Memory storage is in-memory only.
 - There is no persistence layer yet.
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
-- Persona traits exist in v1 form, but persona-memory influence is not implemented yet.
+- Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - Knowledge, Skill, Confidence, and Evolution engines are placeholders.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
@@ -186,7 +190,7 @@ Memory Layer v1 is complete. The current implementation supports `create_memory(
 
 The Persona system is intended to make identity explicit.
 
-The current foundation includes `PersonaProfile` and `PersonaEngine`. `PersonaProfile` stores persistent identity data, including name, traits, values, style, and boundaries. `PersonaEngine` manages behavior around the active profile, including trait updates, trait lookup, profile access, and readable persona description.
+The current foundation includes `PersonaProfile` and `PersonaEngine`. `PersonaProfile` stores persistent identity data, including name, traits, values, style, and boundaries. `PersonaEngine` manages behavior around the active profile, including trait updates, trait lookup, profile access, readable persona description, and memory preference exposure.
 
 Future goals include supporting multiple personalities or personas within a shared PersonaOS environment. Each persona should be able to have its own identity, preferences, behavioral rules, boundaries, memory scope, knowledge access, and skill permissions.
 
@@ -196,7 +200,7 @@ Different personas may eventually load different skills. For example, one person
 
 Personality consistency is a central goal. PersonaOS should preserve stable identity over time while allowing controlled refinement. The Evolution Engine should help prevent personality drift by ensuring that durable persona changes are explicit, justified, and traceable.
 
-Future persona-memory design should allow persona traits to influence memory importance, confidence evaluation, and retrieval preference without collapsing persona and memory into the same system.
+Persona-Memory integration now allows persona traits to influence deterministic memory priority. Future design should expand this into memory importance, confidence evaluation, and retrieval preference without collapsing persona and memory into the same system.
 
 ## 7. Skill System
 
@@ -305,7 +309,8 @@ Current status: Memory Layer v1 complete.
 - `PersonaEngine` is profile-backed.
 - Persona trait management exists.
 - PersonaEngine tests exist.
-- Next work should improve Persona-Memory interaction.
+- Persona-Memory integration layer exists.
+- Next work should improve persona-aware retrieval and confidence hooks.
 - Add persona profiles.
 - Support multiple personas.
 - Connect personas to memory scopes, skill permissions, and operating constraints.
@@ -357,11 +362,11 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Improve Persona-Memory interaction.
-- Use persona traits to influence memory importance.
-- Use persona traits to influence confidence evaluation.
+- Improve persona-aware memory retrieval.
+- Expand persona trait influence on memory importance.
+- Add confidence hooks for persona-memory behavior.
 - Use persona traits to influence retrieval preference.
 - Connect personas with memory scopes and skill permissions.
 - Add tests for persona-memory influence.
 
-The project is currently moving from separate Memory and Persona foundations into Persona-Memory interaction. The best next work is small, well-tested backend progress that makes persona traits influence memory behavior without blurring engine boundaries.
+The project is currently moving from first Persona-Memory integration into richer persona-aware retrieval and confidence behavior. The best next work is small, well-tested backend progress that makes persona traits influence memory behavior without blurring engine boundaries.
