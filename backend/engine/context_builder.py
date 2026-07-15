@@ -4,6 +4,7 @@ from typing import Any
 
 from backend.models.context import (
     ConfidenceContext,
+    FusionMemoryContext,
     KnowledgeContext,
     MemoryContext,
     PersonaContext,
@@ -21,6 +22,7 @@ class ContextBuilder:
         memories: list,
         knowledge_records: list,
         confidence_data: Any,
+        fusions: list | None = None,
     ) -> PersonaOSContext:
         """Build a PersonaOSContext from already-prepared engine outputs."""
 
@@ -28,6 +30,7 @@ class ContextBuilder:
             query=query,
             persona=self._build_persona_context(persona_data),
             memories=MemoryContext(memories=memories),
+            fusion_memory=FusionMemoryContext(fusions=fusions or []),
             knowledge=KnowledgeContext(
                 knowledge_records=knowledge_records,
                 sources=self._extract_sources(knowledge_records),

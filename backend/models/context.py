@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass, field
 
+from backend.models.fusion import FusionContext
+
 
 @dataclass
 class PersonaContext:
@@ -18,6 +20,13 @@ class MemoryContext:
     """Experience-derived context prepared for orchestration."""
 
     memories: list = field(default_factory=list)
+
+
+@dataclass
+class FusionMemoryContext:
+    """Persona-aware memory interpretations prepared for orchestration."""
+
+    fusions: list[FusionContext] = field(default_factory=list)
 
 
 @dataclass
@@ -43,5 +52,8 @@ class PersonaOSContext:
     query: str = ""
     persona: PersonaContext = field(default_factory=PersonaContext)
     memories: MemoryContext = field(default_factory=MemoryContext)
+    fusion_memory: FusionMemoryContext = field(
+        default_factory=FusionMemoryContext
+    )
     knowledge: KnowledgeContext = field(default_factory=KnowledgeContext)
     confidence: ConfidenceContext = field(default_factory=ConfidenceContext)

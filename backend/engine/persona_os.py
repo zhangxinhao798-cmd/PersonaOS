@@ -7,6 +7,7 @@ from backend.core.memory import MemoryEngine
 from backend.core.persona import PersonaEngine
 from backend.core.skill import SkillEngine
 from backend.engine.context_builder import ContextBuilder
+from backend.fusion import PersonaMemoryFusion
 from backend.models.context import PersonaOSContext
 
 
@@ -21,6 +22,7 @@ class PersonaOS:
         self,
         persona_engine: PersonaEngine | None = None,
         memory_engine: MemoryEngine | None = None,
+        persona_memory_fusion: PersonaMemoryFusion | None = None,
         knowledge_engine: KnowledgeEngine | None = None,
         skill_engine: SkillEngine | None = None,
         confidence_engine: ConfidenceEngine | None = None,
@@ -29,6 +31,9 @@ class PersonaOS:
     ) -> None:
         self.persona_engine = persona_engine or PersonaEngine()
         self.memory_engine = memory_engine or MemoryEngine()
+        self.persona_memory_fusion = (
+            persona_memory_fusion or PersonaMemoryFusion()
+        )
         self.knowledge_engine = knowledge_engine or KnowledgeEngine()
         self.skill_engine = skill_engine or SkillEngine()
         self.confidence_engine = confidence_engine or ConfidenceEngine()
@@ -40,6 +45,10 @@ class PersonaOS:
 
         persona_data = self.persona_engine.get_profile()
         memories = self.memory_engine.retrieve_memory()
+        fusions = [
+            self.persona_memory_fusion.fuse(persona_data, memory)
+            for memory in memories
+        ]
         knowledge_records = self.knowledge_engine.retrieve_knowledge(query)
         confidence_data = self.confidence_engine.evaluate(
             memories,
@@ -52,4 +61,5 @@ class PersonaOS:
             memories=memories,
             knowledge_records=knowledge_records,
             confidence_data=confidence_data,
+            fusions=fusions,
         )
