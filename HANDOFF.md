@@ -19,6 +19,8 @@ Persona Import Pipeline boundaries are complete.
 Persona Versioning data boundary is complete.
 PersonaLibraryEntry model boundary is complete.
 Persona Library lifecycle and activation foundation is complete.
+RuntimeContext boundary is complete.
+RuntimeContextAssembler is complete.
 
 Current completed integration state:
 
@@ -43,6 +45,8 @@ Current completed integration state:
 - Persona review workflow added for submission, approval, and rejection.
 - `PersonaActivationManager` added for approved persona activation with valid version references.
 - Persona selection now requires an approved, active persona with a valid current version reference.
+- `RuntimeContext` added as the runtime-ready context boundary for future model adapters.
+- `RuntimeContextAssembler` added to assemble prepared active persona, memory, knowledge, skills, confidence, and fusion context without model calls or inference.
 
 
 ## Architecture Rules
@@ -62,7 +66,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 120 test functions discovered with fallback verification passing.
+Latest recorded verification status is 125 tests passing.
 
 Integration tests have been added for PersonaOS initialization, context processing, confidence boundary ownership, empty context handling, and orchestration flow.
 
@@ -75,7 +79,7 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Persona Library lifecycle and activation completed.
+Runtime Intelligence preparation.
 
 
 ## Next Goal
@@ -122,11 +126,18 @@ Persona Library Workflow progress:
 6. Added integration verification for the full PersonaSource to activated PersonaSelector flow.
 7. Preserved PersonaEngine, runtime orchestration, LLM/Ollama, and persistence boundaries.
 
+Runtime Context Assembly completed:
+
+1. Added `RuntimeContext` as the runtime-ready data boundary.
+2. Added `RuntimeContextAssembler` for assembling prepared context from active persona, memory, knowledge, skills, confidence, and fusion output.
+3. Preserved source boundaries between PersonaOS internal context and future model adapters.
+4. Avoided Ollama, `qwen3:14B`, provider dependencies, prompts, and LLM runtime calls.
+
 ## Next Recommended Phase
 
 Runtime Intelligence preparation.
 
-The next work should introduce an LLM adapter boundary, model configuration layer, provider abstraction, and runtime context assembly preparation. Model providers should remain replaceable, and persona data must remain independent from LLM/provider state.
+The next work should design the LLM Adapter boundary. Model providers should remain replaceable, and persona data plus `RuntimeContext` must remain independent from LLM/provider state.
 
 ## Future Considerations
 
@@ -146,6 +157,9 @@ These are long-term expression and interface extensions. They are not part of Ru
 - Do not rewrite existing engines.
 - Do not introduce frontend yet.
 - Do not add unnecessary dependencies.
+- Do not integrate Ollama yet.
+- Do not make `qwen3:14B` runtime calls yet.
+- Do not add provider-specific dependencies yet.
 - Keep Python backend first.
 - Run tests after changes.
 

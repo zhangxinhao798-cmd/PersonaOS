@@ -65,10 +65,12 @@ backend/
         __init__.py
         context_builder.py
         persona_os.py
+        runtime_context_assembler.py
     models/
         __init__.py
         context.py
         fusion.py
+        runtime_context.py
         schemas.py
         persona_profile.py
         memory_record.py
@@ -80,9 +82,9 @@ backend/
 
 `backend/fusion/` contains cross-engine interpretation layers that preserve engine ownership. `PersonaMemoryFusion` interprets raw memories from the active persona perspective without modifying PersonaEngine or MemoryEngine.
 
-`backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and now acts as the first orchestration entry point. `context_builder.py` defines `ContextBuilder`, which converts engine and fusion outputs into the shared context data model.
+`backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and now acts as the first orchestration entry point. `context_builder.py` defines `ContextBuilder`, which converts engine and fusion outputs into the shared context data model. `runtime_context_assembler.py` defines `RuntimeContextAssembler`, which converts existing PersonaOS internal context into a runtime-ready context boundary for future model adapters without calling models or performing inference.
 
-`backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `fusion.py` contains `FusionContext` for persona-aware memory interpretation output. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
+`backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `fusion.py` contains `FusionContext` for persona-aware memory interpretation output. `runtime_context.py` contains `RuntimeContext`, the runtime-ready data boundary for future adapter layers. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
 
 `backend/main.py` contains the backend entry point. It provides `create_app()` and prints a minimal startup log when run with `python -m backend.main`.
 
@@ -101,8 +103,14 @@ The orchestration layer currently includes:
 - PersonaMemoryFusion: Interprets retrieved memories from the active persona perspective without owning persona or memory storage.
 - ContextBuilder: Converts engine and fusion outputs into `PersonaOSContext`.
 - PersonaOSContext: Defines the shared communication format between engines and orchestration.
+- RuntimeContext: Defines the runtime-ready context boundary for future LLM adapter layers.
+- RuntimeContextAssembler: Prepares runtime-ready context from active persona, memory, knowledge, skills, confidence, and fusion context while preserving source boundaries.
 
 PersonaOS coordinates engines but does not own engine logic. Persona, memory, knowledge, skills, confidence, and evolution responsibilities remain inside their owning engines. Context data is only a structured communication boundary; it is not memory storage, knowledge storage, persona management, confidence calculation, persistence, or a frontend API.
+
+Runtime Intelligence preparation has started. The completed preparation layer includes the `RuntimeContext` data boundary and `RuntimeContextAssembler` for assembling runtime-ready context. `RuntimeContextAssembler` prepares information from active persona, memory, knowledge, skills, confidence, and fusion context. It does not call models, does not perform inference, and does not introduce provider-specific behavior.
+
+The next planned Runtime Intelligence boundary is the LLM Adapter boundary. LLM providers must remain replaceable. `RuntimeContext` must stay independent from Ollama, `qwen3:14B`, OpenAI, Claude, and other model providers.
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
@@ -224,6 +232,9 @@ Completed so far:
 - Persona review workflow completed through review submission, approval, and rejection boundaries.
 - Persona activation workflow completed through `PersonaActivationManager`.
 - Persona selection now requires an approved, active persona with a valid current version reference.
+- Runtime Intelligence preparation has started.
+- `RuntimeContext` data boundary completed.
+- `RuntimeContextAssembler` completed for assembling runtime-ready context from active persona, memory, knowledge, skills, confidence, and fusion context.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -270,7 +281,7 @@ Current verification status:
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
 - `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
-- Current recorded test status: 120 test functions discovered with fallback verification passing.
+- Current recorded test status: 125 tests passing.
 
 Current implementation limits:
 
@@ -279,10 +290,11 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, library lifecycle, review, and activation boundaries exist, but persistence, Runtime Intelligence, LLM adapter integration, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, activation, and runtime context assembly boundaries exist, but persistence, LLM adapter integration, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
+- RuntimeContextAssembler now prepares a runtime-ready boundary from PersonaOS internal context without model calls or inference.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
@@ -525,10 +537,9 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Prepare Runtime Intelligence boundaries.
 - Introduce an LLM adapter boundary without binding PersonaOS to one provider.
 - Add model configuration and provider abstraction layers.
-- Plan runtime context assembly from persona, memory, knowledge, confidence, and fusion outputs.
+- Keep `RuntimeContext` independent from Ollama, `qwen3:14B`, OpenAI, Claude, and other model providers.
 - Keep persona data independent from LLM/model provider state.
 
-The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, and Persona Library lifecycle foundation. The best next work is small, well-tested backend progress on Runtime Intelligence preparation while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, and model-provider responsibilities.
+The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, and Runtime Context Assembly boundary. The best next work is small, well-tested backend progress on the LLM Adapter boundary while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, runtime context, and model-provider responsibilities.

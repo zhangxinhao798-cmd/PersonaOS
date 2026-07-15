@@ -110,6 +110,10 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added Persona Review workflow for review submission, approval, and rejection.
 - Added Persona Activation workflow for approved personas with valid current version references.
 - Added integration verification coverage for the PersonaSource to activated PersonaSelector lifecycle.
+- Completed RuntimeContext boundary and RuntimeContextAssembler preparation layer.
+- Updated architecture toward Runtime Intelligence phase.
+- Recorded LLM Adapter boundary as next step.
+- Confirmed no Ollama, `qwen3:14B`, or LLM runtime integration exists yet.
 
 ### Design Decisions
 
@@ -147,7 +151,10 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - `PersonaActivationManager` controls activation availability without mutating PersonaEngine or PersonaVersion snapshots.
 - `PersonaSelector` selects only approved, active persona entries with valid current version references.
 - Persona data remains independent from LLM/model provider state.
-- Runtime Intelligence should begin with replaceable LLM adapter and provider abstraction boundaries.
+- Runtime Intelligence has started with `RuntimeContext` and `RuntimeContextAssembler`.
+- `RuntimeContextAssembler` prepares runtime-ready context without model calls or inference.
+- RuntimeContext must remain independent from Ollama, `qwen3:14B`, OpenAI, Claude, and other model providers.
+- Runtime Intelligence should continue with a replaceable LLM adapter and provider abstraction boundaries.
 - Documented future Expression Layer direction including voice, speech style, TTS, and multimodal interface possibilities.
 - Expression capabilities remain future architectural directions only.
 
@@ -207,16 +214,16 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Persona Versioning data boundary is complete.
 - PersonaLibraryEntry model boundary is complete.
 - Persona Library lifecycle foundation is complete, including review, activation, and integration verification.
+- RuntimeContext boundary and RuntimeContextAssembler are complete.
 - Current phase is Runtime Intelligence preparation.
-- Current recorded verification status: 120 test functions discovered with fallback verification passing.
+- Current recorded verification status: 125 tests passing.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Prepare Runtime Intelligence boundaries.
 - Define an LLM adapter boundary without weakening engine boundaries.
 - Add a model configuration layer and provider abstraction.
-- Plan runtime context assembly from existing PersonaOS context outputs.
+- Keep `RuntimeContext` independent from specific providers such as Ollama, `qwen3:14B`, OpenAI, Claude, and other model providers.
 - Expand confidence handling for knowledge evidence in a future step.
 - Add persistent memory storage in a future memory phase.
 - Expand Evolution Engine versioning and rollback in a future phase.
