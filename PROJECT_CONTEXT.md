@@ -60,9 +60,11 @@ backend/
         evolution.py
     engine/
         __init__.py
+        context_builder.py
         persona_os.py
     models/
         __init__.py
+        context.py
         schemas.py
         persona_profile.py
         memory_record.py
@@ -72,9 +74,9 @@ backend/
 
 `backend/core/` contains the core engine classes. These classes represent the major architectural components of PersonaOS. The Memory Layer v1 implementation includes `MemoryEngine` and `MemoryRetriever`. The Persona system foundation includes a profile-backed `PersonaEngine`. Persona-Memory integration now allows persona memory preferences to influence memory priority without merging the engines. Knowledge Engine v1 manages structured source-backed knowledge records with deterministic retrieval. Skill Engine v1 manages governed capability records. Evolution Engine v1 manages explicit controlled-change proposals without mutating other engines automatically.
 
-`backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and acts as the initial backend assembly point.
+`backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and now acts as the first orchestration entry point. `context_builder.py` defines `ContextBuilder`, which converts engine outputs into the shared context data model.
 
-`backend/models/` contains shared model definitions. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
+`backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
 
 `backend/main.py` contains the backend entry point. It provides `create_app()` and prints a minimal startup log when run with `python -m backend.main`.
 
@@ -87,6 +89,14 @@ The current engines are:
 - Confidence Engine: Evaluates memory confidence with deterministic source, evidence, confirmation, and uncertainty signals.
 - Evolution Engine: Manages explicit controlled-change proposals through Evolution Engine v1.
 
+The orchestration layer currently includes:
+
+- PersonaOS: Coordinates engine calls and returns an integrated operating context.
+- ContextBuilder: Converts engine outputs into `PersonaOSContext`.
+- PersonaOSContext: Defines the shared communication format between engines and orchestration.
+
+PersonaOS coordinates engines but does not own engine logic. Persona, memory, knowledge, skills, confidence, and evolution responsibilities remain inside their owning engines. Context data is only a structured communication boundary; it is not memory storage, knowledge storage, persona management, confidence calculation, persistence, or a frontend API.
+
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
 ## 4. Current Implementation Status
@@ -98,6 +108,9 @@ Completed so far:
 - Initial backend package structure under `backend/`.
 - Core engine class files for Persona, Memory, Knowledge, Skill, Confidence, and Evolution.
 - Top-level `PersonaOS` runtime class that creates and stores engine instances.
+- PersonaOS Orchestrator v1 through `PersonaOS.process_context()`.
+- Context boundary models in `backend/models/context.py`.
+- `ContextBuilder` in `backend/engine/context_builder.py`.
 - Minimal backend startup entry point in `backend/main.py`.
 - Startup output when running `python -m backend.main`:
   - `PersonaOS Booting...`
@@ -120,6 +133,7 @@ Completed so far:
 - Confidence Engine v1 implementation in `backend/core/confidence.py`.
 - `ConfidenceEngine.calculate_confidence()`.
 - `ConfidenceEngine.update_confidence()`.
+- `ConfidenceEngine.evaluate()` for orchestration-level confidence preparation.
 - Knowledge Engine v1 implementation in `backend/core/knowledge.py`.
 - `KnowledgeRecord` for structured source-backed knowledge.
 - `KnowledgeEngine.create_knowledge()`.
@@ -138,6 +152,7 @@ Completed so far:
 - `EvolutionEngine.propose_evolution()`.
 - `EvolutionEngine.get_evolutions()`.
 - `EvolutionEngine.apply_evolution()`.
+- Integration Phase Step 1 completed, moving the backend from independent engine modules into the first integrated cognitive pipeline.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -146,6 +161,7 @@ Completed so far:
 - Memory forgetting tests in `tests/test_memory_forget.py`.
 - MemoryRetriever tests in `tests/test_retrieval.py`.
 - PersonaOS memory retrieval integration test in `tests/test_persona_memory.py`.
+- PersonaOS orchestration integration tests in `tests/test_integration.py`.
 - PersonaEngine tests in `tests/test_persona.py`.
 - Persona-Memory integration tests in `tests/test_persona_memory_integration.py`.
 - ConfidenceEngine tests in `tests/test_confidence.py`.
@@ -162,6 +178,7 @@ Current verification status:
 - `tests/test_memory_forget.py` verifies forgotten memory state behavior without deletion.
 - `tests/test_retrieval.py` verifies MemoryRetriever relevance, limits, and irrelevant-memory exclusion.
 - `tests/test_persona_memory.py` verifies PersonaOS memory retrieval integration.
+- `tests/test_integration.py` verifies PersonaOS initialization, context processing, confidence boundary ownership, empty context handling, and orchestration flow.
 - `tests/test_persona.py` verifies default profile creation, trait storage, trait retrieval, profile access, and readable persona description.
 - `tests/test_persona_memory_integration.py` verifies persona memory preferences, active persona access from MemoryEngine, base priority calculation, and persona-influenced memory priority.
 - `tests/test_confidence.py` verifies initial confidence calculation, confidence increase with positive evidence, confidence decrease with negative evidence, and 0-1 range clamping.
@@ -178,6 +195,7 @@ Current implementation limits:
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
+- PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
