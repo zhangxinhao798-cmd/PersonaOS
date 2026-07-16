@@ -6,6 +6,7 @@ from typing import Protocol
 from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
+from backend.models.relationship import RelationshipContext
 from backend.runtime import (
     ChatApiBoundary,
     DuplicateSessionError,
@@ -224,6 +225,8 @@ class ApiTransport:
         if persona_id is not None and not isinstance(persona_id, str):
             raise ApiValidationError("persona_id must be a string.")
 
+        relationship_context = self._relationship_context(body.get("relationship"))
+
         bundle = self.runtime_provider.get_runtime_bundle(persona_id)
         managed_session = self.chat_api.create_session(
             persona_entry=bundle.persona_entry,
@@ -235,6 +238,7 @@ class ApiTransport:
                 "persona_name": bundle.name,
                 **bundle.metadata,
             },
+            relationship_context=relationship_context,
             memory_retriever=bundle.memory_retriever,
             candidate_extractor=bundle.candidate_extractor,
             review_queue=bundle.review_queue,
@@ -407,9 +411,49 @@ class ApiTransport:
                 "name": persona.name,
                 "current_version_id": persona.current_version_id,
             },
+            "relationship": self._serialize_relationship(
+                managed_session.active_relationship_reference
+            ),
             "turn_count": managed_session.runtime_session.turn_count(),
             "metadata": dict(managed_session.metadata),
         }
+
+    def _relationship_context(self, value: object) -> RelationshipContext | None:
+        if value is None:
+            return None
+        if not isinstance(value, dict):
+            raise ApiValidationError("relationship must be an object.")
+
+        relationship_type = value.get("relationship_type")
+        presets = {
+            "assistant": ("practical", "clear", ["chat", "task_support"]),
+            "mentor": ("guiding", "encouraging", ["chat", "guidance"]),
+            "companion": ("warm", "supportive", ["chat", "companionship"]),
+            "analyst": ("analytical", "neutral", ["chat", "analysis"]),
+        }
+        if relationship_type not in presets:
+            raise ApiValidationError(
+                "relationship_type must be assistant, mentor, companion, or analyst."
+            )
+
+        interaction_style, tone, permissions = presets[relationship_type]
+        return RelationshipContext(
+            relationship_type=relationship_type,
+            interaction_style=interaction_style,
+            tone=tone,
+            permissions=permissions,
+            lifecycle="active",
+            metadata={"scope": "session", "source": "explicit_selection"},
+        )
+
+    def _serialize_relationship(self, relationship: object) -> dict | None:
+        if relationship is None:
+            return None
+        if hasattr(relationship, "to_dict"):
+            return dict(relationship.to_dict())
+        if isinstance(relationship, dict):
+            return dict(relationship)
+        return None
 
     def _serialize_llm_response(self, response: LLMResponse) -> dict:
         return {

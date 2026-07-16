@@ -8,6 +8,13 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 
 ### Added
 
+- Completed PersonaOS Web Experience v0.2 as a user-facing local demo entry.
+- Added browsable persona selection with name, version, and description.
+- Added explicit session-scoped relationship selection for assistant, mentor, companion, and analyst contexts.
+- Added API Transport validation and handoff of selected relationship context through the existing `ChatApiBoundary`.
+- Added a basic Chinese/English language selection entry without introducing a complete translation system.
+- Added a Persona Experience card showing persona identity and the selected relationship type.
+- Confirmed relationship selection does not modify Persona identity, create durable relationship memory, evolve relationships, or simulate emotion.
 - Initialized the PersonaOS project structure with dedicated areas for backend, documentation, configuration, frontend, knowledge, memory, personas, scripts, and tests.
 - Added foundational vision documentation describing PersonaOS as an operating system for persistent digital minds.
 - Added high-level architecture documentation defining the modular engine-based system design.
@@ -352,7 +359,7 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Extended `RuntimeSession`, `ManagedSession`, `SessionManager`, and `ChatApiBoundary` so temporary sessions can carry relationship context.
 - Confirmed relationship context does not modify Persona identity, Memory Engine, PersonaVersion, PersonaLibraryEntry, Evolution state, or durable memory.
 - Current phase is Relationship Boundary v1 completed.
-- Current recorded verification status: 381 tests passing.
+- Current recorded verification status: 388 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 

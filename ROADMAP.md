@@ -572,8 +572,10 @@ Completed:
 
 Planned:
 
-- [ ] Relationship Selection through explicit session controls.
-- [ ] Relationship Context presets or other reviewable selection sources.
+- [x] Relationship Selection through explicit Web/API session controls.
+- [x] Assistant, mentor, companion, and analyst session-scoped relationship choices.
+- [x] API Transport validation and delegation through the existing Chat API boundary.
+- [ ] Relationship Context presets from a dedicated reviewable configuration source.
 - [ ] Relationship Evolution through governed, inspectable, and reversible changes.
 - [ ] Relationship Memory through a dedicated relationship-scoped experience boundary.
 - [ ] Separate relationship state for the same persona across different users.
@@ -596,11 +598,12 @@ Planned:
 
 - [ ] Chinese UI support.
 - [ ] English UI support.
+- [x] Basic Chinese/English language selection entry.
 - [ ] A dedicated `frontend/i18n/` language-file boundary for user-facing interface text.
 - [ ] Explicit language selection with a deterministic default and fallback.
 - [ ] Keep UI language independent from active persona identity and model provider.
 
-No frontend internationalization implementation is included in the current phase.
+The current Web Experience contains only the language selection entry. Complete UI translation and the `frontend/i18n/` language-resource boundary remain unimplemented.
 
 ## Future Persona Experience Systems
 
@@ -684,4 +687,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Relationship Selection v1 through existing API and Web Experience boundaries. Frontend Chinese/English internationalization is recorded as a later productization milestone; it is not part of the current implementation scope.
+The immediate next focus is manual Web Experience v0.2 end-to-end verification, followed by a small `frontend/i18n/` language-resource boundary for Chinese and English. Relationship Evolution, Relationship Memory, automatic relationship generation, and emotion simulation remain deferred.

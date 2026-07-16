@@ -91,6 +91,75 @@ def test_create_session_success() -> None:
     assert provider.bundle_calls == ["session-architect"]
 
 
+def test_create_session_carries_session_scoped_relationship() -> None:
+    transport, provider = make_transport()
+    entry_before = snapshot_entry(provider.entry)
+
+    response = transport.handle_request(
+        "POST",
+        "/sessions",
+        {
+            "session_id": "relationship-session",
+            "relationship": {"relationship_type": "mentor"},
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.body["session"]["relationship"] == {
+        "relationship_type": "mentor",
+        "interaction_style": "guiding",
+        "tone": "encouraging",
+        "permissions": ["chat", "guidance"],
+        "lifecycle": "active",
+        "metadata": {
+            "scope": "session",
+            "source": "explicit_selection",
+        },
+    }
+
+    managed = transport.chat_api.get_session("relationship-session")
+    assert managed.runtime_session.relationship_context.relationship_type == "mentor"
+    assert snapshot_entry(provider.entry) == entry_before
+
+
+def test_create_session_rejects_invalid_relationship() -> None:
+    transport, _ = make_transport()
+
+    invalid_type = transport.handle_request(
+        "POST",
+        "/sessions",
+        {"relationship": {"relationship_type": "automatic_best_friend"}},
+    )
+    invalid_shape = transport.handle_request(
+        "POST",
+        "/sessions",
+        {"relationship": "mentor"},
+    )
+
+    assert invalid_type.status_code == 400
+    assert invalid_type.body["error"] == "validation_error"
+    assert invalid_shape.status_code == 400
+
+
+def test_supported_relationship_types_are_session_scoped() -> None:
+    transport, _ = make_transport()
+
+    for relationship_type in ("assistant", "mentor", "companion", "analyst"):
+        response = transport.handle_request(
+            "POST",
+            "/sessions",
+            {
+                "session_id": f"session-{relationship_type}",
+                "relationship": {"relationship_type": relationship_type},
+            },
+        )
+        assert response.status_code == 201
+        assert (
+            response.body["session"]["relationship"]["relationship_type"]
+            == relationship_type
+        )
+
+
 def test_get_session_success() -> None:
     transport, _ = make_transport()
     transport.handle_request("POST", "/sessions", {"session_id": "session-1"})

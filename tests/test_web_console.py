@@ -1,4 +1,4 @@
-"""Tests for PersonaOS Web Console v0.1 static assets."""
+"""Tests for PersonaOS Web Experience v0.2 static assets."""
 
 from pathlib import Path
 
@@ -25,12 +25,13 @@ def test_web_console_exposes_persona_identity_panel() -> None:
     html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
     app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
 
-    assert "Persona Identity" in html
+    assert 'id="personaGallery"' in html
     assert 'id="personaName"' in html
     assert 'id="personaVersion"' in html
     assert 'id="personaDescription"' in html
     assert "displayPersonaVersion" in app_js
     assert "displayPersonaDescription" in app_js
+    assert "renderPersonaGallery" in app_js
 
 
 def test_web_console_has_chat_experience_states() -> None:
@@ -44,6 +45,46 @@ def test_web_console_has_chat_experience_states() -> None:
     assert ".message.user" in css
     assert ".message.assistant" in css
     assert ".message.loading" in css
+
+
+def test_web_console_supports_relationship_selection() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert 'id="relationshipSelect"' in html
+    assert 'value="assistant"' in html
+    assert 'value="mentor"' in html
+    assert 'value="companion"' in html
+    assert 'value="analyst"' in html
+    assert 'relationship: { relationship_type: state.activeRelationshipType }' in app_js
+    assert 'id="relationshipType"' in html
+
+
+def test_web_console_has_language_selection_structure() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert 'id="languageSelect"' in html
+    assert 'value="zh-CN"' in html
+    assert 'value="en"' in html
+    assert "document.documentElement.lang = state.language" in app_js
+
+
+def test_web_console_exposes_persona_experience_card() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+
+    assert 'class="persona-experience"' in html
+    assert 'id="personaName"' in html
+    assert 'id="personaVersion"' in html
+    assert 'id="personaDescription"' in html
+    assert 'id="relationshipType"' in html
+
+
+def test_web_console_does_not_render_persona_api_data_as_html() -> None:
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert "button.innerHTML" not in app_js
+    assert "description.textContent = displayPersonaDescription(persona)" in app_js
 
 
 def test_web_console_does_not_introduce_frontend_framework() -> None:

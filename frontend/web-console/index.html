@@ -13,71 +13,107 @@
           <span class="brand-mark" aria-hidden="true">P</span>
           <div>
             <h1>PersonaOS</h1>
-            <p>Experience Demo v0.1</p>
+            <p>Web Experience v0.2</p>
           </div>
         </header>
 
-        <section class="panel">
+        <section class="setup-section" aria-labelledby="personaHeading">
+          <div class="section-heading">
+            <div>
+              <span class="step">01</span>
+              <h2 id="personaHeading">Choose a persona</h2>
+            </div>
+            <button id="reloadPersonas" class="icon-button" type="button" title="Reload personas" aria-label="Reload personas">↻</button>
+          </div>
+          <label class="sr-only" for="personaSelect">Persona</label>
+          <select id="personaSelect"></select>
+          <div id="personaGallery" class="persona-gallery" aria-live="polite"></div>
+        </section>
+
+        <section class="setup-section" aria-labelledby="relationshipHeading">
+          <div class="section-heading">
+            <div>
+              <span class="step">02</span>
+              <h2 id="relationshipHeading">Choose a relationship</h2>
+            </div>
+          </div>
+          <label class="sr-only" for="relationshipSelect">Relationship</label>
+          <select id="relationshipSelect">
+            <option value="assistant">Assistant</option>
+            <option value="mentor">Mentor</option>
+            <option value="companion">Companion</option>
+            <option value="analyst">Analyst</option>
+          </select>
+          <p id="relationshipDescription" class="supporting-copy"></p>
+        </section>
+
+        <section class="setup-section compact" aria-labelledby="languageHeading">
+          <div class="section-heading">
+            <div>
+              <span class="step">03</span>
+              <h2 id="languageHeading">Interface language</h2>
+            </div>
+          </div>
+          <label class="sr-only" for="languageSelect">Language</label>
+          <select id="languageSelect">
+            <option value="zh-CN">中文</option>
+            <option value="en">English</option>
+          </select>
+        </section>
+
+        <details class="connection-settings">
+          <summary>Connection settings</summary>
           <label for="apiBase">API Base</label>
           <input id="apiBase" value="http://127.0.0.1:8000" />
-          <button id="reloadPersonas" type="button">Reload Personas</button>
-        </section>
+        </details>
 
-        <section class="panel">
-          <label for="personaSelect">Persona</label>
-          <select id="personaSelect"></select>
-          <button id="newSession" type="button">New Session</button>
-        </section>
-
-        <section class="panel identity-panel" aria-label="Active persona identity">
-          <div class="panel-heading">
-            <h2>Persona Identity</h2>
-            <span class="status-pill" id="personaVersion">none</span>
-          </div>
-          <strong id="personaName">No persona selected</strong>
-          <p id="personaDescription">
-            Load personas from the API to inspect the active digital identity.
-          </p>
-        </section>
-
-        <section class="panel">
-          <h2>Status</h2>
-          <dl>
-            <dt>Session</dt>
-            <dd id="sessionStatus">none</dd>
-            <dt>Persona</dt>
-            <dd id="personaStatus">none</dd>
-          </dl>
-        </section>
+        <button id="newSession" class="primary-action" type="button">Start experience</button>
       </aside>
 
-      <section class="chat" aria-label="Persona chat experience">
-        <header class="chat-header">
+      <section class="experience">
+        <header class="experience-header">
           <div>
             <p class="eyebrow">AI Personality Experience</p>
-            <h2 id="chatTitle">Start a persona session</h2>
-            <p id="notice">Start the API server, choose a persona, then create a session.</p>
+            <h2 id="chatTitle">Choose who you want to meet</h2>
+            <p id="notice">Select a persona and relationship to begin.</p>
           </div>
-          <button id="loadHistory" type="button">Load History</button>
+          <div class="header-actions">
+            <button id="loadHistory" type="button">History</button>
+          </div>
         </header>
+
+        <section class="persona-experience" aria-label="Persona experience card">
+          <div class="identity-avatar" id="personaAvatar" aria-hidden="true">P</div>
+          <div class="identity-copy">
+            <div class="identity-title">
+              <h3 id="personaName">No persona selected</h3>
+              <span class="status-pill" id="personaVersion">none</span>
+            </div>
+            <p id="personaDescription">Load personas to inspect the available digital identities.</p>
+          </div>
+          <dl class="experience-facts">
+            <div>
+              <dt>Relationship</dt>
+              <dd id="relationshipType">Assistant</dd>
+            </div>
+            <div>
+              <dt>Session</dt>
+              <dd id="sessionStatus">not started</dd>
+            </div>
+          </dl>
+        </section>
 
         <div id="messages" class="messages" aria-live="polite">
           <section class="empty-state" id="emptyState">
-            <h3>Choose a persona and begin a session</h3>
-            <p>
-              This demo shows PersonaOS as an identity-driven runtime, not a
-              generic chatbot surface.
-            </p>
+            <span class="empty-mark" aria-hidden="true">P</span>
+            <h3>A conversation shaped by identity</h3>
+            <p>Persona determines who responds. Relationship defines how this session interacts with that identity.</p>
           </section>
         </div>
 
         <form id="messageForm" class="composer">
-          <input
-            id="messageInput"
-            autocomplete="off"
-            placeholder="Send a message to the active persona..."
-          />
-          <button id="sendMessage" type="submit">Send</button>
+          <input id="messageInput" autocomplete="off" placeholder="Send a message..." />
+          <button id="sendMessage" type="submit" aria-label="Send message">Send</button>
         </form>
       </section>
     </main>

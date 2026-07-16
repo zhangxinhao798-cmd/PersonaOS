@@ -28,6 +28,13 @@ Each development day should have a section:
 ## 2026-07-16
 
 ### Completed
+- Completed PersonaOS Web Experience v0.2.
+- Added persona browsing with name, version, and description in the Web Experience setup flow.
+- Added explicit relationship selection for assistant, mentor, companion, and analyst sessions.
+- Extended API Transport session creation to validate the selected relationship type and pass a session-scoped `RelationshipContext` through the existing Chat API boundary.
+- Added a basic Chinese/English language selector as frontend structure only; no complete translation system was introduced.
+- Added a Persona Experience card showing name, version, description, relationship type, and temporary session id.
+- Kept Relationship separate from Persona identity, durable Memory, Evolution, and Emotion.
 - Completed `SessionManager` v1 as the temporary runtime session lifecycle boundary.
 - Added `ManagedSession` for session id, runtime session, active persona reference, context, and metadata.
 - Added session creation, retrieval, listing, deletion, history access, history clearing, message sending, and in-session persona switching.
@@ -94,6 +101,12 @@ Each development day should have a section:
 - Confirmed Relationship is not Persona identity, not durable Memory, and not emotion simulation.
 
 ### Files Changed
+- `frontend/web-console/index.html`
+- `frontend/web-console/app.js`
+- `frontend/web-console/style.css`
+- `backend/api/transport.py`
+- `tests/test_web_console.py`
+- `tests/test_api_transport.py`
 - `backend/runtime/session_manager.py`
 - `backend/runtime/chat_api.py`
 - `backend/api/__init__.py`
@@ -168,7 +181,7 @@ Each development day should have a section:
 - `pytest tests\test_relationship_boundary.py tests\test_runtime_context.py tests\test_runtime_context_assembler.py tests\test_prompt_builder.py tests\test_prompt_renderer.py tests\test_runtime_session.py tests\test_session_manager.py`
 - `python -m compileall backend tests`
 - Current test status:
-  - 381 passed.
+  - 388 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
