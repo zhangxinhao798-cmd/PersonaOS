@@ -70,13 +70,18 @@ class ChatRuntime:
         if self.adapter is None:
             raise AdapterUnavailableError("No LLM adapter is configured.")
 
+        metadata = dict(getattr(persona_os_context, "metadata", {}) or {})
+        metadata.update(
+            {
+                "persona_entry_id": selected_persona.id,
+                "persona_version_id": selected_persona.current_version_id,
+            }
+        )
+
         runtime_context = self.runtime_context_assembler.assemble(
             persona_os_context,
             persona_version=selected_persona.current_version_id,
-            metadata={
-                "persona_entry_id": selected_persona.id,
-                "persona_version_id": selected_persona.current_version_id,
-            },
+            metadata=metadata,
         )
 
         try:
@@ -110,4 +115,3 @@ class ChatRuntime:
             )
 
         raise PersonaNotSelectableError("Persona is not selectable.")
-
