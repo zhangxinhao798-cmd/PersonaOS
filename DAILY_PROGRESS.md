@@ -28,6 +28,12 @@ Each development day should have a section:
 ## 2026-07-16
 
 ### Completed
+- Completed Language Resource Boundary v1.1.
+- Completed Chinese resource coverage for onboarding, Persona cards, Persona details, Relationship choices, Chat, Session, History, About, Loading, Error, and empty states.
+- Added the future `en-US.json` resource placeholder and `i18n/index.js` registry structure while keeping incomplete English unavailable.
+- Removed the remaining primary hard-coded English UI strings and migrated accessibility labels and option formatting to resources.
+- Added missing i18n key detection tests.
+- Web Experience tests: 21 passed; previous full-suite baseline: 397 passed.
 - Completed Language Resource Boundary v1.
 - Added `frontend/web-console/i18n/zh-CN.json` as the canonical Chinese UI resource.
 - Migrated onboarding, Persona, Relationship, Language, Chat, Session, and status copy into the language resource.

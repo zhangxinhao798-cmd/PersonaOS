@@ -6,6 +6,8 @@ from pathlib import Path
 
 WEB_CONSOLE = Path("frontend") / "web-console"
 ZH_CN_RESOURCE = WEB_CONSOLE / "i18n" / "zh-CN.json"
+EN_US_RESOURCE = WEB_CONSOLE / "i18n" / "en-US.json"
+I18N_INDEX = WEB_CONSOLE / "i18n" / "index.js"
 
 
 def load_zh_cn() -> dict:
@@ -17,6 +19,8 @@ def test_web_console_files_exist() -> None:
     assert (WEB_CONSOLE / "app.js").exists()
     assert (WEB_CONSOLE / "style.css").exists()
     assert ZH_CN_RESOURCE.exists()
+    assert EN_US_RESOURCE.exists()
+    assert I18N_INDEX.exists()
 
 
 def test_web_console_uses_existing_api_routes() -> None:
@@ -201,6 +205,50 @@ def test_web_console_loads_default_language_resource() -> None:
     assert 'fetch(`./i18n/${language}.json`)' in app_js
     assert "applyTranslations" in app_js
     assert "navigator.language" not in app_js
+
+
+def test_language_registry_preserves_future_english_extension() -> None:
+    index_js = I18N_INDEX.read_text(encoding="utf-8")
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+
+    assert '"en-US": "./en-US.json"' in index_js
+    assert '"en-US"' in html
+    assert 'value="en-US"' in html
+
+
+def test_all_static_html_i18n_keys_exist_in_zh_cn() -> None:
+    import re
+
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    resource = load_zh_cn()
+
+    def resolve(key: str):
+        current = resource
+        for part in key.split("."):
+            current = current[part]
+        return current
+
+    keys = set(re.findall(r'data-i18n(?:-[a-z-]+)?="([^"]+)"', html))
+    assert keys
+    for key in keys:
+        assert isinstance(resolve(key), str), key
+
+
+def test_web_console_has_no_static_user_facing_english_copy() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    for copy in (
+        "Choose a persona",
+        "Choose a relationship",
+        "Start experience",
+        "Send a message...",
+        "Session scoped",
+        "AI Personality Experience",
+        "Language resource could not be loaded",
+    ):
+        assert copy not in html
+        assert copy not in app_js
 
 
 def test_primary_ui_copy_is_not_hard_coded_in_html() -> None:

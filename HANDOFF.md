@@ -54,6 +54,7 @@ PersonaOS Web Experience v0.2 is complete.
 Relationship Selection v1 is complete for explicit Web/API session creation.
 PersonaOS Web Experience v0.3 is complete.
 Language Resource Boundary v1 is complete.
+Language Resource Boundary v1.1 is complete.
 
 Current completed integration state:
 
@@ -172,7 +173,8 @@ Current completed integration state:
 - Web/API session creation accepts explicit assistant, mentor, companion, or analyst relationship selection.
 - API Transport validates the relationship selection and creates a session-scoped `RelationshipContext` before delegating through `ChatApiBoundary`.
 - The Web Experience includes a Persona Experience card with persona name, version, description, and active relationship type.
-- The Web Experience loads its default Chinese interface from `frontend/web-console/i18n/zh-CN.json`.
+- The Web Experience loads its default Chinese interface from `frontend/web-console/i18n/zh-CN.json`, including static accessibility labels and runtime status copy.
+- The reserved `frontend/web-console/i18n/en-US.json` and `frontend/web-console/i18n/index.js` structure exists for future expansion.
 - `zh-CN` is the deterministic default; `en-US` remains a disabled extension point until its resource is implemented.
 - Language selection remains independent from Persona identity, Relationship context, Runtime, Memory, and provider configuration.
 - Relationship Selection v1 does not add relationship persistence, relationship evolution, relationship memory, emotion simulation, or automatic relationship generation.
@@ -180,7 +182,7 @@ Current completed integration state:
 - Persona API summaries and the Persona Experience card now include package-derived traits, style, and curated suitable scenarios.
 - Assistant, Mentor, Companion, and Analyst choices each expose a description and usage scenario before session creation.
 - A current experience summary shows Persona, Relationship, Language, and session-scoped Memory context after session creation.
-- Frontend `data-i18n` keys now resolve through Language Resource Boundary v1; English translation remains unimplemented.
+- Frontend `data-i18n` keys now resolve through Language Resource Boundary v1.1; missing static HTML keys are tested and English translation remains unimplemented.
 
 ## Architecture Rules
 
@@ -228,7 +230,7 @@ Still planned, not implemented:
 
 ## Next Goal
 
-Complete Language Resource Boundary v1.1 by removing remaining mixed-language user-facing copy, hiding unfinished English selection, and adding missing-key validation without changing Persona or Runtime boundaries.
+Complete the first manual Web Experience pass against the running local API. Keep English disabled until `en-US.json` contains a complete reviewed translation; do not couple language resources to Persona or Runtime boundaries.
 
 Integration Phase Step 1 completed:
 
@@ -449,9 +451,9 @@ Memory Promotion Boundary completed:
 
 ## Next Recommended Phase
 
-Language Resource Boundary v1.1 Chinese-default experience completion.
+Manual Chinese-default Web Experience verification and future English resource planning.
 
-The next work should remove remaining mixed-language user-facing copy, hide unfinished English selection, add an i18n index/registry boundary, and validate missing translation keys. Relationship Evolution, Relationship Memory, emotion simulation, and automatic relationship generation remain deferred.
+The next work should manually verify the Chinese-default Web Experience flow. The English selector remains visible as a reserved, disabled extension point until its resource is complete. Relationship Evolution, Relationship Memory, emotion simulation, and automatic relationship generation remain deferred.
 
 ## Future Considerations
 

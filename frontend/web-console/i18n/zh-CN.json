@@ -3,7 +3,8 @@
     "page_title": "PersonaOS 体验",
     "name": "PersonaOS",
     "version": "Web Experience v0.3",
-    "eyebrow": "AI 人格体验"
+    "eyebrow": "AI 人格体验",
+    "sidebar_label": "人格与会话控制"
   },
   "welcome": {
     "eyebrow": "数字心智操作系统",
@@ -34,6 +35,8 @@
     "load_hint": "加载人格后可查看可用的数字身份。",
     "unknown_version": "未知版本",
     "no_description": "此人格暂未提供描述。",
+    "option_format": "{name} · {version}",
+    "card_label": "人格体验卡片",
     "style": "表达风格",
     "traits": "人格特征",
     "scenarios": "适用场景",
@@ -70,7 +73,8 @@
     "empty_title": "由身份塑造的对话",
     "empty_description": "人格决定谁来回应，关系定义本次会话如何与该身份互动。",
     "role_user": "你",
-    "role_system": "系统"
+    "role_system": "系统",
+    "unknown_role": "消息"
   },
   "session": {
     "label": "会话",
@@ -82,7 +86,8 @@
     "language": "语言",
     "memory": "记忆",
     "memory_scope": "会话范围",
-    "memory_note": "对话历史只在临时会话中保留，不会自动升级为长期记忆。"
+    "memory_note": "对话历史只在临时会话中保留，不会自动升级为长期记忆。",
+    "summary_label": "当前体验摘要"
   },
   "status": {
     "request_failed": "请求失败。",

@@ -603,11 +603,12 @@ Planned:
 - [x] Deterministic `zh-CN` default loading.
 - [x] Keep UI language independent from active persona identity and model provider.
 - [x] Resource-driven onboarding, Persona, Relationship, Chat, Session, and status copy.
-- [ ] Hide the unfinished English selector entry in Language Resource Boundary v1.1.
+- [x] Keep the unfinished English selector entry visible but disabled in Language Resource Boundary v1.1.
 - [ ] Add `en-US.json` only when the English interface is complete.
-- [ ] Add supported-language registry and missing-key validation.
+- [x] Add reserved `en-US.json` and `i18n/index.js` extension structure.
+- [x] Add static supported-language registry and missing-key validation for the active Chinese resource.
 
-The current Web Experience loads `zh-CN.json` through Language Resource Boundary v1. English remains unimplemented and must not be presented as available. Automatic language detection remains deferred.
+The current Web Experience loads `zh-CN.json` through Language Resource Boundary v1.1. English remains a visible but disabled extension entry and must not be presented as available. Automatic language detection remains deferred.
 
 ## Web Experience v0.3
 
@@ -710,4 +711,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Language Resource Boundary v1.1: complete the Chinese-default experience, hide unfinished English selection, introduce the i18n index/registry boundary, and detect missing keys. Relationship Evolution, Relationship Memory, automatic relationship generation, and emotion simulation remain deferred.
+The immediate next focus is manual verification of the Chinese-default Web Experience. A complete English resource remains a later productization task. Relationship Evolution, Relationship Memory, automatic relationship generation, and emotion simulation remain deferred.

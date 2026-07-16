@@ -8,6 +8,10 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 
 ### Added
 
+- Completed Language Resource Boundary v1.1 for the Chinese-default Web Experience.
+- Completed the remaining static accessibility labels, persona option formatting, role labels, loading, empty, history, and error resource coverage.
+- Added the reserved `frontend/web-console/i18n/en-US.json` and `frontend/web-console/i18n/index.js` extension structure without enabling incomplete English UI.
+- Added static i18n key completeness tests and confirmed no primary English UI copy remains in HTML or runtime code.
 - Completed Language Resource Boundary v1 for the PersonaOS Web Experience.
 - Added the canonical Chinese resource file at `frontend/web-console/i18n/zh-CN.json`.
 - Migrated onboarding, persona, relationship, chat, session, and status copy into the language resource boundary.

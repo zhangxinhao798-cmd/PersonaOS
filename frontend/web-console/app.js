@@ -212,7 +212,10 @@ function renderPersonas() {
   for (const persona of state.personas) {
     const option = document.createElement("option");
     option.value = persona.id;
-    option.textContent = `${persona.name} · ${displayPersonaVersion(persona)}`;
+    option.textContent = t("persona.option_format", {
+      name: persona.name,
+      version: displayPersonaVersion(persona),
+    });
     personaSelect.appendChild(option);
   }
   if (state.personas.length > 0) {
@@ -334,7 +337,7 @@ function replaceMessage(item, role, content) {
 
 function renderHistory(history) {
   for (const item of messages.querySelectorAll(".message")) item.remove();
-  for (const turn of history) appendMessage(turn.role || "unknown", turn.content || "");
+  for (const turn of history) appendMessage(turn.role || "system", turn.content || "");
   updateEmptyState();
 }
 
@@ -452,7 +455,7 @@ async function initialize() {
     setNotice(t("chat.notice_initial"));
     await loadPersonas();
   } catch (error) {
-    setNotice(state.translations.status ? t("status.resource_failed") : "Language resource could not be loaded.", true);
+    setNotice(t("status.resource_failed"), true);
   }
 }
 
