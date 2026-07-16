@@ -31,6 +31,9 @@ ChatRuntime is complete.
 RuntimeSession is complete.
 The interactive PersonaOS CLI is complete.
 Two-turn local conversation through `qwen3:14b` has been verified.
+Runtime Configuration System v1 is complete.
+Live configuration-only model switching between `qwen3:14b` and `gemma4:12b` has been verified.
+`qwen3:14b` has been restored as the current default runtime model.
 
 Current completed integration state:
 
@@ -69,6 +72,12 @@ Current completed integration state:
 - Two-turn interactive conversation verified through local Ollama and `qwen3:14b`.
 - CLI commands verified for help, history, status, clear, and exit.
 - Confirmed temporary conversation history is not durable `MemoryEngine` memory and does not mutate persona profile, version, or library state.
+- Runtime configuration loader added for `config/runtime.json`.
+- `ProviderConfig` is constructed from runtime configuration.
+- Configured provider resolution routes through `AdapterRegistry`.
+- CLI and smoke scripts use runtime configuration instead of hard-coded provider, model, or endpoint values.
+- Live local verification passed for `qwen3:14b` and `gemma4:12b`.
+- Configuration was restored to `qwen3:14b` after live switching verification.
 
 ## Architecture Rules
 
@@ -87,9 +96,9 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 208 tests passing.
+Latest recorded verification status is 216 tests passing.
 
-Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` returned a valid response, usage metadata was returned, two-turn temporary history worked, CLI commands worked, and the smoke tests did not modify durable persona or memory state.
+Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
 Integration tests have been added for PersonaOS initialization, context processing, confidence boundary ownership, empty context handling, and orchestration flow.
 
@@ -102,12 +111,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Interactive Runtime completed.
+Runtime Configuration and live model switching verified.
 
 
 ## Next Goal
 
-Runtime Configuration System.
+Persona Package v1.
 
 Integration Phase Step 1 completed:
 
@@ -176,11 +185,23 @@ Interactive Runtime completed:
 5. Verified temporary history commands and clean exit behavior.
 6. Preserved durable memory and persona state boundaries.
 
+Runtime Configuration System v1 completed:
+
+1. Added runtime configuration loading from `config/runtime.json`.
+2. Constructed `ProviderConfig` from configuration.
+3. Resolved the configured provider through `AdapterRegistry`.
+4. Integrated configuration loading into the CLI.
+5. Integrated configuration loading into smoke scripts.
+6. Verified live `qwen3:14b` generation.
+7. Verified live `gemma4:12b` generation.
+8. Restored `qwen3:14b` as the current default.
+9. Verified 216 automated tests passing.
+
 ## Next Recommended Phase
 
-Runtime Configuration System.
+Persona Package v1.
 
-The next work should load provider, model, endpoint, and generation options from configuration, remove hard-coded model settings from the CLI, select adapters through `AdapterRegistry`, validate missing or invalid provider settings, and preserve provider replaceability. Model providers should remain replaceable, and persona data plus `RuntimeContext` must remain independent from LLM/provider state.
+The next work should create a file-backed, reviewable persona package format without adding persistence databases or automatic persona reconstruction. Persona Package v1 should define deterministic package structure, validation, loading, and conversion into existing `PersonaProfile`, `PersonaVersion`, and `PersonaLibraryEntry` boundaries while preserving human review before approval and activation.
 
 ## Future Considerations
 
@@ -215,4 +236,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from Interactive Runtime completion toward the Runtime Configuration System.
+Then continue from Runtime Configuration and live model switching verification toward Persona Package v1.

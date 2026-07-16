@@ -103,10 +103,19 @@ Completed:
   - [x] local two-turn chat verification
   - [x] CLI commands for help, history, status, clear, and exit
   - [x] `qwen3:14b` interactive runtime verification
+  - [x] Runtime Configuration System v1
+  - [x] configuration file loading
+  - [x] provider/model/endpoint/options loading
+  - [x] adapter selection through `AdapterRegistry`
+  - [x] removal of hard-coded runtime model configuration from CLI and smoke scripts
+  - [x] live model switching verification
+  - [x] `qwen3:14b` configuration verification
+  - [x] `gemma4:12b` configuration verification
+  - [x] restoration of `qwen3:14b` as default
 
 ### Runtime Intelligence Phase Preparation
 
-Runtime Context Assembly, the structured prompt pipeline, provider-independent adapter boundaries, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, interactive CLI runtime, temporary in-memory conversation history, and local `qwen3:14b` verification are completed.
+Runtime Context Assembly, the structured prompt pipeline, provider-independent adapter boundaries, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, interactive CLI runtime, temporary in-memory conversation history, Runtime Configuration System v1, and local model switching verification are completed.
 
 Completed:
 
@@ -128,12 +137,19 @@ Completed:
 - Local two-turn chat verification.
 - CLI commands for `/help`, `/history`, `/status`, `/clear`, and `/exit`.
 - Interactive `qwen3:14b` runtime verification.
+- Runtime Configuration System v1.
+- Configuration loading from `config/runtime.json`.
+- Provider, model, endpoint, and options loading.
+- Adapter selection through `AdapterRegistry`.
+- Configuration-driven CLI and smoke scripts.
+- Live configuration-only switching between `qwen3:14b` and `gemma4:12b`.
+- Restoration of `qwen3:14b` as the current default.
 
 Next item:
 
-- Runtime Configuration System.
+- Persona Package v1.
 
-Runtime Configuration System should make provider, model, endpoint, options, and adapter selection configurable without collapsing engine, prompt, adapter, or provider responsibilities.
+Persona Package v1 should create a file-backed, reviewable persona package format without adding persistence databases or automatic persona reconstruction.
 
 Requirements:
 
@@ -153,8 +169,11 @@ approved and active PersonaLibraryEntry
     -> RuntimeSession
     -> PromptBuilder
     -> PromptRenderer
+    -> runtime configuration loader
+    -> ProviderConfig
+    -> AdapterRegistry
     -> OllamaAdapter
-    -> qwen3:14b
+    -> configured local model
     -> LLMResponse
 ```
 
@@ -162,17 +181,18 @@ approved and active PersonaLibraryEntry
 
 ## Runtime Configuration System
 
-Status: Next
+Status: Completed
 
-Planned items:
+Completed:
 
 - Configuration file boundary.
 - Provider configuration loading.
 - Adapter selection through `AdapterRegistry`.
 - Default provider/model configuration.
-- CLI configuration override.
+- Configuration-driven CLI and smoke scripts.
 - Validation for missing or invalid provider settings.
 - No core engine changes required when switching models.
+- Live switching verification between `qwen3:14b` and `gemma4:12b`.
 
 The current local provider setting:
 
@@ -181,8 +201,43 @@ provider: ollama
 model: qwen3:14b
 ```
 
-should later be replaceable by configuration only. Configuration loading is not
-implemented yet.
+is loaded from `config/runtime.json`. `qwen3:14b` is the restored current
+default. It remains a replaceable runtime setting, not persona identity.
+
+## Persona Package v1
+
+Status: Current
+
+Planned scope:
+
+- Canonical persona package directory format.
+- Package manifest.
+- `PersonaProfile` data.
+- Speech patterns.
+- Thinking patterns.
+- Values.
+- Boundaries.
+- Examples.
+- Source references.
+- Optional knowledge references.
+- Package validation.
+- Package loading.
+- Conversion into existing `PersonaProfile`, `PersonaVersion`, and
+  `PersonaLibraryEntry` boundaries.
+- Human review before approval and activation.
+- Active persona selection for the CLI.
+
+Explicitly deferred:
+
+- LLM-based persona reconstruction.
+- Automatic extraction from private conversations.
+- Automatic approval.
+- Automatic activation.
+- Durable database persistence.
+- Voice cloning.
+- Avatar generation.
+- Relationship state.
+- Emotion state.
 
 ### Step 2: Persona + Memory Fusion
 
@@ -220,15 +275,15 @@ Progress:
 
 Current focus:
 
-- Runtime Configuration System.
+- Persona Package v1.
 
 Next steps:
 
-1. Add a configuration file boundary.
-2. Load provider, model, endpoint, and options from configuration.
-3. Select adapters through `AdapterRegistry`.
-4. Remove hard-coded model settings from the CLI.
-5. Keep persona data and `RuntimeContext` independent from model providers.
+1. Define the canonical persona package directory format.
+2. Add package manifest and persona data boundaries.
+3. Add deterministic package validation.
+4. Add deterministic package loading.
+5. Preserve review, versioning, library, activation, and CLI selection boundaries.
 
 ## Phase 2: Memory System
 
@@ -365,6 +420,17 @@ These capabilities belong to future expression and interface layers. They should
 
 These systems are long-term architectural directions, not implemented features. They remain separate from Persona core identity and Runtime Intelligence.
 
+Persona Reconstruction Engine:
+
+- Conversation import.
+- Evidence extraction.
+- Thinking pattern extraction.
+- Speech pattern extraction.
+- Relationship context.
+- Reviewable persona profiles.
+- Versioned persona library entries.
+- Reconstruction remains unimplemented and must not bypass human review.
+
 Expression Layer:
 
 - Language style.
@@ -403,6 +469,15 @@ Emotion Layer:
 - Emotion-aware expression.
 - Emotional state must not silently rewrite durable persona identity.
 
+Companion Engine:
+
+- Relationship memory.
+- Long-term goals.
+- Initiative engine.
+- Emotional continuity.
+- Habit learning.
+- Companion behavior remains unimplemented and separate from durable persona identity.
+
 ## Long-Term Vision
 
 Future directions may include:
@@ -422,4 +497,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is the Runtime Configuration System.
+The immediate next focus is Persona Package v1.

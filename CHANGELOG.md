@@ -125,6 +125,13 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Verified a two-turn conversation through local Ollama and `qwen3:14b`.
 - Added CLI commands for help, history, status, clear, and exit.
 - Confirmed no durable memory or persona state was written by the interactive runtime.
+- Added Runtime Configuration System v1.
+- Added configuration loading from `config/runtime.json`.
+- Routed provider selection through `AdapterRegistry`.
+- Removed hard-coded provider/model/endpoint values from CLI and smoke paths.
+- Verified live configuration-only switching between `qwen3:14b` and `gemma4:12b`.
+- Restored `qwen3:14b` as the default configuration.
+- Confirmed durable PersonaOS state remained unchanged.
 
 ### Design Decisions
 
@@ -170,7 +177,8 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - `ChatRuntime` owns controlled runtime generation.
 - `RuntimeSession` owns temporary in-memory conversation history only.
 - Temporary conversation history is not durable `MemoryEngine` memory.
-- Runtime Intelligence should continue with a Runtime Configuration System while preserving replaceable provider boundaries.
+- Runtime configuration selects provider, model, endpoint, and options without changing persona identity.
+- Runtime Intelligence should continue with Persona Package v1 while preserving replaceable provider and persona lifecycle boundaries.
 - Documented future Expression Layer direction including voice, speech style, TTS, and multimodal interface possibilities.
 - Expression capabilities remain future architectural directions only.
 
@@ -235,17 +243,18 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - The first local Ollama path with `qwen3:14b` has been verified manually.
 - Controlled ChatRuntime, RuntimeSession, and the interactive local CLI are complete.
 - The interactive runtime has been verified with a two-turn local conversation through `qwen3:14b`.
-- Current phase is Interactive Runtime completed.
-- Current recorded verification status: 208 tests passing.
-- Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` responding, usage metadata returned, temporary conversation history working, CLI commands working, and no durable PersonaOS state mutation.
+- Runtime Configuration System v1 is complete.
+- Live configuration-only model switching has been verified between `qwen3:14b` and `gemma4:12b`.
+- Current phase is Runtime Configuration and live model switching verified.
+- Current recorded verification status: 216 tests passing.
+- Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Implement a Runtime Configuration System.
-- Load provider, model, endpoint, and generation options from configuration.
-- Select adapters through `AdapterRegistry`.
-- Remove hard-coded provider/model/endpoint settings from the CLI.
+- Define Persona Package v1 data and directory boundaries.
+- Add package validation and deterministic package loading.
+- Convert valid packages into existing persona profile, version, library, review, activation, and CLI selection boundaries.
 - Keep provider switching simple and model-independent.
 - Keep `RuntimeContext` independent from specific providers such as Ollama, `qwen3:14b`, OpenAI, Claude, and other model providers.
 - Expand confidence handling for knowledge evidence in a future step.

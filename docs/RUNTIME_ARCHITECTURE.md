@@ -58,9 +58,9 @@ Some stages in this flow are current boundaries, while others are planned
 boundaries. `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`,
 `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`,
 `LLMResponse`, `ProviderConfig`, `AdapterRegistry`, `OllamaAdapter` v1,
-`ChatRuntime`, and `RuntimeSession` exist as implemented boundary components.
+`ChatRuntime`, `RuntimeSession`, and Runtime Configuration System v1 exist as implemented boundary components.
 The interactive CLI is the first local user-facing runtime interface. Response
-processing, runtime configuration loading, streaming, tool calling, multimodal
+processing, streaming, tool calling, multimodal
 requests, production API/frontend integration, automatic durable memory writes,
 and production persistence remain unimplemented.
 
@@ -242,8 +242,9 @@ imported persona package.
 
 ## 9. Model Configuration
 
-Model configuration has started with `ProviderConfig` and `AdapterRegistry` for
-selecting providers and model settings without editing core engines.
+Model configuration is implemented through `config/runtime.json`, the runtime
+configuration loader, `ProviderConfig`, and `AdapterRegistry` for selecting
+providers and model settings without editing core engines.
 
 Possible fields:
 
@@ -254,15 +255,17 @@ Possible fields:
 - Generation parameters
 - Credentials reference
 
-Model switching should allow a configuration such as:
+The current default configuration is:
 
 ```text
 provider: ollama
 model: qwen3:14b
+endpoint: http://localhost:11434
 ```
 
-to change to another configured provider and model without modifying PersonaOS
-core engines.
+These are replaceable runtime settings, not persona identity. Live switching
+between `qwen3:14b` and `gemma4:12b` has been verified by changing
+configuration only, and `qwen3:14b` has been restored as the current default.
 
 Configuration selects adapters through the registry boundary. Core engines
 should remain unaware of provider SDKs, credentials, transport details, and
@@ -355,9 +358,9 @@ LLMResponse
 ```
 
 This is the first verified provider integration. Ollama and `qwen3:14b` are not
-part of PersonaOS core identity. `qwen3:14b` is the current first runtime model,
-not persona identity. Another provider should be replaceable later through the
-same adapter and configuration boundaries.
+part of PersonaOS core identity. `qwen3:14b` is the current default runtime
+model, not persona identity. Another provider should be replaceable later
+through the same adapter and configuration boundaries.
 
 The manual live smoke test confirmed that local Ollama was reachable at the
 configured endpoint, `qwen3:14b` returned a valid response, usage metadata was
@@ -402,6 +405,35 @@ persona, ChatRuntime completed, Ollama was reachable, `qwen3:14b` responded,
 temporary two-turn conversation history was used, and durable persona state
 remained unchanged.
 
+## 13.2 Runtime Configuration Path
+
+Runtime Configuration System v1 has been verified through this flow:
+
+```text
+config/runtime.json
+    ->
+runtime configuration loader
+    ->
+ProviderConfig
+    ->
+AdapterRegistry
+    ->
+OllamaAdapter
+    ->
+configured local model
+    ->
+LLMResponse
+```
+
+The CLI and smoke scripts now resolve the configured adapter through
+`AdapterRegistry` instead of hard-coding a model or endpoint. Live switching
+between `qwen3:14b` and `gemma4:12b` was verified through configuration only.
+`qwen3:14b` is restored as the current default configuration.
+
+Switching the configured model changes runtime execution only. It must not
+rewrite persona identity, memory, knowledge, persona versions, library records,
+or session history semantics.
+
 ## 14. Testing Strategy
 
 Future runtime tests should cover:
@@ -442,19 +474,26 @@ Completed:
 - Interactive CLI runtime
 - Temporary conversation history
 - Local multi-turn `qwen3:14b` path verification
+- Runtime configuration file boundary
+- Runtime configuration loader
+- `ProviderConfig` construction from configuration
+- `AdapterRegistry` provider resolution
+- Configuration-driven CLI
+- Live switching between two local Ollama models
 
 Not yet implemented:
 
-- Runtime configuration loader
 - Production API
 - Response processing
 - Streaming
-- Tools
+- Tool calling
 - Multimodal requests
 - Frontend integration
 - Automatic durable memory writes
 - Context compression
+- Automatic memory extraction
 - Persistence
+- Cloud provider adapters
 - Relationship state
 - Emotion state
 - Voice
@@ -467,11 +506,12 @@ state, voice, avatar, or response processing exists.
 
 ## 16. Next Recommended Step
 
-The next coding step should be a Runtime Configuration System.
+The next coding step should be Persona Package v1.
 
-The next step should load provider, model, endpoint, and generation options
-from configuration, select adapters through `AdapterRegistry`, remove hard-coded
-model settings from the CLI, and validate missing or invalid provider settings.
+The next step should define a file-backed, reviewable persona package format
+with deterministic validation and loading, then convert valid packages into the
+existing `PersonaProfile`, `PersonaVersion`, and `PersonaLibraryEntry`
+boundaries for human review before approval and activation.
 
 Provider-specific work should continue only through replaceable adapter and
 configuration boundaries. Runtime integration must not silently mutate durable

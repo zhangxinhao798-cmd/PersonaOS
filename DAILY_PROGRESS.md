@@ -242,6 +242,14 @@ Each development day should have a section:
 - Verified a two-turn local conversation through the controlled runtime path.
 - Verified command handling for `/help`, `/history`, `/status`, `/clear`, and `/exit`.
 - Verified temporary session history without durable memory or persona mutation.
+- Completed runtime configuration loader.
+- Integrated `config/runtime.json`.
+- Added runtime adapter resolution through `AdapterRegistry`.
+- Integrated runtime configuration into the CLI.
+- Integrated runtime configuration into smoke scripts.
+- Verified live `qwen3:14b` runtime generation.
+- Verified live `gemma4:12b` runtime generation.
+- Restored configuration to `qwen3:14b`.
 
 ### Files Changed
 - `PROJECT_CONTEXT.md`
@@ -253,7 +261,7 @@ Each development day should have a section:
 - `docs/development_workflow.md`
 
 ### Tests
-- Current test count: 208 passed.
+- Current test count: 216 passed.
 - Live local Ollama smoke test passed.
 - Ollama was reachable at the configured local endpoint.
 - `qwen3:14b` returned a valid response.
@@ -266,6 +274,11 @@ Each development day should have a section:
 - `/clear` worked.
 - `/exit` worked.
 - Durable persona state remained unchanged.
+- `gemma4:12b` responded through configuration-only switching.
+- CLI `/status` reflected `gemma4:12b` during the temporary switch.
+- `LLMResponse.model` reflected the configured model.
+- `qwen3:14b` worked after restoration.
+- Working tree was clean after the temporary configuration test.
 - Latest fallback verification passed with `python -m compileall backend tests`.
 - Persona Library lifecycle integration coverage verifies source import, profile building, version snapshot creation, review approval, activation, and selector availability.
 - Runtime context assembly coverage verifies `RuntimeContext` creation, assembly from existing components, missing optional data handling, and boundary preservation.
@@ -284,18 +297,20 @@ Each development day should have a section:
 - Temporary session history is separate from durable `MemoryEngine` memory.
 - `RuntimeContext` must remain independent from Ollama, `qwen3:14b`, OpenAI, Claude, and other model providers.
 - `qwen3:14b` is the first verified local runtime model, not persona identity.
-- The next Runtime Intelligence boundary should be runtime configuration loading and adapter selection through configuration.
+- Runtime configuration controls provider, model, endpoint, and options without changing persona identity.
+- `qwen3:14b` is restored as the current default model.
+- The next Persona boundary should be Persona Package v1.
 - Expression Layer capabilities remain future interface extensions and are not part of Runtime Intelligence implementation.
 
 ### Problems / Notes
 - Persona Library lifecycle foundation is complete.
 - Interactive Runtime is complete.
+- Runtime Configuration System v1 is complete.
 - Expression Layer implementation has not started.
 - No production API/frontend runtime, streaming, tool calling, persistence, automatic durable memory writes, voice, avatar, emotion, or relationship logic has been introduced.
 
 ### Next Session
-- Implement the Runtime Configuration System.
-- Remove hard-coded provider/model/endpoint settings from the CLI.
-- Load provider, model, endpoint, and options from configuration.
-- Select adapters through `AdapterRegistry`.
-- Keep provider switching simple and model-independent.
+- Define Persona Package v1 data and directory boundary.
+- Add package validation.
+- Add deterministic package loader.
+- Preserve review, versioning, library, and activation boundaries.

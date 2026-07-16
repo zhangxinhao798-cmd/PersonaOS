@@ -112,7 +112,7 @@ The orchestration layer currently includes:
 
 PersonaOS coordinates engines but does not own engine logic. Persona, memory, knowledge, skills, confidence, and evolution responsibilities remain inside their owning engines. Context data is only a structured communication boundary; it is not memory storage, knowledge storage, persona management, confidence calculation, persistence, or a frontend API.
 
-Runtime Intelligence now includes the provider-independent runtime boundaries, the first local provider transport path, controlled chat runtime orchestration, temporary session history, and the first interactive local CLI interface. The completed runtime layer includes `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`, `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`, `LLMResponse`, `ProviderConfig`, `AdapterRegistry`, `OllamaAdapter` v1, `ChatRuntime`, and `RuntimeSession`.
+Runtime Intelligence now includes the provider-independent runtime boundaries, the first local provider transport path, controlled chat runtime orchestration, temporary session history, the first interactive local CLI interface, and Runtime Configuration System v1. The completed runtime layer includes `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`, `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`, `LLMResponse`, `ProviderConfig`, `AdapterRegistry`, `OllamaAdapter` v1, `ChatRuntime`, `RuntimeSession`, and runtime configuration loading from `config/runtime.json`.
 
 The first real local provider path has been verified with Ollama and `qwen3:14b`. The full interactive path has also been verified:
 
@@ -140,7 +140,25 @@ qwen3:14b
 LLMResponse
 ```
 
-`qwen3:14b` is the current first runtime model, not PersonaOS identity. Providers remain replaceable, and `OllamaAdapter` owns HTTP transport and Ollama response translation only. Runtime generation still does not directly mutate durable persona, memory, knowledge, skill, version, or library state.
+Runtime Configuration System v1 now loads provider, model, endpoint, and options from `config/runtime.json` into `ProviderConfig`. The configured provider is resolved through `AdapterRegistry`, and the CLI plus smoke scripts use that configured adapter instead of hard-coding `qwen3:14b` or the Ollama endpoint.
+
+```text
+config/runtime.json
+    ->
+runtime configuration loader
+    ->
+ProviderConfig
+    ->
+AdapterRegistry
+    ->
+OllamaAdapter
+    ->
+configured local model
+    ->
+LLMResponse
+```
+
+`qwen3:14b` and `gemma4:12b` have both been verified through the same runtime path by changing configuration only. `qwen3:14b` has been restored as the current default model. Model switching changes runtime configuration, not persona identity. Providers remain replaceable, `ChatRuntime` and `RuntimeSession` remain provider-agnostic, and `OllamaAdapter` owns HTTP transport and Ollama response translation only. Runtime generation still does not directly mutate durable persona, memory, knowledge, skill, version, or library state.
 
 `RuntimeSession` conversation history is temporary in-memory session context. It is not durable `MemoryEngine` memory, does not write memories, and does not update persona profile, version, or library records. The interactive CLI is the first user-facing runtime interface. Its current persona is an in-memory configured persona for local runtime use, not a complete imported persona package.
 
@@ -282,6 +300,13 @@ Completed so far:
 - Interactive PersonaOS CLI completed as the first user-facing local runtime interface.
 - Two-turn local conversation verified through the runtime path with `qwen3:14b`.
 - CLI commands verified: `/help`, `/history`, `/status`, `/clear`, and `/exit`.
+- Runtime Configuration System v1 completed.
+- Runtime provider, model, endpoint, and options are loaded from `config/runtime.json`.
+- `ProviderConfig` construction from configuration completed.
+- Adapter selection now routes through `AdapterRegistry`.
+- CLI and smoke scripts now use configuration-driven adapter resolution.
+- Live configuration-only switching verified between `qwen3:14b` and `gemma4:12b`.
+- `qwen3:14b` restored as the current default runtime model.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -328,8 +353,8 @@ Current verification status:
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
 - `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
-- Current recorded test status: 208 tests passing.
-- Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` responded successfully, usage metadata was returned, the second turn used prior temporary conversation history, CLI commands worked, and no durable PersonaOS state was modified.
+- Current recorded test status: 216 tests passing.
+- Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both responded successfully through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected the temporary `gemma4:12b` switch, `qwen3:14b` worked again after restoration, and no durable PersonaOS state was modified.
 
 Current implementation limits:
 
@@ -338,7 +363,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, and interactive CLI boundaries exist, but persistence, production API/frontend orchestration, runtime configuration loading, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, and runtime configuration loading boundaries exist, but persistence, production API/frontend orchestration, Persona Package v1, automatic persona reconstruction, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
@@ -347,6 +372,7 @@ Current implementation limits:
 - OllamaAdapter v1 performs provider transport only and maps local Ollama output into `LLMResponse`.
 - ChatRuntime coordinates runtime generation only through approved active persona selection, context assembly, prompt rendering, and adapter boundaries.
 - RuntimeSession stores temporary conversation history only and must not be treated as durable memory.
+- Runtime configuration selects provider, model, endpoint, and options without changing persona identity.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
@@ -531,7 +557,7 @@ Current status: Memory Layer v1 complete.
 - Persona Versioning boundary exists.
 - PersonaLibraryEntry model boundary exists.
 - Persona Library lifecycle, review, activation, and integration verification coverage exist.
-- Next work should add runtime configuration loading so provider, model, endpoint, and adapter selection are no longer hard-coded in the CLI.
+- Next work should define Persona Package v1 as a file-backed, reviewable persona package boundary.
 - Add persona profiles.
 - Support multiple personas.
 - Connect personas to memory scopes, skill permissions, and operating constraints.
@@ -589,11 +615,11 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Implement a Runtime Configuration System.
-- Load provider, model, endpoint, and options from configuration.
-- Select adapters through `AdapterRegistry`.
-- Remove hard-coded provider/model/endpoint settings from the CLI.
-- Validate missing or invalid provider settings.
+- Define Persona Package v1 data and directory boundaries.
+- Add a package manifest, persona profile data, speech patterns, thinking patterns, values, boundaries, examples, source references, and optional knowledge references.
+- Add deterministic package validation and loading.
+- Convert valid packages into existing `PersonaProfile`, `PersonaVersion`, and `PersonaLibraryEntry` boundaries.
+- Preserve human review before approval and activation.
 - Keep persona data independent from LLM/model provider state.
 
-The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, and the first interactive local CLI. The best next work is small, well-tested backend progress on runtime configuration while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, and model-provider transport responsibilities.
+The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, the first interactive local CLI, Runtime Configuration System v1, and live model switching verification. The best next work is small, well-tested backend progress on Persona Package v1 while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, runtime configuration, and model-provider transport responsibilities.
