@@ -1,6 +1,7 @@
 """Shared backend model definitions for PersonaOS."""
 
 from backend.models.fusion import FusionContext
+from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import (
     PersonaActivation,
     PersonaActivationStatus,
