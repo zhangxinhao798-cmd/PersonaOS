@@ -17,12 +17,17 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from backend.adapters import (  # noqa: E402
-    OllamaAdapter,
     OllamaAdapterError,
     OllamaResponseError,
     OllamaTransportError,
 )
-from backend.models import ProviderConfig, RuntimeContext  # noqa: E402
+from backend.models import RuntimeContext  # noqa: E402
+from config.runtime import (  # noqa: E402
+    RuntimeConfigError,
+    build_adapter_registry,
+    load_provider_config,
+    resolve_configured_adapter,
+)
 
 
 def build_runtime_context() -> RuntimeContext:
@@ -48,12 +53,14 @@ def build_runtime_context() -> RuntimeContext:
 
 
 def main() -> int:
-    config = ProviderConfig(
-        provider="ollama",
-        model="qwen3:14b",
-        endpoint="http://localhost:11434",
-    )
-    adapter = OllamaAdapter(config=config, timeout=120.0)
+    try:
+        config = load_provider_config()
+        registry = build_adapter_registry(config, timeout=120.0)
+        adapter = resolve_configured_adapter(config, registry)
+    except RuntimeConfigError as exc:
+        print(f"Runtime configuration failed: {exc}")
+        return 1
+
     runtime_context = build_runtime_context()
     user_input = "请用一句中文确认 PersonaOS 本地运行路径已经连通。"
 

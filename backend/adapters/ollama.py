@@ -79,8 +79,8 @@ class OllamaAdapter(BaseLLMAdapter):
         source = config or ProviderConfig()
         return ProviderConfig(
             provider=source.provider or self.provider,
-            model=source.model or "qwen3:14b",
-            endpoint=source.endpoint or "http://localhost:11434",
+            model=source.model,
+            endpoint=source.endpoint,
             api_key=source.api_key,
             options=dict(source.options or {}),
         )

@@ -42,7 +42,6 @@ from backend.models import (  # noqa: E402
     PersonaLibraryEntry,
     PersonaProfile,
     PersonaVersion,
-    ProviderConfig,
     RuntimeContext,
 )
 from backend.models.context import (  # noqa: E402
@@ -57,6 +56,12 @@ from backend.runtime import (  # noqa: E402
     AdapterGenerationError,
     ChatRuntime,
     ChatRuntimeError,
+)
+from config.runtime import (  # noqa: E402
+    RuntimeConfigError,
+    build_adapter_registry,
+    load_provider_config,
+    resolve_configured_adapter,
 )
 
 
@@ -272,12 +277,14 @@ def main() -> int:
         print("PersonaSelector rejected the approved active persona.")
         return 1
 
-    config = ProviderConfig(
-        provider="ollama",
-        model="qwen3:14b",
-        endpoint="http://localhost:11434",
-    )
-    ollama_adapter = OllamaAdapter(config=config, timeout=120.0)
+    try:
+        config = load_provider_config()
+        registry = build_adapter_registry(config, timeout=120.0)
+        ollama_adapter = resolve_configured_adapter(config, registry)
+    except RuntimeConfigError as exc:
+        print(f"Runtime configuration failed: {exc}")
+        return 1
+
     adapter = InstrumentedAdapter(ollama_adapter)
     assembler = InstrumentedRuntimeContextAssembler()
     runtime = ChatRuntime(
@@ -293,14 +300,14 @@ def main() -> int:
         cause = exc.__cause__
         if isinstance(cause, OllamaTransportError):
             print(
-                "Ollama is unavailable at http://localhost:11434, or the "
+                f"Ollama is unavailable at {config.endpoint}, or the "
                 "endpoint returned a non-success response. Please confirm "
                 "Ollama is running locally."
             )
             return 1
         if isinstance(cause, OllamaResponseError):
             print(
-                "Ollama responded, but qwen3:14b did not return usable "
+                f"Ollama responded, but {config.model} did not return usable "
                 "generated content. Please confirm the configured model is "
                 "available."
             )
@@ -341,4 +348,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

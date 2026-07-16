@@ -47,11 +47,21 @@ class FakeHttpClient:
         return json.dumps(self.response).encode("utf-8")
 
 
-def test_adapter_initializes_with_provider_config() -> None:
-    config = ProviderConfig(
+def ollama_config(
+    model: str = "test-model",
+    endpoint: str = "http://example.test",
+    **kwargs,
+) -> ProviderConfig:
+    return ProviderConfig(
         provider="ollama",
-        model="test-model",
-        endpoint="http://example.test",
+        model=model,
+        endpoint=endpoint,
+        **kwargs,
+    )
+
+
+def test_adapter_initializes_with_provider_config() -> None:
+    config = ollama_config(
         api_key="secret",
         options={"temperature": 0.2},
     )
@@ -65,18 +75,21 @@ def test_adapter_initializes_with_provider_config() -> None:
     assert adapter.config.options == {"temperature": 0.2}
 
 
-def test_adapter_uses_default_local_configuration() -> None:
-    adapter = OllamaAdapter(http_client=FakeHttpClient())
+def test_adapter_does_not_own_model_or_endpoint_defaults() -> None:
+    adapter = OllamaAdapter(
+        config=ProviderConfig(provider="ollama"),
+        http_client=FakeHttpClient(),
+    )
 
     assert adapter.config.provider == "ollama"
-    assert adapter.config.model == "qwen3:14b"
-    assert adapter.config.endpoint == "http://localhost:11434"
+    assert adapter.config.model == ""
+    assert adapter.config.endpoint == ""
 
 
 def test_correct_endpoint_is_constructed() -> None:
     fake_client = FakeHttpClient()
     adapter = OllamaAdapter(
-        config=ProviderConfig(endpoint="http://localhost:11434/"),
+        config=ollama_config(endpoint="http://localhost:11434/"),
         http_client=fake_client,
     )
 
@@ -90,7 +103,7 @@ def test_correct_endpoint_is_constructed() -> None:
 def test_correct_model_and_rendered_prompt_are_sent() -> None:
     fake_client = FakeHttpClient()
     adapter = OllamaAdapter(
-        config=ProviderConfig(model="custom-model"),
+        config=ollama_config(model="custom-model"),
         http_client=fake_client,
     )
     runtime_context = RuntimeContext(
@@ -111,7 +124,7 @@ def test_correct_model_and_rendered_prompt_are_sent() -> None:
 
 def test_stream_is_false() -> None:
     fake_client = FakeHttpClient()
-    adapter = OllamaAdapter(http_client=fake_client)
+    adapter = OllamaAdapter(config=ollama_config(), http_client=fake_client)
 
     adapter.generate(RuntimeContext(), "hello")
 
@@ -121,7 +134,7 @@ def test_stream_is_false() -> None:
 def test_configured_options_are_preserved() -> None:
     fake_client = FakeHttpClient()
     adapter = OllamaAdapter(
-        config=ProviderConfig(options={"temperature": 0.1, "num_predict": 64}),
+        config=ollama_config(options={"temperature": 0.1, "num_predict": 64}),
         http_client=fake_client,
     )
 
@@ -136,7 +149,7 @@ def test_configured_options_are_preserved() -> None:
 def test_successful_response_becomes_llm_response() -> None:
     fake_client = FakeHttpClient(response={"response": "generated answer"})
     adapter = OllamaAdapter(
-        config=ProviderConfig(model="qwen3:14b"),
+        config=ollama_config(model="qwen3:14b"),
         http_client=fake_client,
     )
 
@@ -162,7 +175,7 @@ def test_usage_metadata_is_mapped() -> None:
             "ignored": "not usage",
         }
     )
-    adapter = OllamaAdapter(http_client=fake_client)
+    adapter = OllamaAdapter(config=ollama_config(), http_client=fake_client)
 
     response = adapter.generate(RuntimeContext(), "hello")
 
@@ -179,7 +192,7 @@ def test_usage_metadata_is_mapped() -> None:
 
 def test_empty_response_content_is_handled() -> None:
     fake_client = FakeHttpClient(response={"response": ""})
-    adapter = OllamaAdapter(http_client=fake_client)
+    adapter = OllamaAdapter(config=ollama_config(), http_client=fake_client)
 
     with pytest.raises(OllamaResponseError):
         adapter.generate(RuntimeContext(), "hello")
@@ -187,7 +200,7 @@ def test_empty_response_content_is_handled() -> None:
 
 def test_missing_response_content_is_handled() -> None:
     fake_client = FakeHttpClient(response={"done": True})
-    adapter = OllamaAdapter(http_client=fake_client)
+    adapter = OllamaAdapter(config=ollama_config(), http_client=fake_client)
 
     with pytest.raises(OllamaResponseError):
         adapter.generate(RuntimeContext(), "hello")
@@ -195,7 +208,7 @@ def test_missing_response_content_is_handled() -> None:
 
 def test_invalid_json_is_handled() -> None:
     fake_client = FakeHttpClient(response=b"{invalid json")
-    adapter = OllamaAdapter(http_client=fake_client)
+    adapter = OllamaAdapter(config=ollama_config(), http_client=fake_client)
 
     with pytest.raises(OllamaResponseError):
         adapter.generate(RuntimeContext(), "hello")
@@ -203,7 +216,7 @@ def test_invalid_json_is_handled() -> None:
 
 def test_connection_failure_is_normalized() -> None:
     fake_client = FakeHttpClient(error=OSError("connection refused"))
-    adapter = OllamaAdapter(http_client=fake_client)
+    adapter = OllamaAdapter(config=ollama_config(), http_client=fake_client)
 
     with pytest.raises(OllamaTransportError):
         adapter.generate(RuntimeContext(), "hello")
@@ -225,7 +238,7 @@ def test_runtime_context_and_source_records_remain_unchanged() -> None:
         "knowledge": dict(knowledge),
         "metadata": dict(metadata),
     }
-    adapter = OllamaAdapter(http_client=FakeHttpClient())
+    adapter = OllamaAdapter(config=ollama_config(), http_client=FakeHttpClient())
 
     adapter.generate(runtime_context, "hello")
 

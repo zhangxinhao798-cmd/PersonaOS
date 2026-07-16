@@ -13,7 +13,6 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from backend.adapters import (  # noqa: E402
-    OllamaAdapter,
     OllamaResponseError,
     OllamaTransportError,
 )
@@ -49,13 +48,12 @@ from backend.runtime import (  # noqa: E402
     RuntimeSession,
     RuntimeSessionGenerationError,
 )
-
-
-LOCAL_PROVIDER_CONFIG = {
-    "provider": "ollama",
-    "model": "qwen3:14b",
-    "endpoint": "http://localhost:11434",
-}
+from config.runtime import (  # noqa: E402
+    RuntimeConfigError,
+    build_adapter_registry,
+    load_provider_config,
+    resolve_configured_adapter,
+)
 
 
 @dataclass
@@ -72,9 +70,16 @@ InputReader = Callable[[str], str]
 
 
 def provider_config() -> ProviderConfig:
-    """Return the local provider configuration in one replaceable location."""
+    """Load the runtime provider configuration."""
 
-    return ProviderConfig(**LOCAL_PROVIDER_CONFIG)
+    return load_provider_config()
+
+
+def configured_adapter(config: ProviderConfig):
+    """Resolve the configured adapter through AdapterRegistry."""
+
+    registry = build_adapter_registry(config, timeout=120.0)
+    return resolve_configured_adapter(config, registry)
 
 
 def build_persona_entry() -> PersonaLibraryEntry:
@@ -207,7 +212,7 @@ def build_runtime() -> InteractiveRuntime:
     library.add_persona(entry)
     selector = PersonaSelector(library)
     config = provider_config()
-    adapter = OllamaAdapter(config=config, timeout=120.0)
+    adapter = configured_adapter(config)
     chat_runtime = ChatRuntime(
         persona_selector=selector,
         adapter=adapter,
@@ -309,12 +314,12 @@ def runtime_error_message(error: Exception) -> str:
             if isinstance(adapter_cause, OllamaTransportError):
                 return (
                     "Ollama is unavailable at "
-                    f"{LOCAL_PROVIDER_CONFIG['endpoint']}. "
+                    f"{runtime_provider_endpoint(error)}. "
                     "Please confirm Ollama is running locally."
                 )
             if isinstance(adapter_cause, OllamaResponseError):
                 return (
-                    f"Model {LOCAL_PROVIDER_CONFIG['model']} did not return "
+                    f"Model {runtime_provider_model(error)} did not return "
                     "usable content. Please confirm the model is available."
                 )
         return "Runtime generation failed. No durable state was written."
@@ -322,6 +327,34 @@ def runtime_error_message(error: Exception) -> str:
         return f"Runtime error: {error}"
 
     return "Unexpected runtime error. No durable state was written."
+
+
+def runtime_provider_endpoint(error: Exception) -> str:
+    """Best-effort configured endpoint for readable provider errors."""
+
+    config = runtime_provider_config_from_error(error)
+    return config.endpoint if config is not None else "the configured endpoint"
+
+
+def runtime_provider_model(error: Exception) -> str:
+    """Best-effort configured model for readable provider errors."""
+
+    config = runtime_provider_config_from_error(error)
+    return config.model if config is not None else "the configured model"
+
+
+def runtime_provider_config_from_error(error: Exception) -> ProviderConfig | None:
+    cause = getattr(error, "__cause__", None)
+    adapter_cause = getattr(cause, "__cause__", None)
+    adapter = getattr(adapter_cause, "adapter", None)
+    config = getattr(adapter, "config", None)
+    if isinstance(config, ProviderConfig):
+        return config
+
+    try:
+        return provider_config()
+    except RuntimeConfigError:
+        return None
 
 
 def run_loop(
@@ -367,10 +400,12 @@ def main() -> int:
     except ChatRuntimeError as exc:
         print(f"Persona lifecycle validation failed: {exc}")
         return 1
+    except RuntimeConfigError as exc:
+        print(f"Runtime configuration failed: {exc}")
+        return 1
 
     return run_loop(runtime)
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
