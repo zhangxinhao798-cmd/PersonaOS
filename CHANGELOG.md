@@ -8,6 +8,12 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 
 ### Added
 
+- Completed PersonaOS Web Experience v0.3 first-use onboarding.
+- Added an architecture-accurate welcome experience covering Digital Mind, Persona, Memory, Skills, and Evolution.
+- Extended persona API summaries and experience cards with traits, style, and curated suitable scenarios from persona packages.
+- Added complete descriptions and usage scenarios for Assistant, Mentor, Companion, and Analyst relationship choices.
+- Added a current experience summary for persona, relationship, language, and session-scoped memory context.
+- Added `data-i18n` extension keys while deferring a complete translation system.
 - Completed PersonaOS Web Experience v0.2 as a user-facing local demo entry.
 - Added browsable persona selection with name, version, and description.
 - Added explicit session-scoped relationship selection for assistant, mentor, companion, and analyst contexts.
@@ -359,7 +365,7 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Extended `RuntimeSession`, `ManagedSession`, `SessionManager`, and `ChatApiBoundary` so temporary sessions can carry relationship context.
 - Confirmed relationship context does not modify Persona identity, Memory Engine, PersonaVersion, PersonaLibraryEntry, Evolution state, or durable memory.
 - Current phase is Relationship Boundary v1 completed.
-- Current recorded verification status: 388 tests passing.
+- Current recorded verification status: 393 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 

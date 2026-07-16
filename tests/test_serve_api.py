@@ -24,3 +24,11 @@ def test_local_runtime_provider_lists_personas_without_starting_server() -> None
     personas = provider.list_personas()
 
     assert any(persona["id"] == "architect" for persona in personas)
+    architect = next(persona for persona in personas if persona["id"] == "architect")
+    assert architect["style"] == "structured, concise, and careful"
+    assert architect["traits"]["focus"] == "modular architecture"
+    assert architect["suitable_scenarios"] == [
+        "System architecture review",
+        "Technical planning",
+        "Boundary-focused implementation",
+    ]

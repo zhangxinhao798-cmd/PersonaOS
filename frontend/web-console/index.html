@@ -7,13 +7,41 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
+    <section id="welcomeExperience" class="welcome-experience" aria-labelledby="welcomeTitle">
+      <div class="welcome-inner">
+        <header class="welcome-header">
+          <span class="brand-mark" aria-hidden="true">P</span>
+          <span>PersonaOS</span>
+        </header>
+        <div class="welcome-copy">
+          <p class="eyebrow" data-i18n="welcome.eyebrow">A system for digital minds</p>
+          <h1 id="welcomeTitle" data-i18n="welcome.title">Understand the mind before the conversation.</h1>
+          <p>
+            PersonaOS keeps identity, experience, capabilities, and controlled
+            change in explicit boundaries around the language model.
+          </p>
+        </div>
+        <dl class="concept-grid">
+          <div><dt>Digital Mind</dt><dd>The complete operating context, not just one model response.</dd></div>
+          <div><dt>Persona</dt><dd>The active identity, values, style, and boundaries.</dd></div>
+          <div><dt>Memory</dt><dd>Reviewed experience that may persist beyond a conversation.</dd></div>
+          <div><dt>Skills</dt><dd>Governed capabilities the persona may use.</dd></div>
+          <div><dt>Evolution</dt><dd>Explicit, reviewable change rather than silent personality drift.</dd></div>
+        </dl>
+        <div class="welcome-actions">
+          <button id="dismissWelcome" class="primary-action" type="button" data-i18n="welcome.continue">Choose a persona</button>
+          <p>No account or durable memory is created by this local demo.</p>
+        </div>
+      </div>
+    </section>
+
     <main class="shell">
       <aside class="sidebar" aria-label="Persona and session controls">
         <header class="brand">
           <span class="brand-mark" aria-hidden="true">P</span>
           <div>
             <h1>PersonaOS</h1>
-            <p>Web Experience v0.2</p>
+            <p>Web Experience v0.3</p>
           </div>
         </header>
 
@@ -21,7 +49,7 @@
           <div class="section-heading">
             <div>
               <span class="step">01</span>
-              <h2 id="personaHeading">Choose a persona</h2>
+              <h2 id="personaHeading" data-i18n="setup.persona">Choose a persona</h2>
             </div>
             <button id="reloadPersonas" class="icon-button" type="button" title="Reload personas" aria-label="Reload personas">↻</button>
           </div>
@@ -34,24 +62,28 @@
           <div class="section-heading">
             <div>
               <span class="step">02</span>
-              <h2 id="relationshipHeading">Choose a relationship</h2>
+              <h2 id="relationshipHeading" data-i18n="setup.relationship">Choose a relationship</h2>
             </div>
           </div>
           <label class="sr-only" for="relationshipSelect">Relationship</label>
-          <select id="relationshipSelect">
+          <select id="relationshipSelect" class="sr-only">
             <option value="assistant">Assistant</option>
             <option value="mentor">Mentor</option>
             <option value="companion">Companion</option>
             <option value="analyst">Analyst</option>
           </select>
-          <p id="relationshipDescription" class="supporting-copy"></p>
+          <div id="relationshipGallery" class="relationship-gallery"></div>
+          <div class="relationship-detail">
+            <p id="relationshipDescription" class="supporting-copy"></p>
+            <p><strong>Works well for:</strong> <span id="relationshipScenario"></span></p>
+          </div>
         </section>
 
         <section class="setup-section compact" aria-labelledby="languageHeading">
           <div class="section-heading">
             <div>
               <span class="step">03</span>
-              <h2 id="languageHeading">Interface language</h2>
+              <h2 id="languageHeading" data-i18n="setup.language">Interface language</h2>
             </div>
           </div>
           <label class="sr-only" for="languageSelect">Language</label>
@@ -67,7 +99,7 @@
           <input id="apiBase" value="http://127.0.0.1:8000" />
         </details>
 
-        <button id="newSession" class="primary-action" type="button">Start experience</button>
+        <button id="newSession" class="primary-action" type="button" data-i18n="setup.start">Start experience</button>
       </aside>
 
       <section class="experience">
@@ -78,6 +110,7 @@
             <p id="notice">Select a persona and relationship to begin.</p>
           </div>
           <div class="header-actions">
+            <button id="showWelcome" type="button">About</button>
             <button id="loadHistory" type="button">History</button>
           </div>
         </header>
@@ -90,6 +123,11 @@
               <span class="status-pill" id="personaVersion">none</span>
             </div>
             <p id="personaDescription">Load personas to inspect the available digital identities.</p>
+            <div class="persona-profile-details">
+              <div><span>Style</span><p id="personaStyle">Not specified</p></div>
+              <div><span>Traits</span><div id="personaTraits" class="trait-list"></div></div>
+              <div><span>Suitable scenarios</span><ul id="personaScenarios"></ul></div>
+            </div>
           </div>
           <dl class="experience-facts">
             <div>
@@ -101,6 +139,20 @@
               <dd id="sessionStatus">not started</dd>
             </div>
           </dl>
+        </section>
+
+        <section id="sessionSummary" class="session-summary" hidden aria-label="Current experience summary">
+          <div class="summary-title">
+            <span class="step">CURRENT EXPERIENCE</span>
+            <strong>Session ready</strong>
+          </div>
+          <dl>
+            <div><dt>Persona</dt><dd id="summaryPersona">none</dd></div>
+            <div><dt>Relationship</dt><dd id="summaryRelationship">none</dd></div>
+            <div><dt>Language</dt><dd id="summaryLanguage">English</dd></div>
+            <div><dt>Memory</dt><dd>Session scoped</dd></div>
+          </dl>
+          <p>Conversation history stays temporary. It is not automatically promoted to durable Memory.</p>
         </section>
 
         <div id="messages" class="messages" aria-live="polite">

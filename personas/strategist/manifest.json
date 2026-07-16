@@ -10,6 +10,11 @@
   "metadata": {
     "author": "PersonaOS",
     "package_version": "1",
-    "purpose": "second deterministic sample persona package"
+    "purpose": "second deterministic sample persona package",
+    "suitable_scenarios": [
+      "Decision framing",
+      "Tradeoff analysis",
+      "Action planning"
+    ]
   }
 }

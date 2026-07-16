@@ -605,6 +605,25 @@ Planned:
 
 The current Web Experience contains only the language selection entry. Complete UI translation and the `frontend/i18n/` language-resource boundary remain unimplemented.
 
+## Web Experience v0.3
+
+Status: Completed
+
+Completed:
+
+- [x] Architecture-accurate first-use welcome experience.
+- [x] Digital Mind, Persona, Memory, Skills, and Evolution explanation.
+- [x] Persona traits, style, and curated suitable-scenario display.
+- [x] Relationship descriptions and usage scenarios for all four supported choices.
+- [x] Current experience summary for Persona, Relationship, Language, and session-scoped Memory context.
+- [x] Frontend-only welcome preference.
+- [x] `data-i18n` extension keys without a complete translation implementation.
+
+Still required:
+
+- [ ] Manual end-to-end first interaction verification with the local API and configured model.
+- [ ] Dedicated `frontend/i18n/` Chinese and English language files.
+
 ## Future Persona Experience Systems
 
 These systems are long-term architectural directions, not implemented features. They remain separate from Persona core identity and Runtime Intelligence.
@@ -687,4 +706,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is manual Web Experience v0.2 end-to-end verification, followed by a small `frontend/i18n/` language-resource boundary for Chinese and English. Relationship Evolution, Relationship Memory, automatic relationship generation, and emotion simulation remain deferred.
+The immediate next focus is manual Web Experience v0.3 end-to-end verification, followed by a small `frontend/i18n/` language-resource boundary for Chinese and English. Relationship Evolution, Relationship Memory, automatic relationship generation, and emotion simulation remain deferred.

@@ -1,4 +1,4 @@
-"""Tests for PersonaOS Web Experience v0.2 static assets."""
+"""Tests for PersonaOS Web Experience v0.3 static assets."""
 
 from pathlib import Path
 
@@ -96,3 +96,58 @@ def test_web_console_does_not_introduce_frontend_framework() -> None:
     assert "vite" not in combined
     assert "vue" not in combined
     assert "node_modules" not in combined
+
+
+def test_web_experience_has_architecture_accurate_welcome_flow() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert 'id="welcomeExperience"' in html
+    for concept in ("Digital Mind", "Persona", "Memory", "Skills", "Evolution"):
+        assert concept in html
+    assert "personaos_welcome_seen" in app_js
+    assert 'id="showWelcome"' in html
+
+
+def test_web_experience_displays_extended_persona_summary() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert 'id="personaStyle"' in html
+    assert 'id="personaTraits"' in html
+    assert 'id="personaScenarios"' in html
+    assert "displayPersonaStyle" in app_js
+    assert "displayPersonaTraits" in app_js
+    assert "displayPersonaScenarios" in app_js
+
+
+def test_web_experience_explains_relationship_usage() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert 'id="relationshipGallery"' in html
+    assert 'id="relationshipScenario"' in html
+    assert "renderRelationshipGallery" in app_js
+    assert app_js.count("scenario:") == 4
+    assert "description.textContent = relationship.description" in app_js
+
+
+def test_web_experience_has_session_summary() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert 'id="sessionSummary"' in html
+    assert 'id="summaryPersona"' in html
+    assert 'id="summaryRelationship"' in html
+    assert 'id="summaryLanguage"' in html
+    assert "Session scoped" in html
+    assert "sessionSummary.hidden = !state.activeSessionId" in app_js
+
+
+def test_web_experience_preserves_i18n_extension_points() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+
+    assert 'data-i18n="welcome.title"' in html
+    assert 'data-i18n="setup.persona"' in html
+    assert 'data-i18n="setup.relationship"' in html
+    assert 'data-i18n="setup.language"' in html

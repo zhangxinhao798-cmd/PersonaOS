@@ -52,6 +52,7 @@ PersonaOS Web Experience v0.1 is complete.
 Relationship Boundary v1 is complete.
 PersonaOS Web Experience v0.2 is complete.
 Relationship Selection v1 is complete for explicit Web/API session creation.
+PersonaOS Web Experience v0.3 is complete.
 
 Current completed integration state:
 
@@ -172,6 +173,11 @@ Current completed integration state:
 - The Web Experience includes a Persona Experience card with persona name, version, description, and active relationship type.
 - The Web Experience includes a basic Chinese/English language selection entry. It changes the frontend language preference boundary only; complete UI translation and `frontend/i18n/` language files remain unimplemented.
 - Relationship Selection v1 does not add relationship persistence, relationship evolution, relationship memory, emotion simulation, or automatic relationship generation.
+- Web Experience v0.3 adds an architecture-accurate first-use welcome flow for Digital Mind, Persona, Memory, Skills, and Evolution.
+- Persona API summaries and the Persona Experience card now include package-derived traits, style, and curated suitable scenarios.
+- Assistant, Mentor, Companion, and Analyst choices each expose a description and usage scenario before session creation.
+- A current experience summary shows Persona, Relationship, Language, and session-scoped Memory context after session creation.
+- Frontend `data-i18n` keys preserve a future language-resource extension point; full Chinese/English translation remains unimplemented.
 
 ## Architecture Rules
 
@@ -190,7 +196,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 388 tests passing.
+Latest recorded verification status is 393 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -205,7 +211,7 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Web Experience v0.2 and Relationship Selection v1 completed.
+Web Experience v0.3 first-use onboarding completed.
 
 User-Persona Relationship is now recognized as a core PersonaOS system. The implemented scope is limited to the context boundary: relationship type, interaction style, tone, permissions, lifecycle, and metadata can travel through session and runtime context without changing Persona identity.
 
@@ -219,7 +225,7 @@ Still planned, not implemented:
 
 ## Next Goal
 
-Manually verify Web Experience v0.2 against the running local HTTP API and configured Ollama model. The next small productization boundary may establish `frontend/i18n/` language files while keeping language selection independent from Persona and Runtime.
+Manually verify the complete Web Experience v0.3 flow against the running local HTTP API and configured Ollama model. The next small productization boundary may establish `frontend/i18n/` language files while keeping language selection independent from Persona and Runtime.
 
 Integration Phase Step 1 completed:
 
@@ -440,7 +446,7 @@ Memory Promotion Boundary completed:
 
 ## Next Recommended Phase
 
-Web Experience v0.2 end-to-end verification and Frontend Internationalization Boundary v1 planning.
+Web Experience v0.3 end-to-end interaction verification and Frontend Internationalization Boundary v1.
 
 The next work should manually verify persona selection, all four relationship selections, session creation, and message generation against the local service. After verification, introduce only the `frontend/i18n/` language-resource boundary for Chinese and English. Relationship Evolution, Relationship Memory, emotion simulation, and automatic relationship generation remain deferred.
 

@@ -10,7 +10,11 @@
   "metadata": {
     "author": "PersonaOS",
     "package_version": "1",
-    "purpose": "deterministic sample persona package"
+    "purpose": "deterministic sample persona package",
+    "suitable_scenarios": [
+      "System architecture review",
+      "Technical planning",
+      "Boundary-focused implementation"
+    ]
   }
 }
-

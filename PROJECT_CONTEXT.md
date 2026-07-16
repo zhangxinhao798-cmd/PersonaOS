@@ -178,6 +178,8 @@ Relationship Selection v1 is complete for Web/API session creation. Users can ex
 
 PersonaOS Web Experience v0.2 provides browsable persona identity information, explicit relationship selection, an identity-focused experience card, and the existing chat flow over HTTP API boundaries. It remains a local framework-free demo rather than a production frontend.
 
+PersonaOS Web Experience v0.3 adds a first-use welcome flow that explains Digital Mind, Persona, Memory, Skills, and Evolution without presenting unimplemented behavior as complete. Persona summaries expose package-derived traits and style plus curated suitable scenarios. Relationship choices explain both interaction behavior and intended use before session creation. A current experience summary keeps Persona, Relationship, Language, and session-scoped memory context visible after startup.
+
 Frontend internationalization is a future productization direction. A basic Chinese/English language selection entry now exists, but UI copy is not yet managed by a complete translation system. Language resources are planned under a dedicated `frontend/i18n/` boundary and must remain independent from persona identity and model provider configuration.
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
@@ -401,7 +403,7 @@ Current verification status:
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
 - `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
-- Current recorded test status: 388 tests passing.
+- Current recorded test status: 393 tests passing.
 - Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both responded successfully through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected the temporary `gemma4:12b` switch, `qwen3:14b` worked again after restoration, and no durable PersonaOS state was modified.
 
 Current implementation limits:
@@ -411,7 +413,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, runtime configuration loading, Persona Package v1 boundaries, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, Relationship Context Boundary v1, Relationship Selection v1, and Web Experience v0.2 exist. Persistence, automatic persona reconstruction, automatic package review or activation persistence, voice cloning, TTS, avatar, relationship evolution, relationship memory, emotion state, complete frontend internationalization, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, runtime configuration loading, Persona Package v1 boundaries, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, Relationship Context Boundary v1, Relationship Selection v1, and Web Experience v0.3 exist. Persistence, automatic persona reconstruction, automatic package review or activation persistence, voice cloning, TTS, avatar, relationship evolution, relationship memory, emotion state, complete frontend internationalization, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
@@ -695,7 +697,7 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Manually verify Web Experience v0.2 against the running local HTTP API and configured Ollama model.
+- Manually verify the complete Web Experience v0.3 first-use and chat flow against the running local HTTP API and configured Ollama model.
 - Keep relationship choice explicit and session-scoped; do not generate or evolve relationships automatically.
 - Preserve temporary session history as non-durable runtime state.
 - Keep persona, relationship, expression, model provider, and session responsibilities separate.

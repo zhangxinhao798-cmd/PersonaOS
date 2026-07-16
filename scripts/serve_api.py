@@ -13,7 +13,11 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from backend.api import ApiTransport, PersonaRuntimeBundle  # noqa: E402
 from backend.api.http_server import create_http_server  # noqa: E402
-from backend.core import PersonaLibraryEngine, PersonaSelector  # noqa: E402
+from backend.core import (  # noqa: E402
+    PersonaLibraryEngine,
+    PersonaPackageLoader,
+    PersonaSelector,
+)
 from backend.engine.runtime_context_assembler import (  # noqa: E402
     RuntimeContextAssembler,
 )
@@ -43,15 +47,25 @@ class LocalPersonaRuntimeProvider:
     def list_personas(self) -> list[dict]:
         """Return API-safe summaries for valid local persona packages."""
 
-        return [
-            {
-                "id": entry.id,
-                "name": entry.name,
-                "current_version_id": entry.current_version_id,
-                "description": entry.description,
-            }
-            for entry in discover_persona_packages(self.personas_dir)
-        ]
+        summaries = []
+        loader = PersonaPackageLoader()
+        for entry in discover_persona_packages(self.personas_dir):
+            package = loader.load(self.personas_dir / entry.id)
+            profile = entry.profile
+            summaries.append(
+                {
+                    "id": entry.id,
+                    "name": entry.name,
+                    "current_version_id": entry.current_version_id,
+                    "description": entry.description,
+                    "traits": dict(profile.traits) if profile else {},
+                    "style": profile.style if profile else "",
+                    "suitable_scenarios": list(
+                        package.manifest.metadata.get("suitable_scenarios", [])
+                    ),
+                }
+            )
+        return summaries
 
     def get_runtime_bundle(
         self,

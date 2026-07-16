@@ -2,18 +2,22 @@ const RELATIONSHIPS = {
   assistant: {
     label: "Assistant",
     description: "Practical, clear support for everyday tasks and questions.",
+    scenario: "Task support, explanations, and focused everyday help.",
   },
   mentor: {
     label: "Mentor",
     description: "Structured guidance that helps you think and improve.",
+    scenario: "Learning, reflection, planning, and skill development.",
   },
   companion: {
     label: "Companion",
     description: "A warm, supportive style for open-ended conversation.",
+    scenario: "Open conversation, shared reflection, and steady presence.",
   },
   analyst: {
     label: "Analyst",
     description: "Neutral, precise discussion focused on evidence and tradeoffs.",
+    scenario: "Research, comparison, diagnosis, and decision analysis.",
   },
 };
 
@@ -27,10 +31,15 @@ const state = {
 };
 
 const apiBaseInput = document.querySelector("#apiBase");
+const welcomeExperience = document.querySelector("#welcomeExperience");
+const dismissWelcomeButton = document.querySelector("#dismissWelcome");
+const showWelcomeButton = document.querySelector("#showWelcome");
 const personaSelect = document.querySelector("#personaSelect");
 const personaGallery = document.querySelector("#personaGallery");
 const relationshipSelect = document.querySelector("#relationshipSelect");
+const relationshipGallery = document.querySelector("#relationshipGallery");
 const relationshipDescription = document.querySelector("#relationshipDescription");
+const relationshipScenario = document.querySelector("#relationshipScenario");
 const relationshipType = document.querySelector("#relationshipType");
 const languageSelect = document.querySelector("#languageSelect");
 const reloadPersonasButton = document.querySelector("#reloadPersonas");
@@ -45,9 +54,16 @@ const sessionStatus = document.querySelector("#sessionStatus");
 const personaName = document.querySelector("#personaName");
 const personaVersion = document.querySelector("#personaVersion");
 const personaDescription = document.querySelector("#personaDescription");
+const personaStyle = document.querySelector("#personaStyle");
+const personaTraits = document.querySelector("#personaTraits");
+const personaScenarios = document.querySelector("#personaScenarios");
 const personaAvatar = document.querySelector("#personaAvatar");
 const chatTitle = document.querySelector("#chatTitle");
 const sendMessageButton = document.querySelector("#sendMessage");
+const sessionSummary = document.querySelector("#sessionSummary");
+const summaryPersona = document.querySelector("#summaryPersona");
+const summaryRelationship = document.querySelector("#summaryRelationship");
+const summaryLanguage = document.querySelector("#summaryLanguage");
 
 function apiBase() {
   return apiBaseInput.value.replace(/\/+$/, "");
@@ -86,6 +102,23 @@ function displayPersonaDescription(persona) {
   return persona?.description || persona?.metadata?.description || "This persona has no description yet.";
 }
 
+function displayPersonaStyle(persona) {
+  return persona?.style || "Not specified by this persona package.";
+}
+
+function displayPersonaTraits(persona) {
+  if (Array.isArray(persona?.traits)) return persona.traits;
+  return Object.entries(persona?.traits || {}).map(([name, value]) => `${name}: ${value}`);
+}
+
+function displayPersonaScenarios(persona) {
+  return Array.isArray(persona?.suitable_scenarios) ? persona.suitable_scenarios : [];
+}
+
+function displayLanguage() {
+  return state.language === "zh-CN" ? "中文" : "English";
+}
+
 function personaInitial(persona) {
   return (persona?.name || "P").trim().charAt(0).toUpperCase();
 }
@@ -101,6 +134,11 @@ function setLoading(isLoading) {
 function resetVisibleSession() {
   state.activeSessionId = "";
   for (const item of messages.querySelectorAll(".message")) item.remove();
+}
+
+function setWelcomeVisible(isVisible) {
+  welcomeExperience.hidden = !isVisible;
+  document.body.classList.toggle("welcome-open", isVisible);
 }
 
 function selectPersona(personaId) {
@@ -120,11 +158,30 @@ function updateExperience() {
   personaDescription.textContent = persona
     ? displayPersonaDescription(persona)
     : "Load personas to inspect the available digital identities.";
+  personaStyle.textContent = displayPersonaStyle(persona);
+  renderTextList(personaTraits, displayPersonaTraits(persona), "trait");
+  renderTextList(personaScenarios, displayPersonaScenarios(persona), "scenario");
   personaAvatar.textContent = personaInitial(persona);
   relationshipType.textContent = relationship.label;
   relationshipDescription.textContent = relationship.description;
+  relationshipScenario.textContent = relationship.scenario;
   sessionStatus.textContent = state.activeSessionId || "not started";
   chatTitle.textContent = persona ? `Meet ${persona.name}` : "Choose who you want to meet";
+  summaryPersona.textContent = persona?.name || "none";
+  summaryRelationship.textContent = relationship.label;
+  summaryLanguage.textContent = displayLanguage();
+  sessionSummary.hidden = !state.activeSessionId;
+}
+
+function renderTextList(container, items, className) {
+  container.innerHTML = "";
+  const values = items.length > 0 ? items : ["Not specified"];
+  for (const value of values) {
+    const item = document.createElement(container.tagName === "UL" ? "li" : "span");
+    item.className = className;
+    item.textContent = value;
+    container.appendChild(item);
+  }
 }
 
 function renderPersonas() {
@@ -169,6 +226,36 @@ function renderPersonaGallery() {
 
     button.addEventListener("click", () => selectPersona(persona.id));
     personaGallery.appendChild(button);
+  }
+}
+
+function selectRelationship(relationshipId) {
+  state.activeRelationshipType = relationshipId;
+  relationshipSelect.value = relationshipId;
+  resetVisibleSession();
+  renderRelationshipGallery();
+  updateExperience();
+  updateEmptyState();
+  setNotice("Relationship selected. Start a new experience to apply it.");
+}
+
+function renderRelationshipGallery() {
+  relationshipGallery.innerHTML = "";
+  for (const [id, relationship] of Object.entries(RELATIONSHIPS)) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "relationship-option";
+    button.classList.toggle("selected", id === state.activeRelationshipType);
+    button.setAttribute("aria-pressed", String(id === state.activeRelationshipType));
+    const name = document.createElement("strong");
+    name.textContent = relationship.label;
+    const description = document.createElement("p");
+    description.textContent = relationship.description;
+    const scenario = document.createElement("span");
+    scenario.textContent = `Use for: ${relationship.scenario}`;
+    button.append(name, description, scenario);
+    button.addEventListener("click", () => selectRelationship(id));
+    relationshipGallery.appendChild(button);
   }
 }
 
@@ -292,25 +379,31 @@ async function sendMessage(event) {
 
 personaSelect.addEventListener("change", () => selectPersona(personaSelect.value));
 relationshipSelect.addEventListener("change", () => {
-  state.activeRelationshipType = relationshipSelect.value;
-  resetVisibleSession();
-  updateExperience();
-  updateEmptyState();
-  setNotice("Relationship selected. Start a new experience to apply it.");
+  selectRelationship(relationshipSelect.value);
 });
 languageSelect.addEventListener("change", () => {
   state.language = languageSelect.value;
   document.documentElement.lang = state.language;
+  updateExperience();
   setNotice(state.language === "zh-CN" ? "已选择中文界面入口。" : "English interface entry selected.");
 });
+dismissWelcomeButton.addEventListener("click", () => {
+  setWelcomeVisible(false);
+  try { localStorage.setItem("personaos_welcome_seen", "true"); } catch (error) { /* UI preference only. */ }
+});
+showWelcomeButton.addEventListener("click", () => setWelcomeVisible(true));
 reloadPersonasButton.addEventListener("click", loadPersonas);
 newSessionButton.addEventListener("click", createSession);
 loadHistoryButton.addEventListener("click", loadHistory);
 messageForm.addEventListener("submit", sendMessage);
 
 relationshipSelect.value = state.activeRelationshipType;
+renderRelationshipGallery();
 languageSelect.value = state.language;
 document.documentElement.lang = state.language;
+let welcomeSeen = false;
+try { welcomeSeen = localStorage.getItem("personaos_welcome_seen") === "true"; } catch (error) { /* UI preference only. */ }
+setWelcomeVisible(!welcomeSeen);
 updateExperience();
 updateEmptyState();
 loadPersonas();
