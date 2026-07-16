@@ -88,6 +88,42 @@ When practical, commit implementation changes separately from documentation-only
 
 ## Document Update Guide
 
+## Documentation Synchronization Policy
+
+PersonaOS completion status depends on documentation synchronization. A bug
+fix, feature, or milestone is not considered complete until the required
+project documents are updated.
+
+### Bug Fix
+
+Required documentation:
+
+- `CHANGELOG.md`
+- `DAILY_PROGRESS.md`
+- `HANDOFF.md`
+
+### Feature Completion
+
+Required documentation:
+
+- `CHANGELOG.md`
+- `DAILY_PROGRESS.md`
+- `HANDOFF.md`
+- `PROJECT_CONTEXT.md`
+
+### Milestone Completion
+
+Required documentation:
+
+- `CHANGELOG.md`
+- `DAILY_PROGRESS.md`
+- `HANDOFF.md`
+- `PROJECT_CONTEXT.md`
+- `ROADMAP.md`
+
+No milestone may be marked complete in conversation, handoff notes, roadmap
+status, or release summaries until the required documentation is synchronized.
+
 ### `DAILY_PROGRESS.md`
 
 Update every development day.
@@ -126,10 +162,9 @@ Before ending a development session:
 - Run relevant tests.
 - Run the relevant manual smoke test when a runtime path, provider path, or CLI path changes.
 - Verify the current automated test number before recording it.
+- Apply the Documentation Synchronization Policy for bug fixes, feature completions, and milestone completions.
 - Record test results in `DAILY_PROGRESS.md`.
-- Update `CHANGELOG.md` if a feature or milestone was completed.
-- Update `PROJECT_CONTEXT.md` if the current architecture or implementation status changed.
-- Update `ROADMAP.md` if project priorities changed.
+- Update `CHANGELOG.md`, `HANDOFF.md`, `PROJECT_CONTEXT.md`, and `ROADMAP.md` according to the required synchronization level.
 - Verify current and next phases match across project documents.
 - Review `git status`.
 - Inspect untracked files before committing.
