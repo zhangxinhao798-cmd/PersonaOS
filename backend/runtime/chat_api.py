@@ -4,6 +4,7 @@ from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
 from backend.runtime.chat_runtime import ChatRuntime
+from backend.runtime.memory_runtime import RuntimeMemoryRetriever
 from backend.runtime.session_manager import ManagedSession, SessionManager
 
 
@@ -24,6 +25,7 @@ class ChatApiBoundary:
         chat_runtime: ChatRuntime,
         session_id: str | None = None,
         metadata: dict | None = None,
+        memory_retriever: RuntimeMemoryRetriever | None = None,
     ) -> ManagedSession:
         """Create a temporary chat session."""
 
@@ -33,6 +35,7 @@ class ChatApiBoundary:
             chat_runtime=chat_runtime,
             session_id=session_id,
             metadata=metadata,
+            memory_retriever=memory_retriever,
         )
 
     def send_message(self, session_id: str, user_input: str) -> LLMResponse:
@@ -72,6 +75,7 @@ class ChatApiBoundary:
         persona_os_context: PersonaOSContext,
         chat_runtime: ChatRuntime,
         metadata: dict | None = None,
+        memory_retriever: RuntimeMemoryRetriever | None = None,
     ) -> ManagedSession:
         """Switch the active persona reference for a session."""
 
@@ -81,4 +85,5 @@ class ChatApiBoundary:
             persona_os_context=persona_os_context,
             chat_runtime=chat_runtime,
             metadata=metadata,
+            memory_retriever=memory_retriever,
         )

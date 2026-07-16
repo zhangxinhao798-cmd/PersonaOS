@@ -18,23 +18,35 @@ class MemoryRetriever:
         state filtering, source reliability, and persona-specific retrieval.
         """
 
+        return [
+            memory
+            for memory, _score in self.retrieve_with_relevance(query, limit)
+        ]
+
+    def retrieve_with_relevance(
+        self,
+        query: str,
+        limit: int = 5,
+    ) -> list[tuple[MemoryRecord, float]]:
+        """Return relevant memories with deterministic relevance scores."""
+
         query_words = self._tokenize(query)
         if not query_words or limit <= 0:
             return []
 
         scored_memories = [
-            (self._score_memory(memory, query_words), memory)
+            (memory, self._score_memory(memory, query_words))
             for memory in self.memories
         ]
         relevant_memories = [
-            (score, memory)
-            for score, memory in scored_memories
+            (memory, score)
+            for memory, score in scored_memories
             if score > 0
         ]
 
-        relevant_memories.sort(key=lambda item: item[0], reverse=True)
+        relevant_memories.sort(key=lambda item: item[1], reverse=True)
 
-        return [memory for _, memory in relevant_memories[:limit]]
+        return relevant_memories[:limit]
 
     def _score_memory(self, memory: MemoryRecord, query_words: set[str]) -> float:
         """Score a memory using keyword matches and memory weights."""

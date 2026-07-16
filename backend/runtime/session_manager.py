@@ -6,6 +6,7 @@ from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
 from backend.runtime.chat_runtime import ChatRuntime
+from backend.runtime.memory_runtime import RuntimeMemoryRetriever
 from backend.runtime.session import RuntimeSession
 from backend.runtime.session_repository import (
     InMemorySessionRepository,
@@ -51,6 +52,7 @@ class SessionManager:
         chat_runtime: ChatRuntime,
         session_id: str | None = None,
         metadata: dict | None = None,
+        memory_retriever: RuntimeMemoryRetriever | None = None,
     ) -> ManagedSession:
         """Create and register a temporary runtime session."""
 
@@ -66,6 +68,7 @@ class SessionManager:
             persona_entry=persona_entry,
             persona_os_context=persona_os_context,
             chat_runtime=chat_runtime,
+            memory_retriever=memory_retriever,
             metadata=dict(metadata or {}),
         )
         managed_session = ManagedSession(
@@ -122,6 +125,7 @@ class SessionManager:
         persona_os_context: PersonaOSContext,
         chat_runtime: ChatRuntime,
         metadata: dict | None = None,
+        memory_retriever: RuntimeMemoryRetriever | None = None,
     ) -> ManagedSession:
         """Switch the active persona reference for a temporary session.
 
@@ -140,6 +144,7 @@ class SessionManager:
             persona_entry=persona_entry,
             persona_os_context=persona_os_context,
             chat_runtime=chat_runtime,
+            memory_retriever=memory_retriever,
             metadata=merged_metadata,
         )
         managed_session.runtime_session = runtime_session

@@ -16,6 +16,7 @@ from backend.runtime import (
     SessionNotFoundError,
 )
 from backend.runtime.chat_runtime import ChatRuntime
+from backend.runtime.memory_runtime import RuntimeMemoryRetriever
 
 
 class ApiTransportError(Exception):
@@ -45,6 +46,7 @@ class PersonaRuntimeBundle:
     persona_entry: PersonaLibraryEntry
     persona_os_context: PersonaOSContext
     chat_runtime: ChatRuntime
+    memory_retriever: RuntimeMemoryRetriever | None = None
     metadata: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -171,6 +173,7 @@ class ApiTransport:
                 "persona_name": bundle.name,
                 **bundle.metadata,
             },
+            memory_retriever=bundle.memory_retriever,
         )
         return ApiTransportResponse(
             status_code=201,

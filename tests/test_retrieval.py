@@ -68,3 +68,35 @@ def test_retrieve_does_not_return_irrelevant_memories() -> None:
     results = retriever.retrieve("persona memory")
 
     assert results == []
+
+
+def test_retrieve_with_relevance_returns_scores() -> None:
+    """Retriever should expose relevance scores for runtime context metadata."""
+
+    high_value_memory = make_memory(
+        "User prefers memory runtime architecture.",
+        "semantic",
+        confidence=0.9,
+        importance=0.9,
+    )
+    lower_value_memory = make_memory(
+        "Runtime retrieval keeps session history separate.",
+        "semantic",
+        confidence=0.5,
+        importance=0.4,
+    )
+    retriever = MemoryRetriever([lower_value_memory, high_value_memory])
+
+    results = retriever.retrieve_with_relevance("memory runtime")
+
+    assert results[0][0] is high_value_memory
+    assert results[0][1] > results[1][1]
+    assert all(score > 0 for _memory, score in results)
+
+
+def test_retrieve_with_relevance_handles_empty_query() -> None:
+    """Empty queries should not produce runtime memory candidates."""
+
+    retriever = MemoryRetriever([make_memory("Memory architecture.", "semantic")])
+
+    assert retriever.retrieve_with_relevance("   ") == []

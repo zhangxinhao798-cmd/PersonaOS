@@ -306,14 +306,21 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added `MemoryRepository`, `PersonaRepository`, and `KnowledgeRepository` interfaces.
 - Added `InMemoryMemoryRepository`, `InMemoryPersonaRepository`, and `InMemoryKnowledgeRepository`.
 - Added repository tests confirming save, retrieve, list, delete, no engine imports, no database coupling, and no record mutation.
-- Current phase is API Response Schema v1 and Persistence Architecture v1 completed.
-- Current recorded verification status: 321 tests passing.
+- Added Memory Runtime Integration v1 as a read-only runtime memory retrieval path.
+- Added `RuntimeMemoryRetriever` for selecting relevant memories from prepared `PersonaOSContext.memories`.
+- Added relevance metadata for runtime memory retrieval without changing `MemoryRecord` lifecycle behavior.
+- Extended `RuntimeSession` so a session can optionally retrieve relevant memories for the current turn before calling `ChatRuntime`.
+- Extended `RuntimeContextAssembler` to preserve a separate memory section with retrieval relevance metadata.
+- Confirmed memory enters `RuntimeContext` and rendered prompts through the independent `## Memory` section without being merged into persona identity.
+- Confirmed Runtime does not save chat history as memory, generate memories, mutate memory records, call `MemoryEngine`, or introduce database/vector storage.
+- Current phase is Memory Runtime Integration v1 completed.
+- Current recorded verification status: 330 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Add manual curl/Postman verification for the stable API response schema and decide the next product-facing surface.
+- Decide the next memory product boundary: manual memory review, memory extraction candidates, or persistent repository implementation.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.
 - Keep provider switching simple and model-independent.

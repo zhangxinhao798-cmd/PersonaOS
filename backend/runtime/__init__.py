@@ -22,6 +22,10 @@ from backend.runtime.session_repository import (
     ManagedSession,
     SessionRepository,
 )
+from backend.runtime.memory_runtime import (
+    RetrievedMemory,
+    RuntimeMemoryRetriever,
+)
 from backend.runtime.chat_api import ChatApiBoundary
 from backend.runtime.session_manager import (
     DuplicateSessionError,

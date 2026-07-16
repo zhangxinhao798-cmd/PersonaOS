@@ -20,6 +20,7 @@ class MemoryContext:
     """Experience-derived context prepared for orchestration."""
 
     memories: list = field(default_factory=list)
+    relevance: list[dict] = field(default_factory=list)
 
 
 @dataclass

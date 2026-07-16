@@ -43,6 +43,7 @@ Session Repository Boundary v1 is complete.
 HTTP Server Transport v1 is complete.
 API Response Schema v1 is complete.
 Persistence Architecture v1 repository boundaries are complete.
+Memory Runtime Integration v1 is complete.
 
 Current completed integration state:
 
@@ -122,6 +123,13 @@ Current completed integration state:
 - `PersonaRepository` and `InMemoryPersonaRepository` added.
 - `KnowledgeRepository` and `InMemoryKnowledgeRepository` added.
 - Persistence Architecture v1 provides repository boundaries only; no SQLite, PostgreSQL, vector database, file persistence, or automatic memory generation was introduced.
+- `RuntimeMemoryRetriever` added as the read-only runtime memory retrieval boundary.
+- `MemoryRetriever.retrieve_with_relevance()` added for deterministic relevance metadata.
+- `MemoryContext` now supports relevance metadata alongside retrieved memory records.
+- `RuntimeSession` can optionally retrieve relevant memories for a turn before calling `ChatRuntime`.
+- `RuntimeContextAssembler` now carries retrieved memory and relevance metadata into `RuntimeContext.memories`.
+- Prompt assembly preserves retrieved memory under the independent `## Memory` section.
+- Memory Runtime Integration does not call `MemoryEngine`, write durable memory, summarize chat, mutate persona state, mutate memory records, or introduce database/vector storage.
 
 ## Architecture Rules
 
@@ -140,7 +148,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 321 tests passing.
+Latest recorded verification status is 330 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -155,12 +163,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-API Response Schema v1 and Persistence Architecture v1 completed.
+Memory Runtime Integration v1 completed.
 
 
 ## Next Goal
 
-Run manual curl/Postman verification of the stable API response schema and decide the next product-facing surface without introducing database persistence or bypassing Runtime boundaries.
+Decide the next memory product boundary: manual memory review, memory extraction candidates, or persistent repository implementation without letting RuntimeSession or SessionManager automatically write durable memory.
 
 Integration Phase Step 1 completed:
 
@@ -344,11 +352,23 @@ API Response Schema and Persistence Architecture completed:
 7. Confirmed no SQLite, PostgreSQL, vector database, file persistence, automatic memory generation, automatic persona creation, or knowledge crawling was introduced.
 8. Verified 321 automated tests passing.
 
+Memory Runtime Integration completed:
+
+1. Added `RuntimeMemoryRetriever` as the read-only runtime memory retrieval boundary.
+2. Added relevance-aware retrieval metadata through `MemoryRetriever.retrieve_with_relevance()`.
+3. Extended `MemoryContext` with relevance metadata.
+4. Extended `RuntimeSession` so the current user turn can retrieve relevant memories before `ChatRuntime` generation.
+5. Extended `RuntimeContextAssembler` so retrieved memory reaches `RuntimeContext.memories` with source, category, confidence, importance, timestamp, and relevance metadata.
+6. Confirmed `PromptBuilder` and `PromptRenderer` preserve memory as an independent `## Memory` section.
+7. Confirmed memory does not pollute persona identity.
+8. Confirmed no automatic memory write, no automatic memory generation, no `MemoryEngine` call, no database, no vector database, and no durable persona/memory mutation.
+9. Verified 330 automated tests passing.
+
 ## Next Recommended Phase
 
-Manual API schema verification and next product-facing surface decision.
+Memory product boundary decision.
 
-The next work should run a manual curl/Postman verification against `scripts/serve_api.py`, confirm the stable message response schema, then decide whether to improve API ergonomics, add a Web UI, or continue backend memory retrieval integration while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
+The next work should decide whether to implement manual memory review, memory extraction candidates, or persistent repository storage first. Keep RuntimeSession temporary history separate from durable Memory, and preserve persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
 
 ## Future Considerations
 

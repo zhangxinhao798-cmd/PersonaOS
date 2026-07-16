@@ -40,7 +40,23 @@ class RuntimeContextAssembler:
         if memory_context is None:
             return []
 
-        return self._get_value(memory_context, "memories", []) or []
+        memories = self._get_value(memory_context, "memories", []) or []
+        relevance = self._get_value(memory_context, "relevance", []) or []
+        if not relevance:
+            return memories
+
+        return [
+            {
+                "content": self._get_value(memory, "content", ""),
+                "category": self._get_value(memory, "category", ""),
+                "source": self._get_value(memory, "source", ""),
+                "confidence": self._get_value(memory, "confidence", 0.0),
+                "importance": self._get_value(memory, "importance", 0.0),
+                "timestamp": self._get_value(memory, "timestamp", ""),
+                "relevance": relevance[index] if index < len(relevance) else {},
+            }
+            for index, memory in enumerate(memories)
+        ]
 
     def _knowledge(self, context: PersonaOSContext) -> dict:
         knowledge_context = self._get_value(context, "knowledge", None)
@@ -97,6 +113,7 @@ class RuntimeContextAssembler:
                 "confidence": "PersonaOSContext.confidence",
                 "fusion_context": "PersonaOSContext.fusion_memory",
                 "expression": "PersonaOSContext.metadata.expression",
+                "memory_retrieval": "RuntimeMemoryRetriever read path",
             },
         )
 

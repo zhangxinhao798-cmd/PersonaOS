@@ -11,6 +11,7 @@ from backend.runtime.chat_runtime import (
     ChatRuntime,
     EmptyUserInputError,
 )
+from backend.runtime.memory_runtime import RuntimeMemoryRetriever
 
 
 @dataclass
@@ -60,6 +61,7 @@ class RuntimeSession:
     persona_entry: PersonaLibraryEntry
     persona_os_context: PersonaOSContext
     chat_runtime: ChatRuntime
+    memory_retriever: RuntimeMemoryRetriever | None = None
     conversation: list[ConversationTurn] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
     created_at: str = ""
@@ -147,6 +149,19 @@ class RuntimeSession:
             if turn is not current_user_turn
         ]
         metadata["session_id"] = self.id
+        if self.memory_retriever is not None:
+            retrieved_memory_context = (
+                self.memory_retriever.retrieve_relevant_memories(
+                    current_user_turn.content,
+                    self.persona_os_context,
+                )
+            )
+            context.memories = retrieved_memory_context
+            metadata["memory_retrieval"] = {
+                "enabled": True,
+                "retrieved_count": len(retrieved_memory_context.memories),
+                "source": "RuntimeMemoryRetriever",
+            }
         setattr(context, "metadata", metadata)
         return context
 

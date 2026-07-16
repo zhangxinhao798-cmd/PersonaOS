@@ -52,6 +52,12 @@ Each development day should have a section:
 - Completed Persistence Architecture v1 repository boundaries.
 - Added in-memory repository implementations for memory, persona, and knowledge records.
 - Confirmed repositories do not import core engines, connect to databases, or own business logic.
+- Completed Memory Runtime Integration v1.
+- Added read-only runtime memory retrieval through `RuntimeMemoryRetriever`.
+- Extended `RuntimeSession` to retrieve relevant memory for the current user turn when a memory retriever is provided.
+- Extended RuntimeContext assembly so retrieved memory can carry relevance metadata into the independent memory section.
+- Confirmed prompt assembly renders retrieved memories under `## Memory` and does not merge memory into persona identity.
+- Confirmed Runtime does not auto-save chat turns as memory, auto-generate memory, call `MemoryEngine`, or mutate durable memory/persona records.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -64,7 +70,11 @@ Each development day should have a section:
 - `backend/repositories/persona_repository.py`
 - `backend/repositories/knowledge_repository.py`
 - `backend/runtime/session_repository.py`
+- `backend/runtime/memory_runtime.py`
 - `scripts/serve_api.py`
+- `backend/core/retrieval.py`
+- `backend/engine/runtime_context_assembler.py`
+- `backend/models/context.py`
 - `backend/runtime/__init__.py`
 - `tests/test_session_manager.py`
 - `tests/test_chat_api_boundary.py`
@@ -73,15 +83,17 @@ Each development day should have a section:
 - `tests/test_http_server_transport.py`
 - `tests/test_serve_api.py`
 - `tests/test_persistence_repositories.py`
+- `tests/test_memory_runtime_integration.py`
+- `tests/test_retrieval.py`
 - `CHANGELOG.md`
 - `DAILY_PROGRESS.md`
 - `HANDOFF.md`
 
 ### Tests
 - `pytest`
-- `python -m compileall backend tests`
+- `python -m compileall backend scripts tests`
 - Current test status:
-  - 321 passed.
+  - 330 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
@@ -89,6 +101,7 @@ Each development day should have a section:
 - HTTP Server Transport coverage verifies server startup, persona listing, session creation, message sending, response JSON, and error JSON through the existing ApiTransport path.
 - API response schema coverage verifies message responses are JSON serializable and frontend-consumable.
 - Persistence repository coverage verifies memory, persona, and knowledge save/retrieve/list/delete behavior without database or engine coupling.
+- Memory Runtime Integration coverage verifies relevant memory retrieval, empty-memory behavior, multiple-memory ordering, RuntimeSession integration, RuntimeContext memory section assembly, prompt rendering, persona identity separation, and no durable record mutation.
 
 ### Design Decisions
 - `SessionManager` owns temporary session lifecycle only.
@@ -106,14 +119,18 @@ Each development day should have a section:
 - API Response Schema v1 avoids Python object representations and PowerShell-specific display formats.
 - Persistence Architecture v1 keeps storage concerns behind repository interfaces.
 - Repository implementations remain in-memory only; SQLite/PostgreSQL/file persistence is not implemented.
+- Memory Runtime Integration v1 is read path only.
+- `RuntimeMemoryRetriever` reads already-prepared `PersonaOSContext.memories`; it does not connect to `MemoryEngine`.
+- Retrieved memory is passed into RuntimeContext as memory context, not persona identity.
+- Conversation history remains separate from durable memory and is not automatically transformed into `MemoryRecord`.
 
 ### Problems / Notes
-- No persistence, database, frontend, MemoryEngine connection, automatic memory extraction, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
+- No persistence, database, frontend, MemoryEngine connection, automatic memory extraction, automatic memory generation, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
-- Run manual curl/Postman verification against `scripts/serve_api.py` and confirm the stable message schema.
-- Keep durable memory extraction as a separate future review pipeline, not part of SessionManager.
+- Decide whether the next memory milestone should be manual memory review, memory extraction candidates, or persistent repository implementation.
+- Keep durable memory extraction as a separate future review pipeline, not part of RuntimeSession or SessionManager.
 
 ## 2026-07-15
 
