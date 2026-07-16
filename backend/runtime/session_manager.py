@@ -6,6 +6,7 @@ from backend.core.memory_candidate import CandidateExtractor, ReviewQueue
 from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
+from backend.models.relationship import RelationshipContext
 from backend.runtime.chat_runtime import ChatRuntime
 from backend.runtime.memory_runtime import RuntimeMemoryRetriever
 from backend.runtime.session import RuntimeSession
@@ -53,6 +54,7 @@ class SessionManager:
         chat_runtime: ChatRuntime,
         session_id: str | None = None,
         metadata: dict | None = None,
+        relationship_context: RelationshipContext | dict | None = None,
         memory_retriever: RuntimeMemoryRetriever | None = None,
         candidate_extractor: CandidateExtractor | None = None,
         review_queue: ReviewQueue | None = None,
@@ -71,6 +73,7 @@ class SessionManager:
             persona_entry=persona_entry,
             persona_os_context=persona_os_context,
             chat_runtime=chat_runtime,
+            relationship_context=relationship_context,
             memory_retriever=memory_retriever,
             candidate_extractor=candidate_extractor,
             review_queue=review_queue,
@@ -81,6 +84,7 @@ class SessionManager:
             runtime_session=runtime_session,
             active_persona_reference=persona_entry,
             persona_os_context=persona_os_context,
+            active_relationship_reference=relationship_context,
             metadata=dict(metadata or {}),
         )
         self.repository.save(managed_session)
@@ -130,6 +134,7 @@ class SessionManager:
         persona_os_context: PersonaOSContext,
         chat_runtime: ChatRuntime,
         metadata: dict | None = None,
+        relationship_context: RelationshipContext | dict | None = None,
         memory_retriever: RuntimeMemoryRetriever | None = None,
         candidate_extractor: CandidateExtractor | None = None,
         review_queue: ReviewQueue | None = None,
@@ -151,6 +156,7 @@ class SessionManager:
             persona_entry=persona_entry,
             persona_os_context=persona_os_context,
             chat_runtime=chat_runtime,
+            relationship_context=relationship_context,
             memory_retriever=memory_retriever,
             candidate_extractor=candidate_extractor,
             review_queue=review_queue,
@@ -159,6 +165,7 @@ class SessionManager:
         managed_session.runtime_session = runtime_session
         managed_session.active_persona_reference = persona_entry
         managed_session.persona_os_context = persona_os_context
+        managed_session.active_relationship_reference = relationship_context
         managed_session.metadata = merged_metadata
         managed_session.updated_at = runtime_session.updated_at
         return managed_session

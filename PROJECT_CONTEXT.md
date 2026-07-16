@@ -86,7 +86,7 @@ backend/
 
 `backend/runtime/` contains the controlled runtime conversation boundaries. `chat_runtime.py` defines the controlled runtime generation boundary, and `session.py` owns temporary in-memory conversation history for interactive sessions.
 
-`backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `fusion.py` contains `FusionContext` for persona-aware memory interpretation output. `runtime_context.py` contains `RuntimeContext`, the runtime-ready data boundary for future adapter layers. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_candidate.py` contains the reviewable `MemoryCandidate` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
+`backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `relationship.py` contains `RelationshipContext`, the User-Persona relationship context boundary. `fusion.py` contains `FusionContext` for persona-aware memory interpretation output. `runtime_context.py` contains `RuntimeContext`, the runtime-ready data boundary for future adapter layers. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_candidate.py` contains the reviewable `MemoryCandidate` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
 
 `backend/main.py` contains the backend entry point. It provides `create_app()` and prints a minimal startup log when run with `python -m backend.main`.
 
@@ -108,9 +108,10 @@ The orchestration layer currently includes:
 - RuntimeContext: Defines the runtime-ready context boundary for future LLM adapter layers.
 - RuntimeContextAssembler: Prepares runtime-ready context from active persona, memory, knowledge, skills, confidence, and fusion context while preserving source boundaries.
 - ChatRuntime: Connects approved active persona selection, runtime context assembly, and adapter generation through a controlled runtime boundary.
-- RuntimeSession: Stores temporary in-memory conversation history for a live session only.
+- RelationshipContext: Describes User-Persona relationship context such as relationship type, interaction style, tone, permissions, lifecycle, and metadata without changing persona identity.
+- RuntimeSession: Stores temporary in-memory conversation history for a live session only and may carry relationship context for that session.
 
-PersonaOS coordinates engines but does not own engine logic. Persona, memory, knowledge, skills, confidence, and evolution responsibilities remain inside their owning engines. Context data is only a structured communication boundary; it is not memory storage, knowledge storage, persona management, confidence calculation, persistence, or a frontend API.
+PersonaOS coordinates engines but does not own engine logic. Persona, relationship, memory, knowledge, skills, confidence, and evolution responsibilities remain separated. Relationship is a User-Persona interaction context, not persona identity, not durable memory, and not emotion simulation. Context data is only a structured communication boundary; it is not memory storage, knowledge storage, persona management, confidence calculation, persistence, or a frontend API.
 
 Runtime Intelligence now includes the provider-independent runtime boundaries, the first local provider transport path, controlled chat runtime orchestration, temporary session history, the first interactive local CLI interface, and Runtime Configuration System v1. The completed runtime layer includes `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`, `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`, `LLMResponse`, `ProviderConfig`, `AdapterRegistry`, `OllamaAdapter` v1, `ChatRuntime`, `RuntimeSession`, and runtime configuration loading from `config/runtime.json`.
 
@@ -161,6 +162,8 @@ LLMResponse
 `qwen3:14b` and `gemma4:12b` have both been verified through the same runtime path by changing configuration only. `qwen3:14b` has been restored as the current default model. Model switching changes runtime configuration, not persona identity. Providers remain replaceable, `ChatRuntime` and `RuntimeSession` remain provider-agnostic, and `OllamaAdapter` owns HTTP transport and Ollama response translation only. Runtime generation still does not directly mutate durable persona, memory, knowledge, skill, version, or library state.
 
 `RuntimeSession` conversation history is temporary in-memory session context. It is not durable `MemoryEngine` memory, does not write memories, and does not update persona profile, version, or library records. The interactive CLI is the first user-facing runtime interface. Its current persona is an in-memory configured persona for local runtime use, not a complete imported persona package.
+
+Relationship Boundary v1 is complete. `RelationshipContext` can be carried by `PersonaOSContext`, assembled into `RuntimeContext`, packaged by `PromptBuilder` under an independent relationship section, and attached to temporary sessions through `RuntimeSession`, `ManagedSession`, `SessionManager`, and `ChatApiBoundary`. Relationship context does not modify `PersonaProfile`, `PersonaVersion`, `PersonaLibraryEntry`, `MemoryEngine`, `EvolutionEngine`, or durable memory.
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
@@ -297,6 +300,8 @@ Completed so far:
 - Local Ollama smoke test completed with `qwen3:14b` returning a valid `LLMResponse`.
 - `ChatRuntime` completed as the controlled runtime generation boundary.
 - `RuntimeSession` completed for temporary in-memory conversation history.
+- Relationship Boundary v1 completed through `RelationshipContext`.
+- Relationship context can flow through `PersonaOSContext`, `RuntimeContext`, `PromptPackage`, rendered prompts, and temporary runtime sessions.
 - Interactive PersonaOS CLI completed as the first user-facing local runtime interface.
 - Two-turn local conversation verified through the runtime path with `qwen3:14b`.
 - CLI commands verified: `/help`, `/history`, `/status`, `/clear`, and `/exit`.
@@ -400,9 +405,10 @@ Current implementation limits:
 - OllamaAdapter v1 performs provider transport only and maps local Ollama output into `LLMResponse`.
 - ChatRuntime coordinates runtime generation only through approved active persona selection, context assembly, prompt rendering, and adapter boundaries.
 - RuntimeSession stores temporary conversation history only and must not be treated as durable memory.
+- Relationship context describes how a user and persona interact in the current context. It must not be treated as Persona identity, Memory, or Emotion state.
 - Runtime configuration selects provider, model, endpoint, and options without changing persona identity.
 - Context Engine is documented in architecture but not yet implemented in backend code.
-- No frontend behavior is implemented.
+- PersonaOS Web Demo v0.1 and Web Experience v0.1 are implemented as local framework-free browser interfaces over existing API boundaries.
 
 ## 5. Memory System Design
 
@@ -682,4 +688,4 @@ Recommended immediate tasks:
 - Preserve human review before approval and activation.
 - Keep persona data independent from LLM/model provider state.
 
-The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, the first interactive local CLI, Runtime Configuration System v1, live model switching verification, Persona Package v1, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, API/Web readiness boundaries, Memory Runtime Integration v1, Memory Candidate Pipeline v1, Memory Promotion Boundary v1, and Memory Candidate Review Controls v1. The best next work is small, well-tested backend progress toward memory review UX and future persistence planning while preserving the existing boundaries between persona, expression, voice, memory, candidate review, promotion, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, runtime configuration, package loading, API transport, and model-provider transport responsibilities.
+The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, the first interactive local CLI, Runtime Configuration System v1, live model switching verification, Persona Package v1, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, API/Web readiness boundaries, Memory Runtime Integration v1, Memory Candidate Pipeline v1, Memory Promotion Boundary v1, Memory Candidate Review Controls v1, Web Experience v0.1, and Relationship Boundary v1. The best next work is small, well-tested progress toward relationship selection UX, memory review UX, and future persistence planning while preserving the existing boundaries between persona, relationship, expression, voice, memory, candidate review, promotion, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, runtime configuration, package loading, API transport, and model-provider transport responsibilities.

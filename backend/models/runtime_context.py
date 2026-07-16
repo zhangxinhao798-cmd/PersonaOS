@@ -15,6 +15,7 @@ class RuntimeContext:
 
     active_persona: Any = None
     persona_version: str = ""
+    relationship: Any = None
     memories: list = field(default_factory=list)
     knowledge: dict = field(default_factory=dict)
     skills: list = field(default_factory=list)

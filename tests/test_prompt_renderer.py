@@ -32,6 +32,7 @@ def test_renders_empty_prompt_package() -> None:
     assert rendered.text == (
         "## System\n{}"
         "\n\n## Persona\n{}"
+        "\n\n## Relationship\n{}"
         "\n\n## Memory\n[]"
         "\n\n## Knowledge\n{}"
         "\n\n## Skills\n[]"
@@ -48,6 +49,7 @@ def test_renders_full_prompt_package() -> None:
     package = PromptPackage(
         system={"boundary": "PromptBuilder"},
         persona={"active_persona": {"name": "Architect"}},
+        relationship={"relationship_type": "companion"},
         memory=["memory"],
         knowledge={"records": ["knowledge"], "sources": ["source"]},
         skills=["skill"],
@@ -63,6 +65,8 @@ def test_renders_full_prompt_package() -> None:
     assert '"boundary": "PromptBuilder"' in rendered.text
     assert "## Persona\n" in rendered.text
     assert '"name": "Architect"' in rendered.text
+    assert "## Relationship\n" in rendered.text
+    assert '"relationship_type": "companion"' in rendered.text
     assert "## Memory\n" in rendered.text
     assert '"memory"' in rendered.text
     assert "## Knowledge\n" in rendered.text
@@ -91,6 +95,7 @@ def test_renderer_preserves_section_ordering() -> None:
     assert headers == [
         "## System",
         "## Persona",
+        "## Relationship",
         "## Memory",
         "## Knowledge",
         "## Skills",
@@ -129,6 +134,7 @@ def test_missing_optional_sections_render_as_empty_sections() -> None:
     package = PromptPackage(
         system=None,
         persona=None,
+        relationship=None,
         memory=None,
         knowledge=None,
         skills=None,
@@ -142,6 +148,7 @@ def test_missing_optional_sections_render_as_empty_sections() -> None:
     assert rendered.text == (
         "## System\n"
         "\n\n## Persona\n"
+        "\n\n## Relationship\n"
         "\n\n## Memory\n"
         "\n\n## Knowledge\n"
         "\n\n## Skills\n"

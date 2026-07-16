@@ -49,6 +49,7 @@ Memory Promotion Boundary v1 is complete.
 Memory Candidate Review Controls v1 is complete.
 PersonaOS Web Demo v0.1 is complete.
 PersonaOS Web Experience v0.1 is complete.
+Relationship Boundary v1 is complete.
 
 Current completed integration state:
 
@@ -158,6 +159,11 @@ Current completed integration state:
 - The Web Experience shows active persona name, version, and description through the existing `/personas` API response.
 - The chat UI now distinguishes user, assistant, system, and loading states while preserving the existing HTTP API boundary.
 - Web Experience v0.1 does not modify Persona Engine, Runtime, Memory Engine, SessionManager, API business logic, database behavior, or durable state.
+- `RelationshipContext` added as the User-Persona relationship boundary.
+- `PersonaOSContext`, `RuntimeContext`, `PromptPackage`, and rendered prompts now preserve relationship context as an independent section.
+- `RuntimeSession`, `ManagedSession`, `SessionManager`, and `ChatApiBoundary` can carry relationship context for temporary sessions.
+- Relationship context describes interaction type, style, tone, permissions, lifecycle, and metadata without modifying Persona identity.
+- Relationship Boundary v1 does not modify `PersonaProfile`, `PersonaVersion`, `PersonaLibraryEntry`, `MemoryEngine`, `EvolutionEngine`, or durable memory.
 
 ## Architecture Rules
 
@@ -176,7 +182,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 375 tests passing.
+Latest recorded verification status is 381 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -191,12 +197,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-PersonaOS Web Demo v0.1 completed.
+Relationship Boundary v1 completed.
 
 
 ## Next Goal
 
-Manually verify Web Console v0.1 against a running local API server and Ollama model, then decide whether memory candidate review controls should be exposed through CLI commands, Web Console controls, or both.
+Decide whether Relationship selection should be exposed through CLI, API, or Web Experience controls, then manually verify Web Experience v0.1 against a running local API server and Ollama model.
 
 Integration Phase Step 1 completed:
 

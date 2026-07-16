@@ -25,6 +25,7 @@ class PromptBuilder:
         return PromptPackage(
             system=self._system_section(),
             persona=self._persona_section(runtime_context),
+            relationship=self._dict_section(runtime_context, "relationship"),
             memory=self._list_section(runtime_context, "memories"),
             knowledge=self._dict_section(runtime_context, "knowledge"),
             skills=self._list_section(runtime_context, "skills"),

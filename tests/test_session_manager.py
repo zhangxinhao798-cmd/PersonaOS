@@ -12,6 +12,7 @@ from backend.models import (
     PersonaLibraryEntry,
     PersonaProfile,
     PersonaVersion,
+    RelationshipContext,
 )
 from backend.models.context import (
     ConfidenceContext,
@@ -167,6 +168,16 @@ def make_context(name: str = "Session Architect") -> PersonaOSContext:
     )
 
 
+def make_relationship() -> RelationshipContext:
+    return RelationshipContext(
+        relationship_type="companion",
+        interaction_style="warm",
+        tone="supportive",
+        permissions=["chat"],
+        metadata={"user_id": "session-user"},
+    )
+
+
 def snapshot_entry(entry: PersonaLibraryEntry) -> dict:
     return {
         "profile": copy.deepcopy(entry.profile.__dict__),
@@ -205,6 +216,23 @@ def test_create_session_registers_runtime_session() -> None:
     assert managed.persona_os_context is context
     assert managed.metadata == {"source": "test"}
     assert manager.session_count() == 1
+
+
+def test_create_session_can_carry_relationship_reference() -> None:
+    manager = SessionManager()
+    relationship = make_relationship()
+
+    managed = manager.create_session(
+        make_entry(),
+        make_context(),
+        FakeChatRuntime(),
+        session_id="session-relationship",
+        relationship_context=relationship,
+    )
+
+    assert managed.active_relationship_reference is relationship
+    assert managed.runtime_session.relationship_context is relationship
+    assert not hasattr(managed.active_persona_reference.profile, "relationship_type")
 
 
 def test_session_manager_uses_repository_boundary() -> None:

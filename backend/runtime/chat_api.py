@@ -4,6 +4,7 @@ from backend.core.memory_candidate import CandidateExtractor, ReviewQueue
 from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
+from backend.models.relationship import RelationshipContext
 from backend.runtime.chat_runtime import ChatRuntime
 from backend.runtime.memory_runtime import RuntimeMemoryRetriever
 from backend.runtime.session_manager import ManagedSession, SessionManager
@@ -26,6 +27,7 @@ class ChatApiBoundary:
         chat_runtime: ChatRuntime,
         session_id: str | None = None,
         metadata: dict | None = None,
+        relationship_context: RelationshipContext | dict | None = None,
         memory_retriever: RuntimeMemoryRetriever | None = None,
         candidate_extractor: CandidateExtractor | None = None,
         review_queue: ReviewQueue | None = None,
@@ -38,6 +40,7 @@ class ChatApiBoundary:
             chat_runtime=chat_runtime,
             session_id=session_id,
             metadata=metadata,
+            relationship_context=relationship_context,
             memory_retriever=memory_retriever,
             candidate_extractor=candidate_extractor,
             review_queue=review_queue,
@@ -80,6 +83,7 @@ class ChatApiBoundary:
         persona_os_context: PersonaOSContext,
         chat_runtime: ChatRuntime,
         metadata: dict | None = None,
+        relationship_context: RelationshipContext | dict | None = None,
         memory_retriever: RuntimeMemoryRetriever | None = None,
         candidate_extractor: CandidateExtractor | None = None,
         review_queue: ReviewQueue | None = None,
@@ -92,6 +96,7 @@ class ChatApiBoundary:
             persona_os_context=persona_os_context,
             chat_runtime=chat_runtime,
             metadata=metadata,
+            relationship_context=relationship_context,
             memory_retriever=memory_retriever,
             candidate_extractor=candidate_extractor,
             review_queue=review_queue,

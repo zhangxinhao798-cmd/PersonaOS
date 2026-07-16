@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 
 from backend.models.fusion import FusionContext
+from backend.models.relationship import RelationshipContext
 
 
 @dataclass
@@ -52,6 +53,7 @@ class PersonaOSContext:
 
     query: str = ""
     persona: PersonaContext = field(default_factory=PersonaContext)
+    relationship: RelationshipContext = field(default_factory=RelationshipContext)
     memories: MemoryContext = field(default_factory=MemoryContext)
     fusion_memory: FusionMemoryContext = field(
         default_factory=FusionMemoryContext

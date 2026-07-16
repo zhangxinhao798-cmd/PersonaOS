@@ -15,6 +15,7 @@ class PromptPackage:
     SECTION_ORDER: ClassVar[tuple[str, ...]] = (
         "system",
         "persona",
+        "relationship",
         "memory",
         "knowledge",
         "skills",
@@ -26,6 +27,7 @@ class PromptPackage:
 
     system: dict = field(default_factory=dict)
     persona: dict = field(default_factory=dict)
+    relationship: dict = field(default_factory=dict)
     memory: list = field(default_factory=list)
     knowledge: dict = field(default_factory=dict)
     skills: list = field(default_factory=list)

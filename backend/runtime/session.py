@@ -8,6 +8,7 @@ from backend.core.memory_candidate import CandidateExtractor, ReviewQueue
 from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
+from backend.models.relationship import RelationshipContext
 from backend.runtime.chat_runtime import (
     ChatRuntime,
     EmptyUserInputError,
@@ -62,6 +63,7 @@ class RuntimeSession:
     persona_entry: PersonaLibraryEntry
     persona_os_context: PersonaOSContext
     chat_runtime: ChatRuntime
+    relationship_context: RelationshipContext | dict | None = None
     memory_retriever: RuntimeMemoryRetriever | None = None
     candidate_extractor: CandidateExtractor | None = None
     review_queue: ReviewQueue | None = None
@@ -147,6 +149,9 @@ class RuntimeSession:
     ) -> PersonaOSContext:
         context = deepcopy(self.persona_os_context)
         metadata = dict(getattr(self.persona_os_context, "metadata", {}) or {})
+        if self.relationship_context is not None:
+            context.relationship = self.relationship_context
+            metadata["relationship"] = self._relationship_metadata()
         metadata["conversation"] = [
             turn.to_dict()
             for turn in self.conversation
@@ -168,6 +173,15 @@ class RuntimeSession:
             }
         setattr(context, "metadata", metadata)
         return context
+
+    def _relationship_metadata(self) -> dict | object:
+        relationship_to_dict = getattr(self.relationship_context, "to_dict", None)
+        if callable(relationship_to_dict):
+            return relationship_to_dict()
+        if isinstance(self.relationship_context, dict):
+            return dict(self.relationship_context)
+
+        return self.relationship_context
 
     def _validate_user_input(self, user_input: str) -> str:
         if not isinstance(user_input, str) or not user_input.strip():

@@ -26,6 +26,7 @@ class RuntimeContextAssembler:
         return RuntimeContext(
             active_persona=self._get_value(context, "persona", None),
             persona_version=persona_version,
+            relationship=self._relationship(context),
             memories=self._memories(context),
             knowledge=self._knowledge(context),
             skills=skills or [],
@@ -78,6 +79,53 @@ class RuntimeContextAssembler:
             "sources": self._get_value(knowledge_context, "sources", []) or [],
         }
 
+    def _relationship(self, context: PersonaOSContext) -> dict:
+        relationship_context = self._get_value(context, "relationship", None)
+        if relationship_context is None:
+            metadata = self._get_value(context, "metadata", {}) or {}
+            relationship_context = metadata.get("relationship")
+
+        if relationship_context is None:
+            return {}
+
+        if isinstance(relationship_context, dict):
+            return dict(relationship_context)
+
+        to_dict = getattr(relationship_context, "to_dict", None)
+        if callable(to_dict):
+            return to_dict()
+
+        return {
+            "relationship_type": self._get_value(
+                relationship_context,
+                "relationship_type",
+                "",
+            ),
+            "interaction_style": self._get_value(
+                relationship_context,
+                "interaction_style",
+                "",
+            ),
+            "tone": self._get_value(relationship_context, "tone", ""),
+            "permissions": self._get_value(
+                relationship_context,
+                "permissions",
+                [],
+            )
+            or [],
+            "lifecycle": self._get_value(
+                relationship_context,
+                "lifecycle",
+                "",
+            ),
+            "metadata": self._get_value(
+                relationship_context,
+                "metadata",
+                {},
+            )
+            or {},
+        }
+
     def _fusion_context(self, context: PersonaOSContext) -> list:
         fusion_memory = self._get_value(context, "fusion_memory", None)
         if fusion_memory is None:
@@ -107,6 +155,7 @@ class RuntimeContextAssembler:
             "source_boundaries",
             {
                 "active_persona": "PersonaOSContext.persona",
+                "relationship": "PersonaOSContext.relationship",
                 "memories": "PersonaOSContext.memories",
                 "knowledge": "PersonaOSContext.knowledge",
                 "skills": "external skill availability input",

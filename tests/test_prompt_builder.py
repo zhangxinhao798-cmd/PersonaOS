@@ -8,6 +8,7 @@ def test_prompt_package_initializes_with_values() -> None:
     package = PromptPackage(
         system={"boundary": "test"},
         persona={"active_persona": {"name": "Architect"}},
+        relationship={"relationship_type": "companion"},
         memory=["memory"],
         knowledge={"records": ["knowledge"]},
         skills=["skill"],
@@ -19,6 +20,7 @@ def test_prompt_package_initializes_with_values() -> None:
 
     assert package.system == {"boundary": "test"}
     assert package.persona == {"active_persona": {"name": "Architect"}}
+    assert package.relationship == {"relationship_type": "companion"}
     assert package.memory == ["memory"]
     assert package.knowledge == {"records": ["knowledge"]}
     assert package.skills == ["skill"]
@@ -33,6 +35,7 @@ def test_prompt_package_defaults_are_independent() -> None:
     second = PromptPackage()
 
     first.system["boundary"] = "first"
+    first.relationship["relationship_type"] = "companion"
     first.memory.append("memory")
     first.knowledge["records"] = ["knowledge"]
     first.skills.append("skill")
@@ -41,6 +44,7 @@ def test_prompt_package_defaults_are_independent() -> None:
     first.metadata["trace_id"] = "first"
 
     assert second.system == {}
+    assert second.relationship == {}
     assert second.memory == []
     assert second.knowledge == {}
     assert second.skills == []
@@ -58,6 +62,7 @@ def test_builds_prompt_package_from_empty_runtime_context() -> None:
         "active_persona": None,
         "persona_version": "",
     }
+    assert package.relationship == {}
     assert package.memory == []
     assert package.knowledge == {}
     assert package.skills == []
@@ -71,6 +76,11 @@ def test_builds_prompt_package_from_full_runtime_context() -> None:
     runtime_context = RuntimeContext(
         active_persona={"name": "Architect"},
         persona_version="v2",
+        relationship={
+            "relationship_type": "mentor",
+            "interaction_style": "direct",
+            "tone": "focused",
+        },
         memories=["memory"],
         knowledge={"records": ["knowledge"], "sources": ["source"]},
         skills=["skill"],
@@ -91,6 +101,8 @@ def test_builds_prompt_package_from_full_runtime_context() -> None:
 
     assert package.persona["active_persona"] is runtime_context.active_persona
     assert package.persona["persona_version"] == "v2"
+    assert package.relationship is runtime_context.relationship
+    assert package.relationship["relationship_type"] == "mentor"
     assert package.memory is runtime_context.memories
     assert package.knowledge is runtime_context.knowledge
     assert package.skills is runtime_context.skills
@@ -111,6 +123,7 @@ def test_missing_optional_sections_default_to_empty_boundaries() -> None:
         memories=None,
         knowledge=None,
         skills=None,
+        relationship=None,
         expression=None,
         metadata=None,
     )
@@ -118,6 +131,7 @@ def test_missing_optional_sections_default_to_empty_boundaries() -> None:
     package = PromptBuilder().build(runtime_context)
 
     assert package.memory == []
+    assert package.relationship == {}
     assert package.knowledge == {}
     assert package.skills == []
     assert package.expression == {}
@@ -131,6 +145,7 @@ def test_prompt_package_section_order_is_deterministic() -> None:
     assert [name for name, _value in package.ordered_sections()] == [
         "system",
         "persona",
+        "relationship",
         "memory",
         "knowledge",
         "skills",

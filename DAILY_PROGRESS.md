@@ -87,6 +87,11 @@ Each development day should have a section:
 - Added a Persona Identity panel showing active persona name, version, and description.
 - Improved the chat experience with distinct user, assistant, system, and loading states.
 - Preserved the existing API call path without modifying Persona Engine, Runtime, Memory Engine, SessionManager, or backend transport behavior.
+- Completed Relationship Boundary v1.
+- Added `RelationshipContext` for User-Persona relationship context.
+- Extended `PersonaOSContext`, `RuntimeContext`, `PromptPackage`, and rendered prompts with an independent relationship section.
+- Extended `RuntimeSession`, `ManagedSession`, `SessionManager`, and `ChatApiBoundary` so temporary sessions can carry relationship context.
+- Confirmed Relationship is not Persona identity, not durable Memory, and not emotion simulation.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -97,6 +102,24 @@ Each development day should have a section:
 - `frontend/web-console/index.html`
 - `frontend/web-console/app.js`
 - `frontend/web-console/style.css`
+- `backend/models/relationship.py`
+- `backend/models/__init__.py`
+- `backend/models/context.py`
+- `backend/models/runtime_context.py`
+- `backend/models/prompt_package.py`
+- `backend/engine/runtime_context_assembler.py`
+- `backend/engine/prompt_builder.py`
+- `backend/runtime/session.py`
+- `backend/runtime/session_repository.py`
+- `backend/runtime/session_manager.py`
+- `backend/runtime/chat_api.py`
+- `tests/test_relationship_boundary.py`
+- `tests/test_runtime_context.py`
+- `tests/test_runtime_context_assembler.py`
+- `tests/test_prompt_builder.py`
+- `tests/test_prompt_renderer.py`
+- `tests/test_runtime_session.py`
+- `tests/test_session_manager.py`
 - `backend/repositories/__init__.py`
 - `backend/repositories/memory_repository.py`
 - `backend/repositories/persona_repository.py`
@@ -142,14 +165,17 @@ Each development day should have a section:
 - `python -m compileall backend scripts tests`
 - `pytest tests\test_web_console.py`
 - `python -m compileall frontend tests`
+- `pytest tests\test_relationship_boundary.py tests\test_runtime_context.py tests\test_runtime_context_assembler.py tests\test_prompt_builder.py tests\test_prompt_renderer.py tests\test_runtime_session.py tests\test_session_manager.py`
+- `python -m compileall backend tests`
 - Current test status:
-  - 375 passed.
+  - 381 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
 - API Transport coverage also verifies configured sessions can inject runtime memory retrieval and pass retrieved memory plus relevance metadata into the runtime context.
 - API Transport coverage now verifies session listing and detached session history retrieval for browser clients.
 - Web Console coverage verifies persona identity UI, chat experience states, existing API routes, and the absence of frontend frameworks.
+- Relationship Boundary coverage verifies relationship creation, session carriage, runtime context assembly, prompt section separation, and no persona identity mutation.
 - SessionRepository coverage verifies in-memory repository create/get/list/delete behavior and SessionManager repository usage.
 - HTTP Server Transport coverage verifies server startup, persona listing, session creation, message sending, response JSON, and error JSON through the existing ApiTransport path.
 - HTTP Server Transport coverage verifies CORS headers and OPTIONS preflight for browser-based local calls.
@@ -191,14 +217,18 @@ Each development day should have a section:
 - API Transport owns route handling and JSON serialization only; it does not import `MemoryEngine`, call `create_memory()`, or bypass runtime/provider boundaries.
 - Web Console v0.1 is a thin browser console over the existing HTTP API. It owns UI state only and does not own runtime, persona, memory, provider, or persistence logic.
 - Browser support required CORS/OPTIONS at the HTTP wrapper layer; this remains transport plumbing and does not change Runtime behavior.
+- Relationship describes User-Persona interaction context, not persona identity.
+- Relationship context is carried through runtime as an independent boundary before memory and prompt sections.
+- Relationship Boundary v1 does not persist relationships, auto-generate relationships, simulate emotion, modify MemoryEngine, or modify PersonaProfile/PersonaVersion/PersonaLibraryEntry.
 
 ### Problems / Notes
-- No persistence, database, frontend, automatic memory persistence, LLM summarization, automatic approval, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
+- No persistence, database, automatic memory persistence, LLM summarization, automatic approval, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
 - Manually verify Web Console v0.1 against a running local API server and Ollama model.
 - Decide whether memory candidate review controls also need CLI or Web Console UI commands alongside the API boundary.
+- Decide whether Relationship selection should be exposed through CLI, API, or Web Experience controls.
 - Prepare future persistent memory storage through repository boundaries without allowing runtime, session, extractor, or review queue components to write durable memory directly.
 
 ## 2026-07-15

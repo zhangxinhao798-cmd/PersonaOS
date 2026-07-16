@@ -12,6 +12,7 @@ from backend.models import (
     PersonaLibraryEntry,
     PersonaProfile,
     PersonaVersion,
+    RelationshipContext,
 )
 from backend.models.context import (
     ConfidenceContext,
@@ -140,6 +141,16 @@ def make_context() -> PersonaOSContext:
     )
 
 
+def make_relationship() -> RelationshipContext:
+    return RelationshipContext(
+        relationship_type="companion",
+        interaction_style="warm",
+        tone="supportive",
+        permissions=["chat"],
+        metadata={"user_id": "runtime-user"},
+    )
+
+
 def make_session(
     chat_runtime: FakeChatRuntime | None = None,
 ) -> tuple[RuntimeSession, PersonaLibraryEntry, PersonaOSContext, FakeChatRuntime]:
@@ -251,6 +262,27 @@ def test_prior_conversation_is_passed_into_next_runtime_turn() -> None:
         ("user", "first"),
         ("assistant", "first reply"),
     ]
+
+
+def test_runtime_session_passes_relationship_context_to_runtime() -> None:
+    entry = make_entry()
+    context = make_context()
+    relationship = make_relationship()
+    runtime = FakeChatRuntime()
+    session = RuntimeSession(
+        id="session-relationship",
+        persona_entry=entry,
+        persona_os_context=context,
+        chat_runtime=runtime,
+        relationship_context=relationship,
+    )
+
+    session.send("hello")
+
+    runtime_context = runtime.calls[0]["persona_os_context"]
+    assert runtime_context.relationship is relationship
+    assert runtime_context.metadata["relationship"] == relationship.to_dict()
+    assert not hasattr(runtime_context.persona, "relationship_type")
 
 
 def test_chat_runtime_is_called_once_per_send() -> None:
@@ -384,4 +416,3 @@ def test_unit_tests_use_fake_runtime_without_live_ollama() -> None:
 
     assert isinstance(runtime, FakeChatRuntime)
     assert "localhost" not in repr(runtime.calls)
-

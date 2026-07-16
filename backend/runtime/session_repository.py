@@ -5,6 +5,7 @@ from typing import Protocol
 
 from backend.models.context import PersonaOSContext
 from backend.models.persona_library import PersonaLibraryEntry
+from backend.models.relationship import RelationshipContext
 from backend.runtime.session import RuntimeSession
 
 
@@ -20,6 +21,7 @@ class ManagedSession:
     runtime_session: RuntimeSession
     active_persona_reference: PersonaLibraryEntry
     persona_os_context: PersonaOSContext
+    active_relationship_reference: RelationshipContext | dict | None = None
     created_at: str = ""
     updated_at: str = ""
     metadata: dict = field(default_factory=dict)

@@ -12,6 +12,7 @@ from backend.models.context import (
     PersonaOSContext,
 )
 from backend.models.memory_record import MemoryRecord
+from backend.models.relationship import RelationshipContext
 from backend.models.runtime_context import RuntimeContext
 
 
@@ -64,6 +65,14 @@ def test_assembles_runtime_context_from_existing_components() -> None:
     assert isinstance(runtime_context, RuntimeContext)
     assert runtime_context.active_persona.name == "Default Persona"
     assert runtime_context.persona_version == "v1"
+    assert runtime_context.relationship == {
+        "relationship_type": "",
+        "interaction_style": "",
+        "tone": "",
+        "permissions": [],
+        "lifecycle": "active",
+        "metadata": {},
+    }
     assert runtime_context.memories == [memory]
     assert runtime_context.knowledge["records"] == [knowledge]
     assert runtime_context.knowledge["sources"] == ["test-knowledge"]
@@ -87,6 +96,14 @@ def test_missing_optional_data_defaults_to_empty_boundaries() -> None:
     )
 
     assert runtime_context.active_persona.name == "Minimal"
+    assert runtime_context.relationship == {
+        "relationship_type": "",
+        "interaction_style": "",
+        "tone": "",
+        "permissions": [],
+        "lifecycle": "active",
+        "metadata": {},
+    }
     assert runtime_context.memories == []
     assert runtime_context.knowledge == {
         "records": [],
@@ -109,6 +126,13 @@ def test_runtime_context_preserves_source_boundaries() -> None:
     internal_context = PersonaOSContext(
         query="boundary preservation",
         persona=PersonaContext(name="Boundary Tester"),
+        relationship=RelationshipContext(
+            relationship_type="companion",
+            interaction_style="warm",
+            tone="supportive",
+            permissions=["chat"],
+            metadata={"user_id": "local-user"},
+        ),
         memories=MemoryContext(memories=[memory]),
         knowledge=KnowledgeContext(
             knowledge_records=[knowledge],
@@ -125,6 +149,14 @@ def test_runtime_context_preserves_source_boundaries() -> None:
     runtime_context = RuntimeContextAssembler().assemble(internal_context)
 
     assert runtime_context.active_persona is internal_context.persona
+    assert runtime_context.relationship == {
+        "relationship_type": "companion",
+        "interaction_style": "warm",
+        "tone": "supportive",
+        "permissions": ["chat"],
+        "lifecycle": "active",
+        "metadata": {"user_id": "local-user"},
+    }
     assert runtime_context.memories is internal_context.memories.memories
     assert (
         runtime_context.knowledge["records"]
@@ -137,4 +169,7 @@ def test_runtime_context_preserves_source_boundaries() -> None:
     assert "source_boundaries" in runtime_context.metadata
     assert runtime_context.metadata["source_boundaries"]["memories"] == (
         "PersonaOSContext.memories"
+    )
+    assert runtime_context.metadata["source_boundaries"]["relationship"] == (
+        "PersonaOSContext.relationship"
     )

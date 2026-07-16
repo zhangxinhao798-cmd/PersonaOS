@@ -346,8 +346,13 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Improved the chat experience with clearer user/assistant/system bubbles, loading state, empty state, and active persona labeling.
 - Preserved the existing browser call path through the HTTP API, ApiTransport, ChatApiBoundary, SessionManager, RuntimeSession, ChatRuntime, and adapter boundaries.
 - Confirmed Web Experience v0.1 does not modify Persona Engine, Runtime, Memory Engine, SessionManager, backend API behavior, or durable state.
-- Current phase is PersonaOS Web Demo v0.1 completed.
-- Current recorded verification status: 375 tests passing.
+- Added Relationship Boundary v1.
+- Added `RelationshipContext` as the explicit User-Persona relationship data boundary.
+- Extended `PersonaOSContext`, `RuntimeContext`, `PromptPackage`, and prompt rendering with an independent relationship section.
+- Extended `RuntimeSession`, `ManagedSession`, `SessionManager`, and `ChatApiBoundary` so temporary sessions can carry relationship context.
+- Confirmed relationship context does not modify Persona identity, Memory Engine, PersonaVersion, PersonaLibraryEntry, Evolution state, or durable memory.
+- Current phase is Relationship Boundary v1 completed.
+- Current recorded verification status: 381 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 

@@ -7,6 +7,7 @@ def test_runtime_context_initializes_with_values() -> None:
     context = RuntimeContext(
         active_persona={"name": "Architect"},
         persona_version="v1",
+        relationship={"relationship_type": "companion"},
         memories=["memory"],
         knowledge={"records": ["knowledge"], "sources": ["source"]},
         skills=["skill"],
@@ -18,6 +19,7 @@ def test_runtime_context_initializes_with_values() -> None:
 
     assert context.active_persona == {"name": "Architect"}
     assert context.persona_version == "v1"
+    assert context.relationship == {"relationship_type": "companion"}
     assert context.memories == ["memory"]
     assert context.knowledge == {
         "records": ["knowledge"],
@@ -35,6 +37,7 @@ def test_runtime_context_defaults_preserve_empty_boundaries() -> None:
 
     assert context.active_persona is None
     assert context.persona_version == ""
+    assert context.relationship is None
     assert context.memories == []
     assert context.knowledge == {}
     assert context.skills == []

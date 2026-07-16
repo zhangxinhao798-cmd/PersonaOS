@@ -32,4 +32,5 @@ from backend.models.persona_source import PersonaSource
 from backend.models.persona_version import PersonaVersion
 from backend.models.prompt_package import PromptPackage
 from backend.models.provider_config import ProviderConfig
+from backend.models.relationship import RelationshipContext
 from backend.models.runtime_context import RuntimeContext
