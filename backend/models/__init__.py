@@ -15,6 +15,11 @@ from backend.models.persona_library import (
 )
 from backend.models.persona_import import PersonaImportResult
 from backend.models.persona_profile import PersonaProfile
+from backend.models.persona_package import (
+    PersonaPackage,
+    PersonaPackageManifest,
+    PersonaPackageValidationResult,
+)
 from backend.models.persona_source import PersonaSource
 from backend.models.persona_version import PersonaVersion
 from backend.models.prompt_package import PromptPackage
