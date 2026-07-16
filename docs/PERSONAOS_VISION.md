@@ -8,12 +8,57 @@ become over the next several years. It is not a roadmap, implementation plan,
 or release schedule. It is a strategic direction document for preserving the
 shape of the system as it grows.
 
+## Mission Statement
+
+PersonaOS exists to build open, modular infrastructure for persistent digital
+minds with memory, knowledge, persona, evolution, and calibrated confidence.
+
+It is not a chatbot framework, prompt wrapper, or single model interface. It is
+an operating layer for durable software minds that can persist across
+interactions, reason over grounded knowledge, use modular capabilities, and
+change through explicit, inspectable processes.
+
+## Why PersonaOS Exists
+
+Most AI systems are organized around isolated conversations. They respond to
+the current prompt, then discard or obscure much of the context that made the
+response possible. This makes them useful, but temporary.
+
+PersonaOS explores a different foundation. A digital mind should be able to
+remember meaningful experience, organize source-backed knowledge, express a
+stable persona, use governed skills, expose uncertainty, and evolve without
+losing its structure. The goal is not to simulate a human being. The goal is to
+provide infrastructure for software minds that can persist, adapt, and remain
+understandable.
+
+Conversation should be one interface into the system, not the system itself.
+PersonaOS defines the surrounding architecture that makes a digital mind
+durable, inspectable, local-first, and governable across changing model
+providers and interfaces.
+
+## Philosophy of Digital Minds
+
+A digital mind is more than a language model call. It is a system composed of
+identity, memory, knowledge, skills, context, confidence, expression, and
+controlled evolution. Each part should be explicit enough to inspect, improve,
+replace, or disable without collapsing the rest of the system.
+
+PersonaOS treats identity as an architectural concern. A mind should have
+continuity across sessions, but that continuity must be grounded in records,
+policies, versions, and reviewable changes. It should know what it remembers,
+distinguish memories from source-backed facts, and express uncertainty when
+confidence is low.
+
+This philosophy favors modular systems over opaque behavior. Long-term AI
+requires capable models, but it also requires better operating environments
+around those models.
+
 ## Core Philosophy
 
 PersonaOS should treat a digital mind as a structured, persistent system rather
 than a single prompt, model session, or chat interface.
 
-Core principles:
+Foundational separations:
 
 - Identity is independent from the model.
 - Memory is independent from knowledge.
@@ -33,6 +78,55 @@ PersonaOS should also remain local-first. Local execution, local state, and user
 control should be treated as foundational product values. Cloud services and
 external providers may be added, but they should remain replaceable integrations
 rather than the center of the architecture.
+
+## Core Principles
+
+### Memory
+
+Memory gives continuity to a digital mind. PersonaOS should support memories
+that can be created, retrieved, revised, forgotten, and audited. Memory must be
+structured enough to serve the system without becoming uncontrolled hidden
+state.
+
+### Knowledge
+
+Knowledge gives a digital mind access to durable information beyond immediate
+conversation. PersonaOS should separate knowledge from memory, making room for
+documents, facts, references, and domain-specific material that can be updated
+and verified.
+
+### Persona
+
+Persona gives a digital mind a coherent way to speak, decide, and relate to the
+world. PersonaOS should represent persona as an explicit identity layer rather
+than an accidental side effect of prompts. A persona should be stable,
+inspectable, versionable, and capable of gradual refinement.
+
+### Skills
+
+Skills are modular capabilities, not personality traits. A skill may represent
+a tool, workflow, procedure, integration, or action boundary. Different personas
+may eventually use different skills, but access to a skill should not redefine
+who a persona is.
+
+### Confidence
+
+Confidence is essential to trustworthy behavior. PersonaOS should help digital
+minds distinguish certainty from uncertainty, cite or preserve the basis for
+important claims, and avoid presenting weak inferences as established facts.
+
+### Evolution
+
+Evolution allows a digital mind to improve over time. PersonaOS should support
+controlled change in memory, knowledge, behavior, and self-description.
+Evolution should be traceable, reversible where possible, and guided by
+deliberate rules rather than accidental prompt drift.
+
+### Modularity
+
+Architecture should remain understandable as PersonaOS grows. Features should
+be added through clear boundaries so identity, memory, knowledge, skills,
+confidence, expression, providers, and interfaces can evolve independently.
 
 ## Long-term Architecture
 
