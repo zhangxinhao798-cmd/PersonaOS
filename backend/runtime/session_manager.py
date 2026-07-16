@@ -1,6 +1,5 @@
 """Temporary session lifecycle manager for PersonaOS runtime."""
 
-from dataclasses import dataclass, field
 from uuid import uuid4
 
 from backend.models.context import PersonaOSContext
@@ -8,6 +7,11 @@ from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
 from backend.runtime.chat_runtime import ChatRuntime
 from backend.runtime.session import RuntimeSession
+from backend.runtime.session_repository import (
+    InMemorySessionRepository,
+    ManagedSession,
+    SessionRepository,
+)
 
 
 class SessionManagerError(Exception):
@@ -26,26 +30,6 @@ class InvalidSessionError(SessionManagerError):
     """Raised when required session dependencies are missing."""
 
 
-@dataclass
-class ManagedSession:
-    """Managed temporary runtime session state.
-
-    This is not durable memory. It only records the active runtime session,
-    current persona reference, and temporary session metadata.
-    """
-
-    session_id: str
-    runtime_session: RuntimeSession
-    active_persona_reference: PersonaLibraryEntry
-    persona_os_context: PersonaOSContext
-    created_at: str = ""
-    updated_at: str = ""
-    metadata: dict = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        self.metadata = dict(self.metadata or {})
-
-
 class SessionManager:
     """Manage temporary PersonaOS runtime sessions.
 
@@ -54,8 +38,11 @@ class SessionManager:
     provider/runtime generation internals.
     """
 
-    def __init__(self) -> None:
-        self._sessions: dict[str, ManagedSession] = {}
+    def __init__(
+        self,
+        repository: SessionRepository | None = None,
+    ) -> None:
+        self.repository = repository or InMemorySessionRepository()
 
     def create_session(
         self,
@@ -69,7 +56,7 @@ class SessionManager:
 
         self._validate_session_inputs(persona_entry, persona_os_context, chat_runtime)
         resolved_session_id = session_id or self._new_session_id()
-        if resolved_session_id in self._sessions:
+        if self.repository.exists(resolved_session_id):
             raise DuplicateSessionError(
                 f"Session already exists: {resolved_session_id}"
             )
@@ -88,29 +75,28 @@ class SessionManager:
             persona_os_context=persona_os_context,
             metadata=dict(metadata or {}),
         )
-        self._sessions[resolved_session_id] = managed_session
+        self.repository.save(managed_session)
         return managed_session
 
     def get_session(self, session_id: str) -> ManagedSession:
         """Return a managed session by id."""
 
-        try:
-            return self._sessions[session_id]
-        except KeyError as exc:
-            raise SessionNotFoundError(f"Session not found: {session_id}") from exc
+        managed_session = self.repository.get(session_id)
+        if managed_session is None:
+            raise SessionNotFoundError(f"Session not found: {session_id}")
+
+        return managed_session
 
     def list_sessions(self) -> list[ManagedSession]:
         """Return managed sessions without exposing the internal registry."""
 
-        return list(self._sessions.values())
+        return self.repository.list()
 
     def delete_session(self, session_id: str) -> None:
         """Delete one temporary session."""
 
-        if session_id not in self._sessions:
+        if not self.repository.delete(session_id):
             raise SessionNotFoundError(f"Session not found: {session_id}")
-
-        del self._sessions[session_id]
 
     def send_message(self, session_id: str, user_input: str) -> LLMResponse:
         """Send a message through a managed RuntimeSession."""
@@ -166,7 +152,7 @@ class SessionManager:
     def session_count(self) -> int:
         """Return the number of active temporary sessions."""
 
-        return len(self._sessions)
+        return self.repository.count()
 
     def _validate_session_inputs(
         self,

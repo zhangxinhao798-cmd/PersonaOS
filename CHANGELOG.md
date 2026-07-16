@@ -291,14 +291,29 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added standard-library HTTP server wrapper for future local API serving.
 - Added API transport tests for sessions, messages, persona listing, error handling, and architecture boundary preservation.
 - Confirmed API Transport does not call Ollama, adapters, providers, `MemoryEngine`, or core engines directly.
-- Current phase is API Transport Layer v1 completed.
-- Current recorded verification status: 303 tests passing.
+- Added `SessionRepository` boundary for managed runtime sessions.
+- Added `InMemorySessionRepository` as the current non-persistent repository implementation.
+- Updated `SessionManager` to use the repository boundary instead of owning its own session registry.
+- Added repository tests and SessionManager repository-injection coverage.
+- Confirmed no database, file persistence, `MemoryEngine` connection, or durable memory writing was introduced.
+- Added minimal HTTP Server Transport v1 through `scripts/serve_api.py`.
+- Added local service startup wiring for `ApiTransport`.
+- Added tests proving a standard-library HTTP server can start, receive requests, create sessions, send messages, and return `LLMResponse` JSON.
+- Confirmed HTTP Server Transport does not implement runtime logic, call providers directly, or introduce FastAPI, database, authentication, WebSocket, streaming, or frontend behavior.
+- Added API Response Schema v1 for stable frontend-consumable message responses.
+- Message responses now include `session_id`, `persona`, `message`, `model`, `metadata`, and `usage` fields.
+- Added Persistence Architecture v1 repository boundaries for memory, persona, and knowledge records.
+- Added `MemoryRepository`, `PersonaRepository`, and `KnowledgeRepository` interfaces.
+- Added `InMemoryMemoryRepository`, `InMemoryPersonaRepository`, and `InMemoryKnowledgeRepository`.
+- Added repository tests confirming save, retrieve, list, delete, no engine imports, no database coupling, and no record mutation.
+- Current phase is API Response Schema v1 and Persistence Architecture v1 completed.
+- Current recorded verification status: 321 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Add configuration-backed session/API entry usage for future Web UI integration.
+- Add manual curl/Postman verification for the stable API response schema and decide the next product-facing surface.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.
 - Keep provider switching simple and model-independent.

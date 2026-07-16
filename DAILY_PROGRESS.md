@@ -39,6 +39,19 @@ Each development day should have a section:
 - Added a standard-library HTTP server wrapper for future local API serving.
 - Added API endpoints for persona listing, session creation, session retrieval, session deletion, and session messages.
 - Confirmed API Transport does not directly call Ollama, adapters, providers, `MemoryEngine`, or core engines.
+- Completed Session Repository Boundary v1.
+- Added `SessionRepository` and `InMemorySessionRepository`.
+- Updated `SessionManager` to use the repository boundary instead of storing sessions directly.
+- Confirmed the current repository remains in-memory and non-persistent.
+- Completed minimal HTTP Server Transport v1.
+- Added `scripts/serve_api.py` as the local API service entry.
+- Verified the standard-library HTTP wrapper can receive external requests and route them into `ApiTransport`.
+- Confirmed the HTTP server does not own API business logic, runtime logic, provider calls, or durable state.
+- Completed API Response Schema v1.
+- Updated message API responses to return stable JSON with `session_id`, `persona`, `message`, `model`, `metadata`, and `usage`.
+- Completed Persistence Architecture v1 repository boundaries.
+- Added in-memory repository implementations for memory, persona, and knowledge records.
+- Confirmed repositories do not import core engines, connect to databases, or own business logic.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -46,10 +59,20 @@ Each development day should have a section:
 - `backend/api/__init__.py`
 - `backend/api/transport.py`
 - `backend/api/http_server.py`
+- `backend/repositories/__init__.py`
+- `backend/repositories/memory_repository.py`
+- `backend/repositories/persona_repository.py`
+- `backend/repositories/knowledge_repository.py`
+- `backend/runtime/session_repository.py`
+- `scripts/serve_api.py`
 - `backend/runtime/__init__.py`
 - `tests/test_session_manager.py`
 - `tests/test_chat_api_boundary.py`
 - `tests/test_api_transport.py`
+- `tests/test_session_repository.py`
+- `tests/test_http_server_transport.py`
+- `tests/test_serve_api.py`
+- `tests/test_persistence_repositories.py`
 - `CHANGELOG.md`
 - `DAILY_PROGRESS.md`
 - `HANDOFF.md`
@@ -58,10 +81,14 @@ Each development day should have a section:
 - `pytest`
 - `python -m compileall backend tests`
 - Current test status:
-  - 303 passed.
+  - 321 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
+- SessionRepository coverage verifies in-memory repository create/get/list/delete behavior and SessionManager repository usage.
+- HTTP Server Transport coverage verifies server startup, persona listing, session creation, message sending, response JSON, and error JSON through the existing ApiTransport path.
+- API response schema coverage verifies message responses are JSON serializable and frontend-consumable.
+- Persistence repository coverage verifies memory, persona, and knowledge save/retrieve/list/delete behavior without database or engine coupling.
 
 ### Design Decisions
 - `SessionManager` owns temporary session lifecycle only.
@@ -72,13 +99,20 @@ Each development day should have a section:
 - `ApiTransport` owns HTTP-style request routing and validation only.
 - FastAPI was not introduced because the current environment/project does not include it as an existing dependency.
 - The standard-library HTTP wrapper is optional transport plumbing; core Runtime still flows through `ChatApiBoundary`.
+- `SessionManager` now depends on a repository boundary, not a hard-coded internal dictionary.
+- `InMemorySessionRepository` is not durable persistence and does not survive process restart.
+- `serve_api.py` is a local development transport entry, not a production API product.
+- HTTP Server Transport preserves the path: HTTP -> ApiTransport -> ChatApiBoundary -> SessionManager -> RuntimeSession -> ChatRuntime -> Adapter -> LLMResponse.
+- API Response Schema v1 avoids Python object representations and PowerShell-specific display formats.
+- Persistence Architecture v1 keeps storage concerns behind repository interfaces.
+- Repository implementations remain in-memory only; SQLite/PostgreSQL/file persistence is not implemented.
 
 ### Problems / Notes
 - No persistence, database, frontend, MemoryEngine connection, automatic memory extraction, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
-- Decide whether to expose the standard-library HTTP wrapper through a local development script or later replace it with a FastAPI adapter once dependencies are explicit.
+- Run manual curl/Postman verification against `scripts/serve_api.py` and confirm the stable message schema.
 - Keep durable memory extraction as a separate future review pipeline, not part of SessionManager.
 
 ## 2026-07-15

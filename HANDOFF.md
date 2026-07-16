@@ -39,6 +39,10 @@ Sample Architect Persona Package and CLI package loading are complete.
 SessionManager v1 is complete.
 Chat API Boundary v1 is complete.
 API Transport Layer v1 is complete.
+Session Repository Boundary v1 is complete.
+HTTP Server Transport v1 is complete.
+API Response Schema v1 is complete.
+Persistence Architecture v1 repository boundaries are complete.
 
 Current completed integration state:
 
@@ -105,6 +109,19 @@ Current completed integration state:
 - API Transport supports HTTP-style routes for persona listing, session creation, session retrieval, session deletion, and session messages.
 - Standard-library HTTP server wrapper added for future local API serving.
 - API Transport does not call Ollama, providers, adapters, `MemoryEngine`, or core engines directly.
+- `SessionRepository` boundary added for managed runtime session storage.
+- `InMemorySessionRepository` added as the current non-persistent repository implementation.
+- `SessionManager` now uses the repository boundary instead of directly owning a session registry.
+- No database, file persistence, durable memory writing, or `MemoryEngine` connection was introduced.
+- `scripts/serve_api.py` added as the minimal local HTTP service entry.
+- HTTP Server Transport uses the existing standard-library wrapper and `ApiTransport`.
+- HTTP Server Transport supports external calls into `GET /personas`, `POST /sessions`, `GET /sessions/{id}`, `DELETE /sessions/{id}`, and `POST /sessions/{id}/messages`.
+- HTTP Server Transport does not own runtime logic, call providers directly, or introduce FastAPI, database, authentication, WebSocket, streaming, or frontend behavior.
+- API message responses now return stable JSON fields: `session_id`, `persona`, `message`, `model`, `metadata`, and `usage`.
+- `MemoryRepository` and `InMemoryMemoryRepository` added.
+- `PersonaRepository` and `InMemoryPersonaRepository` added.
+- `KnowledgeRepository` and `InMemoryKnowledgeRepository` added.
+- Persistence Architecture v1 provides repository boundaries only; no SQLite, PostgreSQL, vector database, file persistence, or automatic memory generation was introduced.
 
 ## Architecture Rules
 
@@ -123,7 +140,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 303 tests passing.
+Latest recorded verification status is 321 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -138,12 +155,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-API Transport Layer v1 completed.
+API Response Schema v1 and Persistence Architecture v1 completed.
 
 
 ## Next Goal
 
-Prepare a local development API script or explicit FastAPI adapter decision without introducing persistence or bypassing Runtime boundaries.
+Run manual curl/Postman verification of the stable API response schema and decide the next product-facing surface without introducing database persistence or bypassing Runtime boundaries.
 
 Integration Phase Step 1 completed:
 
@@ -296,11 +313,42 @@ API Transport Layer completed:
 7. Confirmed API Transport does not call providers, adapters, Ollama, `MemoryEngine`, or core engines directly.
 8. Verified 303 automated tests passing.
 
+Session Repository Boundary completed:
+
+1. Added `SessionRepository`.
+2. Added `InMemorySessionRepository`.
+3. Moved session storage behind the repository boundary.
+4. Updated `SessionManager` to use repository operations for exists, save, get, list, delete, and count.
+5. Preserved current in-memory behavior without adding database or file persistence.
+6. Confirmed SessionManager still does not connect to `MemoryEngine`, generate durable memory, or mutate durable persona state.
+7. Verified 308 automated tests passing.
+
+HTTP Server Transport completed:
+
+1. Added `scripts/serve_api.py`.
+2. Wired local HTTP serving to the existing `ApiTransport`.
+3. Preserved the call path: HTTP Server -> ApiTransport -> ChatApiBoundary -> SessionManager -> RuntimeSession -> ChatRuntime -> Adapter -> LLMResponse.
+4. Added tests that start a local standard-library HTTP server on a temporary port.
+5. Verified persona listing, session creation, message sending, standard JSON responses, and error JSON responses.
+6. Confirmed no FastAPI, database, authentication, WebSocket, streaming, frontend, or durable memory write behavior was introduced.
+7. Verified 313 automated tests passing.
+
+API Response Schema and Persistence Architecture completed:
+
+1. Updated message API response schema to include stable `session_id`, `persona`, `message`, `model`, `metadata`, and `usage` fields.
+2. Confirmed response bodies are JSON serializable and frontend-consumable.
+3. Added `MemoryRepository` and `InMemoryMemoryRepository`.
+4. Added `PersonaRepository` and `InMemoryPersonaRepository`.
+5. Added `KnowledgeRepository` and `InMemoryKnowledgeRepository`.
+6. Confirmed repositories do not import or modify core engines.
+7. Confirmed no SQLite, PostgreSQL, vector database, file persistence, automatic memory generation, automatic persona creation, or knowledge crawling was introduced.
+8. Verified 321 automated tests passing.
+
 ## Next Recommended Phase
 
-Local API serving or explicit FastAPI adapter decision using the completed API Transport boundary.
+Manual API schema verification and next product-facing surface decision.
 
-The next work should expose `ApiTransport` through a minimal local development server script or define an explicit optional FastAPI adapter once dependencies are documented, while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, and provider boundaries.
+The next work should run a manual curl/Postman verification against `scripts/serve_api.py`, confirm the stable message response schema, then decide whether to improve API ergonomics, add a Web UI, or continue backend memory retrieval integration while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
 
 ## Future Considerations
 
@@ -335,4 +383,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from API Transport completion toward a local development API entry script or a later Web UI integration that does not introduce persistence or durable memory writes.
+Then continue from API Response Schema and Persistence Architecture completion toward manual service verification or a later Web UI integration that does not introduce database persistence or automatic durable memory writes.

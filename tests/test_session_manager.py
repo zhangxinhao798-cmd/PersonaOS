@@ -24,6 +24,7 @@ from backend.models.memory_record import MemoryRecord
 from backend.runtime import (
     DuplicateSessionError,
     InvalidSessionError,
+    ManagedSession,
     SessionManager,
     SessionNotFoundError,
 )
@@ -52,6 +53,40 @@ class FakeChatRuntime:
             }
         )
         return self.response
+
+
+class TrackingSessionRepository:
+    def __init__(self) -> None:
+        self.sessions: dict[str, ManagedSession] = {}
+        self.calls: list[tuple[str, str | None]] = []
+
+    def exists(self, session_id: str) -> bool:
+        self.calls.append(("exists", session_id))
+        return session_id in self.sessions
+
+    def save(self, session: ManagedSession) -> None:
+        self.calls.append(("save", session.session_id))
+        self.sessions[session.session_id] = session
+
+    def get(self, session_id: str) -> ManagedSession | None:
+        self.calls.append(("get", session_id))
+        return self.sessions.get(session_id)
+
+    def list(self) -> list[ManagedSession]:
+        self.calls.append(("list", None))
+        return list(self.sessions.values())
+
+    def delete(self, session_id: str) -> bool:
+        self.calls.append(("delete", session_id))
+        if session_id not in self.sessions:
+            return False
+
+        del self.sessions[session_id]
+        return True
+
+    def count(self) -> int:
+        self.calls.append(("count", None))
+        return len(self.sessions)
 
 
 def make_profile(name: str = "Session Architect") -> PersonaProfile:
@@ -170,6 +205,34 @@ def test_create_session_registers_runtime_session() -> None:
     assert managed.persona_os_context is context
     assert managed.metadata == {"source": "test"}
     assert manager.session_count() == 1
+
+
+def test_session_manager_uses_repository_boundary() -> None:
+    repository = TrackingSessionRepository()
+    manager = SessionManager(repository=repository)
+
+    managed = manager.create_session(
+        make_entry(),
+        make_context(),
+        FakeChatRuntime(),
+        session_id="session-1",
+    )
+    fetched = manager.get_session("session-1")
+    listed = manager.list_sessions()
+    count = manager.session_count()
+    manager.delete_session("session-1")
+
+    assert fetched is managed
+    assert listed == [managed]
+    assert count == 1
+    assert repository.calls == [
+        ("exists", "session-1"),
+        ("save", "session-1"),
+        ("get", "session-1"),
+        ("list", None),
+        ("count", None),
+        ("delete", "session-1"),
+    ]
 
 
 def test_create_session_generates_id_when_missing() -> None:

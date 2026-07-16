@@ -2,6 +2,7 @@
 
 import copy
 import inspect
+import json
 
 from backend.api import ApiTransport, PersonaRuntimeBundle
 from backend.api import transport as api_transport_module
@@ -123,11 +124,21 @@ def test_send_message_success_returns_standard_response() -> None:
     )
 
     assert response.status_code == 200
-    assert response.body["session_id"] == "session-1"
-    assert response.body["response"] == {
-        "content": "api transport reply",
-        "provider": "fake",
-        "model": "fake-model",
+    assert response.body == {
+        "session_id": "session-1",
+        "persona": {
+            "id": provider.entry.id,
+            "name": provider.entry.name,
+            "version": provider.entry.current_version_id,
+        },
+        "message": {
+            "role": "assistant",
+            "content": "api transport reply",
+        },
+        "model": {
+            "provider": "fake",
+            "name": "fake-model",
+        },
         "metadata": {},
         "usage": {"tokens": 3},
     }
@@ -146,6 +157,24 @@ def test_send_message_accepts_user_input_alias() -> None:
 
     assert response.status_code == 200
     assert provider.runtime.calls[0]["user_input"] == "hello alias"
+
+
+def test_message_response_schema_is_json_serializable() -> None:
+    transport, _ = make_transport()
+    transport.handle_request("POST", "/sessions", {"session_id": "session-1"})
+
+    response = transport.handle_request(
+        "POST",
+        "/sessions/session-1/messages",
+        {"message": "hello json"},
+    )
+
+    encoded = json.dumps(response.body)
+    decoded = json.loads(encoded)
+    assert decoded["message"]["role"] == "assistant"
+    assert decoded["message"]["content"] == "api transport reply"
+    assert decoded["persona"]["id"]
+    assert decoded["model"]["provider"] == "fake"
 
 
 def test_error_input_handling() -> None:

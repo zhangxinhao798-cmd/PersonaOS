@@ -196,13 +196,11 @@ class ApiTransport:
         if not isinstance(user_input, str) or not user_input.strip():
             raise ApiValidationError("message is required.")
 
+        managed_session = self.chat_api.get_session(session_id)
         response = self.chat_api.send_message(session_id, user_input)
         return ApiTransportResponse(
             status_code=200,
-            body={
-                "session_id": session_id,
-                "response": self._serialize_llm_response(response),
-            },
+            body=self._serialize_message_response(managed_session, response),
         )
 
     def _path_segments(self, path: str) -> list[str]:
@@ -233,3 +231,27 @@ class ApiTransport:
             "usage": dict(response.usage),
         }
 
+    def _serialize_message_response(
+        self,
+        managed_session: ManagedSession,
+        response: LLMResponse,
+    ) -> dict:
+        persona = managed_session.active_persona_reference
+        return {
+            "session_id": managed_session.session_id,
+            "persona": {
+                "id": persona.id,
+                "name": persona.name,
+                "version": persona.current_version_id,
+            },
+            "message": {
+                "role": "assistant",
+                "content": response.content,
+            },
+            "model": {
+                "provider": response.provider,
+                "name": response.model,
+            },
+            "metadata": dict(response.metadata),
+            "usage": dict(response.usage),
+        }
