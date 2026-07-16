@@ -110,7 +110,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 235 tests passing.
+Latest recorded verification status is 240 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -130,7 +130,7 @@ Runtime Configuration and live model switching verified.
 
 ## Next Goal
 
-CLI multi-persona package selection.
+Second sample Persona Package.
 
 Integration Phase Step 1 completed:
 
@@ -237,11 +237,21 @@ Sample Persona Package + CLI package loading completed:
 7. Verified package files are not modified by CLI startup.
 8. Verified 235 automated tests passing.
 
+CLI multi-persona package selection completed:
+
+1. Added CLI persona package discovery under `personas/`.
+2. Added `/persona list`.
+3. Added `/persona use <package_id>`.
+4. Preserved deterministic package validation and loading.
+5. Preserved review, versioning, library, activation, selector, and runtime boundaries.
+6. Kept persona package switching independent from runtime provider/model configuration.
+7. Verified 240 automated tests passing.
+
 ## Next Recommended Phase
 
-CLI multi-persona package selection.
+Second sample Persona Package.
 
-The next work should add CLI package discovery and switching commands such as `/persona list` and `/persona use <package_id>` while preserving deterministic validation, deterministic loading, review, activation, versioning, library, and runtime boundaries.
+The next work should add a second deterministic sample persona package under `personas/`, verify that `/persona list` shows multiple valid packages, and verify that `/persona use <package_id>` can switch between package-derived personas while preserving deterministic validation, deterministic loading, review, activation, versioning, library, selector, and runtime boundaries.
 
 ## Future Considerations
 
@@ -276,4 +286,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from sample package and CLI package loading completion toward CLI multi-persona package selection.
+Then continue from CLI multi-persona package selection completion toward a second sample Persona Package.

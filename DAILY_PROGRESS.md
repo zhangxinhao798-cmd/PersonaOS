@@ -269,6 +269,11 @@ Each development day should have a section:
 - Preserved package review and activation boundaries through in-memory CLI startup review approval and activation.
 - Verified package-derived persona name appears in CLI `/status`.
 - Verified CLI startup does not modify package files.
+- Added CLI multi-persona package discovery under `personas/`.
+- Added `/persona list`.
+- Added `/persona use <package_id>`.
+- Verified in-memory switching between package-derived personas through the CLI boundary.
+- Preserved deterministic package validation, deterministic loading, review, activation, selector, runtime, and provider boundaries during switching.
 
 ### Files Changed
 - `PROJECT_CONTEXT.md`
@@ -280,7 +285,7 @@ Each development day should have a section:
 - `docs/development_workflow.md`
 
 ### Tests
-- Current test count: 235 passed.
+- Current test count: 240 passed.
 - Live local Ollama smoke test passed.
 - Ollama was reachable at the configured local endpoint.
 - `qwen3:14b` returned a valid response.
@@ -300,6 +305,7 @@ Each development day should have a section:
 - Working tree was clean after the temporary configuration test.
 - Latest fallback verification passed with `python -m compileall backend tests`.
 - Sample Architect package validation and CLI package loading tests passed.
+- CLI multi-persona package selection tests passed.
 - Persona Library lifecycle integration coverage verifies source import, profile building, version snapshot creation, review approval, activation, and selector availability.
 - Runtime context assembly coverage verifies `RuntimeContext` creation, assembly from existing components, missing optional data handling, and boundary preservation.
 
@@ -320,7 +326,8 @@ Each development day should have a section:
 - Runtime configuration controls provider, model, endpoint, and options without changing persona identity.
 - `qwen3:14b` is restored as the current default model.
 - Persona Package v1 creates file-backed package boundaries without automatic review, automatic activation, LLM calls, or persona reconstruction.
-- The next Persona boundary should be CLI multi-persona package selection.
+- CLI multi-persona package selection creates an in-memory switching boundary without durable package mutation.
+- The next Persona boundary should be a second sample Persona Package.
 - Expression Layer capabilities remain future interface extensions and are not part of Runtime Intelligence implementation.
 
 ### Problems / Notes
@@ -329,13 +336,14 @@ Each development day should have a section:
 - Runtime Configuration System v1 is complete.
 - Persona Package v1 boundary is complete.
 - Sample Persona Package + CLI package loading is complete.
+- CLI multi-persona package selection is complete.
 - Expression Layer implementation has not started.
 - No production API/frontend runtime, streaming, tool calling, persistence, automatic durable memory writes, voice, avatar, emotion, or relationship logic has been introduced.
 
 ### Next Session
-- Add CLI multi-persona package discovery.
-- Add `/persona list`.
-- Add `/persona use <package_id>`.
+- Add a second sample Persona Package under `personas/`.
+- Verify `/persona list` with multiple valid packages.
+- Verify `/persona use <package_id>` between package-derived personas.
 - Preserve deterministic package validation and loading.
-- Preserve review, versioning, library, activation, and runtime boundaries.
+- Preserve review, versioning, library, activation, selector, runtime, and provider boundaries.
 - Keep package switching independent from runtime provider/model configuration.

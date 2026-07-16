@@ -147,9 +147,9 @@ Completed:
 
 Next item:
 
-- CLI multi-persona package selection.
+- Second sample Persona Package.
 
-CLI multi-persona package selection should allow the local runtime to discover multiple validated persona packages and switch the active in-memory persona during a CLI session without bypassing review, activation, or persona lifecycle rules.
+The second sample Persona Package should prove that the CLI package discovery and switching path works with more than one validated package while preserving review, activation, and persona lifecycle rules.
 
 Requirements:
 
@@ -267,12 +267,13 @@ Completed scope:
 - Preserved explicit activation through in-memory CLI startup activation.
 - Avoided LLM calls and persona reconstruction.
 - Verified 235 tests passing.
+- Verified 240 tests passing after CLI multi-persona package selection.
 
 ## CLI multi-persona package selection
 
-Status: Current
+Status: Completed
 
-Planned scope:
+Completed scope:
 
 - Discover available persona packages under `personas/`.
 - Add `/persona list` to show loadable package IDs and names.
@@ -281,6 +282,21 @@ Planned scope:
 - Preserve review, versioning, library, activation, and selector boundaries.
 - Keep package switching independent from provider/model configuration.
 - Avoid durable writes, automatic approval persistence, and persona reconstruction.
+
+## Second sample Persona Package
+
+Status: Current
+
+Planned scope:
+
+- Add a second sample persona package under `personas/`.
+- Include manifest, profile, examples, sources, and optional knowledge files.
+- Validate the second package through `PersonaPackageLoader`.
+- Verify `/persona list` shows multiple package-derived personas.
+- Verify `/persona use <package_id>` switches between package-derived personas.
+- Preserve deterministic package validation and loading.
+- Preserve review, versioning, library, activation, selector, runtime, and provider boundaries.
+- Avoid durable writes, automatic approval persistence, persona reconstruction, relationship state, emotion state, voice, or avatar behavior.
 
 ### Step 2: Persona + Memory Fusion
 
@@ -318,15 +334,15 @@ Progress:
 
 Current focus:
 
-- CLI multi-persona package selection.
+- Second sample Persona Package.
 
 Next steps:
 
-1. Add persona package discovery for the CLI.
-2. Add `/persona list`.
-3. Add `/persona use <package_id>`.
-4. Preserve review, versioning, library, activation, and CLI selection boundaries.
-5. Avoid LLM calls and persona reconstruction during package switching.
+1. Add a second sample package under `personas/`.
+2. Add deterministic package validation coverage for multiple packages.
+3. Verify `/persona list` with multiple packages.
+4. Verify `/persona use <package_id>` between package-derived personas.
+5. Preserve review, versioning, library, activation, selector, runtime, and provider boundaries.
 
 ## Phase 2: Memory System
 
@@ -540,4 +556,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is CLI multi-persona package selection.
+The immediate next focus is the second sample Persona Package.
