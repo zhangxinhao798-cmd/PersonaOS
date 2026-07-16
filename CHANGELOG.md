@@ -286,8 +286,13 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added session lifecycle tests for create, get, list, delete, history management, persona switching, session isolation, and durable-state preservation.
 - Added Chat API boundary tests verifying requests enter `RuntimeSession`/`ChatRuntime` without direct provider or adapter calls.
 - Confirmed SessionManager does not connect to `MemoryEngine`, create durable memory, mutate persona records, or change Runtime architecture.
-- Current phase is SessionManager and Chat API Boundary v1 completed.
-- Current recorded verification status: 292 tests passing.
+- Added API Transport Layer v1 above `ChatApiBoundary`.
+- Added dependency-free `ApiTransport` for HTTP-style method/path/body routing.
+- Added standard-library HTTP server wrapper for future local API serving.
+- Added API transport tests for sessions, messages, persona listing, error handling, and architecture boundary preservation.
+- Confirmed API Transport does not call Ollama, adapters, providers, `MemoryEngine`, or core engines directly.
+- Current phase is API Transport Layer v1 completed.
+- Current recorded verification status: 303 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 

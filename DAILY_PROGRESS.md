@@ -34,13 +34,22 @@ Each development day should have a section:
 - Added `ChatApiBoundary` as the future Web/API/Frontend-facing boundary.
 - Preserved the flow: Chat API Boundary -> SessionManager -> RuntimeSession -> ChatRuntime -> Adapter -> LLMResponse.
 - Confirmed SessionManager does not connect to `MemoryEngine`, generate durable memory, mutate persona records, or modify Evolution state.
+- Completed API Transport Layer v1.
+- Added dependency-free HTTP-style API routing above `ChatApiBoundary`.
+- Added a standard-library HTTP server wrapper for future local API serving.
+- Added API endpoints for persona listing, session creation, session retrieval, session deletion, and session messages.
+- Confirmed API Transport does not directly call Ollama, adapters, providers, `MemoryEngine`, or core engines.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
 - `backend/runtime/chat_api.py`
+- `backend/api/__init__.py`
+- `backend/api/transport.py`
+- `backend/api/http_server.py`
 - `backend/runtime/__init__.py`
 - `tests/test_session_manager.py`
 - `tests/test_chat_api_boundary.py`
+- `tests/test_api_transport.py`
 - `CHANGELOG.md`
 - `DAILY_PROGRESS.md`
 - `HANDOFF.md`
@@ -49,9 +58,10 @@ Each development day should have a section:
 - `pytest`
 - `python -m compileall backend tests`
 - Current test status:
-  - 292 passed.
+  - 303 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
+- API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
 
 ### Design Decisions
 - `SessionManager` owns temporary session lifecycle only.
@@ -59,13 +69,16 @@ Each development day should have a section:
 - Session history remains non-durable and is not `MemoryEngine` memory.
 - Persona switching inside an existing session resets temporary history in v1 to avoid misattributing earlier turns to the new persona.
 - `ChatApiBoundary` is a framework-free Python boundary, not an HTTP server or frontend.
+- `ApiTransport` owns HTTP-style request routing and validation only.
+- FastAPI was not introduced because the current environment/project does not include it as an existing dependency.
+- The standard-library HTTP wrapper is optional transport plumbing; core Runtime still flows through `ChatApiBoundary`.
 
 ### Problems / Notes
 - No persistence, database, frontend, MemoryEngine connection, automatic memory extraction, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
-- Decide the first Web/API integration shape that can call `ChatApiBoundary` without bypassing SessionManager or Runtime boundaries.
+- Decide whether to expose the standard-library HTTP wrapper through a local development script or later replace it with a FastAPI adapter once dependencies are explicit.
 - Keep durable memory extraction as a separate future review pipeline, not part of SessionManager.
 
 ## 2026-07-15

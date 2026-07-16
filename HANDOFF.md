@@ -38,6 +38,7 @@ Persona Package v1 boundary is complete.
 Sample Architect Persona Package and CLI package loading are complete.
 SessionManager v1 is complete.
 Chat API Boundary v1 is complete.
+API Transport Layer v1 is complete.
 
 Current completed integration state:
 
@@ -100,6 +101,10 @@ Current completed integration state:
 - `ChatApiBoundary` added as the provider-independent entry point for future Web/API/Frontend calls.
 - Chat API Boundary delegates to `SessionManager` and does not call Ollama, adapters, engines, or prompt components directly.
 - SessionManager and Chat API Boundary do not connect to `MemoryEngine`, generate durable memory, mutate persona records, or change Evolution state.
+- `ApiTransport` added as a dependency-free API transport boundary above `ChatApiBoundary`.
+- API Transport supports HTTP-style routes for persona listing, session creation, session retrieval, session deletion, and session messages.
+- Standard-library HTTP server wrapper added for future local API serving.
+- API Transport does not call Ollama, providers, adapters, `MemoryEngine`, or core engines directly.
 
 ## Architecture Rules
 
@@ -118,7 +123,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 292 tests passing.
+Latest recorded verification status is 303 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -133,12 +138,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-SessionManager and Chat API Boundary v1 completed.
+API Transport Layer v1 completed.
 
 
 ## Next Goal
 
-Prepare future Web/API integration on top of `ChatApiBoundary` without introducing persistence or bypassing Runtime boundaries.
+Prepare a local development API script or explicit FastAPI adapter decision without introducing persistence or bypassing Runtime boundaries.
 
 Integration Phase Step 1 completed:
 
@@ -280,11 +285,22 @@ SessionManager and Chat API Boundary completed:
 7. Confirmed no persona profile, persona version, persona library entry, memory record, knowledge record, or evolution state mutation.
 8. Verified 292 automated tests passing.
 
+API Transport Layer completed:
+
+1. Added `ApiTransport`.
+2. Added `PersonaRuntimeBundle` and `PersonaRuntimeProvider` boundary for runtime-ready session creation dependencies.
+3. Added `ApiTransportResponse` as a framework-independent HTTP-like response boundary.
+4. Added routes for `GET /personas`, `POST /sessions`, `GET /sessions/{id}`, `DELETE /sessions/{id}`, and `POST /sessions/{id}/messages`.
+5. Added optional standard-library HTTP server wrapper without introducing FastAPI or other new dependencies.
+6. Preserved the call path: API Transport -> ChatApiBoundary -> SessionManager -> RuntimeSession -> ChatRuntime -> Adapter -> LLMResponse.
+7. Confirmed API Transport does not call providers, adapters, Ollama, `MemoryEngine`, or core engines directly.
+8. Verified 303 automated tests passing.
+
 ## Next Recommended Phase
 
-Future Web/API integration using `ChatApiBoundary`.
+Local API serving or explicit FastAPI adapter decision using the completed API Transport boundary.
 
-The next work should expose `ChatApiBoundary` through a minimal transport layer only after the boundary is stable, while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, and provider boundaries.
+The next work should expose `ApiTransport` through a minimal local development server script or define an explicit optional FastAPI adapter once dependencies are documented, while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, and provider boundaries.
 
 ## Future Considerations
 
@@ -319,4 +335,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from SessionManager and Chat API Boundary completion toward a minimal API transport or Web UI integration that does not introduce persistence or durable memory writes.
+Then continue from API Transport completion toward a local development API entry script or a later Web UI integration that does not introduce persistence or durable memory writes.
