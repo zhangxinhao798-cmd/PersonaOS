@@ -11,6 +11,7 @@ def test_prompt_package_initializes_with_values() -> None:
         memory=["memory"],
         knowledge={"records": ["knowledge"]},
         skills=["skill"],
+        expression={"tone": "calm"},
         conversation=["previous turn"],
         user_input="current request",
         metadata={"trace_id": "prompt-1"},
@@ -21,6 +22,7 @@ def test_prompt_package_initializes_with_values() -> None:
     assert package.memory == ["memory"]
     assert package.knowledge == {"records": ["knowledge"]}
     assert package.skills == ["skill"]
+    assert package.expression == {"tone": "calm"}
     assert package.conversation == ["previous turn"]
     assert package.user_input == "current request"
     assert package.metadata == {"trace_id": "prompt-1"}
@@ -34,6 +36,7 @@ def test_prompt_package_defaults_are_independent() -> None:
     first.memory.append("memory")
     first.knowledge["records"] = ["knowledge"]
     first.skills.append("skill")
+    first.expression["tone"] = "first"
     first.conversation.append("turn")
     first.metadata["trace_id"] = "first"
 
@@ -41,6 +44,7 @@ def test_prompt_package_defaults_are_independent() -> None:
     assert second.memory == []
     assert second.knowledge == {}
     assert second.skills == []
+    assert second.expression == {}
     assert second.conversation == []
     assert second.metadata == {}
 
@@ -57,6 +61,7 @@ def test_builds_prompt_package_from_empty_runtime_context() -> None:
     assert package.memory == []
     assert package.knowledge == {}
     assert package.skills == []
+    assert package.expression == {}
     assert package.conversation == []
     assert package.user_input == "hello"
     assert package.metadata == {}
@@ -69,6 +74,10 @@ def test_builds_prompt_package_from_full_runtime_context() -> None:
         memories=["memory"],
         knowledge={"records": ["knowledge"], "sources": ["source"]},
         skills=["skill"],
+        expression={
+            "tone": "calm",
+            "catchphrases": ["Let's preserve the boundary first."],
+        },
         confidence={"score": 0.8},
         fusion_context=["fusion"],
         metadata={
@@ -85,6 +94,10 @@ def test_builds_prompt_package_from_full_runtime_context() -> None:
     assert package.memory is runtime_context.memories
     assert package.knowledge is runtime_context.knowledge
     assert package.skills is runtime_context.skills
+    assert package.expression is runtime_context.expression
+    assert package.expression["catchphrases"] == [
+        "Let's preserve the boundary first."
+    ]
     assert package.conversation is runtime_context.metadata["conversation"]
     assert package.user_input == "current turn"
     assert package.metadata is runtime_context.metadata
@@ -98,6 +111,7 @@ def test_missing_optional_sections_default_to_empty_boundaries() -> None:
         memories=None,
         knowledge=None,
         skills=None,
+        expression=None,
         metadata=None,
     )
 
@@ -106,6 +120,7 @@ def test_missing_optional_sections_default_to_empty_boundaries() -> None:
     assert package.memory == []
     assert package.knowledge == {}
     assert package.skills == []
+    assert package.expression == {}
     assert package.conversation == []
     assert package.metadata == {}
 
@@ -119,6 +134,7 @@ def test_prompt_package_section_order_is_deterministic() -> None:
         "memory",
         "knowledge",
         "skills",
+        "expression",
         "conversation",
         "user_input",
         "metadata",

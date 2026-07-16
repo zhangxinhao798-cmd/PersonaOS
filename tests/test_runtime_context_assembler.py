@@ -95,6 +95,7 @@ def test_missing_optional_data_defaults_to_empty_boundaries() -> None:
     assert runtime_context.skills == []
     assert runtime_context.confidence is None
     assert runtime_context.fusion_context == []
+    assert runtime_context.expression == {}
     assert runtime_context.metadata["query"] == "empty runtime"
 
 
@@ -115,6 +116,11 @@ def test_runtime_context_preserves_source_boundaries() -> None:
         ),
         confidence=confidence,
     )
+    setattr(
+        internal_context,
+        "metadata",
+        {"expression": {"catchphrases": ["Keep the boundary."]}},
+    )
 
     runtime_context = RuntimeContextAssembler().assemble(internal_context)
 
@@ -125,6 +131,9 @@ def test_runtime_context_preserves_source_boundaries() -> None:
         is internal_context.knowledge.knowledge_records
     )
     assert runtime_context.confidence is confidence
+    assert runtime_context.expression == {
+        "catchphrases": ["Keep the boundary."]
+    }
     assert "source_boundaries" in runtime_context.metadata
     assert runtime_context.metadata["source_boundaries"]["memories"] == (
         "PersonaOSContext.memories"

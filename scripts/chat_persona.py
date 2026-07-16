@@ -18,6 +18,8 @@ from backend.adapters import (  # noqa: E402
     OllamaTransportError,
 )
 from backend.core import (  # noqa: E402
+    ExpressionPackageError,
+    ExpressionPackageLoader,
     PersonaActivationManager,
     PersonaLibraryEngine,
     PersonaPackageError,
@@ -61,6 +63,7 @@ from config.runtime import (  # noqa: E402
 
 DEFAULT_PERSONA_PACKAGE_PATH = PROJECT_ROOT / "personas" / "architect"
 DEFAULT_PERSONAS_DIR = PROJECT_ROOT / "personas"
+DEFAULT_EXPRESSIONS_DIR = PROJECT_ROOT / "expressions"
 
 
 @dataclass
@@ -71,6 +74,7 @@ class InteractiveRuntime:
     persona_entry: PersonaLibraryEntry
     provider_config: ProviderConfig
     personas_dir: Path = DEFAULT_PERSONAS_DIR
+    expressions_dir: Path = DEFAULT_EXPRESSIONS_DIR
 
 
 Printer = Callable[[str], None]
@@ -209,7 +213,37 @@ def prepare_persona_for_cli_runtime(
     )
 
 
-def build_persona_os_context(entry: PersonaLibraryEntry) -> PersonaOSContext:
+def load_expression_context(
+    persona_id: str,
+    expressions_dir: Path = DEFAULT_EXPRESSIONS_DIR,
+) -> dict:
+    """Load optional expression guidance for a package-derived persona."""
+
+    expression_path = expressions_dir / persona_id
+    if not expression_path.is_dir():
+        return {}
+
+    package = ExpressionPackageLoader().load(expression_path)
+    style = package.style
+    return {
+        "package_id": package.manifest.package_id,
+        "persona_id": package.manifest.persona_id,
+        "tone": style.tone,
+        "rhythm": style.rhythm,
+        "pacing": style.pacing,
+        "vocabulary": list(style.vocabulary),
+        "catchphrases": list(style.catchphrases),
+        "sentence_patterns": list(style.sentence_patterns),
+        "pause_patterns": list(style.pause_patterns),
+        "emphasis_patterns": list(style.emphasis_patterns),
+        "avoid": list(style.avoid),
+    }
+
+
+def build_persona_os_context(
+    entry: PersonaLibraryEntry,
+    expressions_dir: Path = DEFAULT_EXPRESSIONS_DIR,
+) -> PersonaOSContext:
     """Build a minimal prepared PersonaOSContext without durable writes."""
 
     memory = MemoryRecord(
@@ -234,7 +268,7 @@ def build_persona_os_context(entry: PersonaLibraryEntry) -> PersonaOSContext:
         timestamp="2026-07-16T00:00:00Z",
     )
     profile = entry.profile
-    return PersonaOSContext(
+    context = PersonaOSContext(
         query="interactive runtime",
         persona=PersonaContext(
             name=entry.name,
@@ -255,6 +289,17 @@ def build_persona_os_context(entry: PersonaLibraryEntry) -> PersonaOSContext:
             },
         ),
     )
+    setattr(
+        context,
+        "metadata",
+        {
+            "expression": load_expression_context(
+                entry.id,
+                expressions_dir,
+            )
+        },
+    )
+    return context
 
 
 def build_runtime(
@@ -292,6 +337,7 @@ def build_runtime(
         persona_entry=entry,
         provider_config=config,
         personas_dir=resolved_package_path.parent,
+        expressions_dir=DEFAULT_EXPRESSIONS_DIR,
     )
 
 
@@ -331,7 +377,10 @@ def switch_persona(
     runtime.session = RuntimeSession(
         id=f"interactive-cli-session-{entry.id or package_id}",
         persona_entry=entry,
-        persona_os_context=build_persona_os_context(entry),
+        persona_os_context=build_persona_os_context(
+            entry,
+            runtime.expressions_dir,
+        ),
         chat_runtime=chat_runtime,
     )
     return True
@@ -455,7 +504,7 @@ def handle_persona_command(
         package_id = parts[2]
         try:
             switched = switch_persona(runtime, package_id)
-        except PersonaPackageError as exc:
+        except (ExpressionPackageError, PersonaPackageError) as exc:
             printer(f"Persona package loading failed: {exc}")
             return True
         if not switched:
@@ -608,6 +657,9 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     except RuntimeConfigError as exc:
         print(f"Runtime configuration failed: {exc}")
+        return 1
+    except ExpressionPackageError as exc:
+        print(f"Expression package loading failed: {exc}")
         return 1
     except PersonaPackageError as exc:
         print(f"Persona package loading failed: {exc}")

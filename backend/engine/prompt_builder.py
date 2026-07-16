@@ -28,6 +28,7 @@ class PromptBuilder:
             memory=self._list_section(runtime_context, "memories"),
             knowledge=self._dict_section(runtime_context, "knowledge"),
             skills=self._list_section(runtime_context, "skills"),
+            expression=self._dict_section(runtime_context, "expression"),
             conversation=self._conversation_section(
                 runtime_context,
                 conversation,
@@ -83,4 +84,3 @@ class PromptBuilder:
             return data.get(key, default)
 
         return getattr(data, key, default)
-

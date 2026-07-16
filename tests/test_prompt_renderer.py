@@ -35,6 +35,7 @@ def test_renders_empty_prompt_package() -> None:
         "\n\n## Memory\n[]"
         "\n\n## Knowledge\n{}"
         "\n\n## Skills\n[]"
+        "\n\n## Expression\n{}"
         "\n\n## Conversation\n[]"
         "\n\n## User Input\n"
         "\n\n## Metadata\n{}"
@@ -50,6 +51,7 @@ def test_renders_full_prompt_package() -> None:
         memory=["memory"],
         knowledge={"records": ["knowledge"], "sources": ["source"]},
         skills=["skill"],
+        expression={"catchphrases": ["Keep the boundary."]},
         conversation=["previous turn"],
         user_input="current request",
         metadata=metadata,
@@ -67,6 +69,8 @@ def test_renders_full_prompt_package() -> None:
     assert '"knowledge"' in rendered.text
     assert "## Skills\n" in rendered.text
     assert '"skill"' in rendered.text
+    assert "## Expression\n" in rendered.text
+    assert '"Keep the boundary."' in rendered.text
     assert "## Conversation\n" in rendered.text
     assert '"previous turn"' in rendered.text
     assert "## User Input\ncurrent request" in rendered.text
@@ -90,6 +94,7 @@ def test_renderer_preserves_section_ordering() -> None:
         "## Memory",
         "## Knowledge",
         "## Skills",
+        "## Expression",
         "## Conversation",
         "## User Input",
         "## Metadata",
@@ -127,6 +132,7 @@ def test_missing_optional_sections_render_as_empty_sections() -> None:
         memory=None,
         knowledge=None,
         skills=None,
+        expression=None,
         conversation=None,
         metadata=None,
     )
@@ -139,6 +145,7 @@ def test_missing_optional_sections_render_as_empty_sections() -> None:
         "\n\n## Memory\n"
         "\n\n## Knowledge\n"
         "\n\n## Skills\n"
+        "\n\n## Expression\n"
         "\n\n## Conversation\n"
         "\n\n## User Input\n"
         "\n\n## Metadata\n"

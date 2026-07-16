@@ -18,6 +18,7 @@ class PromptPackage:
         "memory",
         "knowledge",
         "skills",
+        "expression",
         "conversation",
         "user_input",
         "metadata",
@@ -28,6 +29,7 @@ class PromptPackage:
     memory: list = field(default_factory=list)
     knowledge: dict = field(default_factory=dict)
     skills: list = field(default_factory=list)
+    expression: dict = field(default_factory=dict)
     conversation: list = field(default_factory=list)
     user_input: str = ""
     metadata: dict = field(default_factory=dict)
@@ -39,4 +41,3 @@ class PromptPackage:
             (section_name, getattr(self, section_name))
             for section_name in self.SECTION_ORDER
         ]
-

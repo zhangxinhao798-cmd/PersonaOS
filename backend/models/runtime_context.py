@@ -20,4 +20,5 @@ class RuntimeContext:
     skills: list = field(default_factory=list)
     confidence: Any = None
     fusion_context: list = field(default_factory=list)
+    expression: Any = None
     metadata: dict = field(default_factory=dict)

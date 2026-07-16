@@ -31,6 +31,7 @@ class RuntimeContextAssembler:
             skills=skills or [],
             confidence=self._get_value(context, "confidence", None),
             fusion_context=self._fusion_context(context),
+            expression=self._expression(context),
             metadata=self._metadata(context, metadata),
         )
 
@@ -68,6 +69,14 @@ class RuntimeContextAssembler:
 
         return self._get_value(fusion_memory, "fusions", []) or []
 
+    def _expression(self, context: PersonaOSContext) -> dict:
+        metadata = self._get_value(context, "metadata", {}) or {}
+        expression = metadata.get("expression", {})
+        if isinstance(expression, dict):
+            return expression
+
+        return {}
+
     def _metadata(
         self,
         context: PersonaOSContext,
@@ -87,6 +96,7 @@ class RuntimeContextAssembler:
                 "skills": "external skill availability input",
                 "confidence": "PersonaOSContext.confidence",
                 "fusion_context": "PersonaOSContext.fusion_memory",
+                "expression": "PersonaOSContext.metadata.expression",
             },
         )
 

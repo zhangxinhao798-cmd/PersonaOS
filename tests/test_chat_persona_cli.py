@@ -234,6 +234,32 @@ def test_package_derived_persona_name_appears_in_status(monkeypatch) -> None:
     assert "Model: qwen3:14b" in output
 
 
+def test_cli_loads_expression_context_for_default_persona(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+
+    runtime = chat_persona.build_runtime()
+    expression = runtime.session.persona_os_context.metadata["expression"]
+
+    assert expression["persona_id"] == "architect"
+    assert expression["tone"] == "calm, precise, and structured"
+    assert "Let's preserve the boundary first." in expression["catchphrases"]
+    assert "pause after naming the boundary" in expression["pause_patterns"]
+
+
+def test_missing_expression_package_keeps_runtime_usable(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+    entry = chat_persona.prepare_persona_for_cli_runtime(
+        Path("personas") / "architect"
+    )
+
+    context = chat_persona.build_persona_os_context(
+        entry,
+        expressions_dir=Path("missing-expressions"),
+    )
+
+    assert context.metadata["expression"] == {}
+
+
 def test_missing_package_path_gives_readable_error(capsys, monkeypatch) -> None:
     def raise_missing_package(_package_path=None) -> None:
         raise PersonaPackageError(
@@ -474,6 +500,21 @@ def test_persona_use_keeps_package_files_unchanged(monkeypatch) -> None:
         for path in Path("personas/architect").glob("*.json")
     }
     assert before == after
+
+
+def test_persona_use_switches_expression_context(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    runtime.expressions_dir = Path("expressions")
+
+    chat_persona.handle_command("/persona use strategist", runtime, lambda _line: None)
+
+    expression = runtime.session.persona_os_context.metadata["expression"]
+    assert runtime.persona_entry.id == "strategist"
+    assert expression["persona_id"] == "strategist"
+    assert expression["tone"] == "practical, comparative, and direct"
+    assert "Let's frame the decision first." in expression["catchphrases"]
 
 
 def test_persona_command_usage_for_invalid_shape() -> None:

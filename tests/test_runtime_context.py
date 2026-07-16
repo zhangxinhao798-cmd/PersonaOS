@@ -12,6 +12,7 @@ def test_runtime_context_initializes_with_values() -> None:
         skills=["skill"],
         confidence={"score": 0.8},
         fusion_context=["fusion"],
+        expression={"tone": "calm"},
         metadata={"query": "test"},
     )
 
@@ -25,6 +26,7 @@ def test_runtime_context_initializes_with_values() -> None:
     assert context.skills == ["skill"]
     assert context.confidence == {"score": 0.8}
     assert context.fusion_context == ["fusion"]
+    assert context.expression == {"tone": "calm"}
     assert context.metadata == {"query": "test"}
 
 
@@ -38,4 +40,5 @@ def test_runtime_context_defaults_preserve_empty_boundaries() -> None:
     assert context.skills == []
     assert context.confidence is None
     assert context.fusion_context == []
+    assert context.expression is None
     assert context.metadata == {}
