@@ -75,7 +75,10 @@ Conversation
 
 `CandidateExtractor` uses deterministic rules only. `ReviewQueue` can approve
 or reject candidates, but approval does not automatically create durable memory.
-Promotion into `MemoryEngine` remains a separate future boundary.
+Promotion into `MemoryEngine` is handled by `MemoryPromotionBoundary`.
+Approval remains separate from promotion: a candidate must first be approved,
+then explicitly passed through the promotion boundary before it becomes a
+`MemoryRecord`.
 
 ### Retrieve
 

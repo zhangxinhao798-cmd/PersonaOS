@@ -67,6 +67,13 @@ anything automatically.
 Approval means the candidate has passed review for a future promotion path; it
 does not write to `MemoryEngine` by itself.
 
+`MemoryPromotionBoundary` is the explicit bridge from an approved candidate to
+durable memory. It validates that the candidate is approved, maps candidate
+content, category, confidence, importance, timestamp, and provenance into a
+`MemoryRecord`, then calls `MemoryEngine.create_memory()`. Runtime sessions,
+session managers, candidate extractors, and review queues must not call
+`MemoryEngine` directly.
+
 This boundary protects the distinction between conversation and memory. Runtime
 sessions may produce memory candidates, but conversation turns must never become
 durable memory without review.

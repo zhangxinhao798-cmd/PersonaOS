@@ -28,11 +28,13 @@ class CandidateExtractor:
     conversation, approve candidates, or create durable memory.
     """
 
-    RULES: tuple[tuple[str, str, str, float], ...] = (
+    RULES: tuple[tuple[str, str, str, float, str, float], ...] = (
         (
             "user_preference",
             r"\b(?:i prefer|i like|i love|i enjoy)\s+(.+)",
             "User stated a possible stable preference.",
+            0.8,
+            "semantic",
             0.8,
         ),
         (
@@ -40,17 +42,23 @@ class CandidateExtractor:
             r"\b(?:my goal is|i want to|i plan to|i hope to)\s+(.+)",
             "User stated a possible long-term goal.",
             0.75,
+            "semantic",
+            0.85,
         ),
         (
             "explicit_personal_fact",
             r"\b(?:my name is|i am|i live in|i work as)\s+(.+)",
             "User stated an explicit personal fact.",
             0.85,
+            "semantic",
+            0.75,
         ),
         (
             "stable_habit",
             r"\b(?:i usually|i always|i often)\s+(.+)",
             "User stated a possible stable habit.",
+            0.7,
+            "procedural",
             0.7,
         ),
     )
@@ -67,7 +75,14 @@ class CandidateExtractor:
             return []
 
         candidates = []
-        for candidate_type, pattern, reason, confidence in self.RULES:
+        for (
+            candidate_type,
+            pattern,
+            reason,
+            confidence,
+            category,
+            importance,
+        ) in self.RULES:
             match = re.search(pattern, content, re.IGNORECASE)
             if not match:
                 continue
@@ -92,6 +107,8 @@ class CandidateExtractor:
                     content=candidate_content,
                     confidence=confidence,
                     reason=reason,
+                    category=category,
+                    importance=importance,
                     metadata={
                         "extractor": "CandidateExtractor",
                         "rule": candidate_type,

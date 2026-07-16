@@ -64,6 +64,11 @@ Each development day should have a section:
 - Added `ReviewQueue` for pending, approved, and rejected candidates.
 - Integrated optional candidate extraction into `RuntimeSession`.
 - Confirmed approved candidates are not automatically written to `MemoryEngine`.
+- Completed Memory Promotion Boundary v1.
+- Added `MemoryPromotionBoundary` as the only implemented bridge from approved `MemoryCandidate` to `MemoryEngine`.
+- Added explicit validation so pending and rejected candidates cannot be promoted.
+- Added candidate-to-`MemoryRecord` mapping for content, category, confidence, importance, timestamp, and provenance source.
+- Confirmed RuntimeSession, SessionManager, CandidateExtractor, and ReviewQueue still do not directly write durable memory.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -79,6 +84,7 @@ Each development day should have a section:
 - `backend/runtime/memory_runtime.py`
 - `backend/models/memory_candidate.py`
 - `backend/core/memory_candidate.py`
+- `backend/core/memory_promotion.py`
 - `scripts/serve_api.py`
 - `backend/core/retrieval.py`
 - `backend/engine/runtime_context_assembler.py`
@@ -93,6 +99,7 @@ Each development day should have a section:
 - `tests/test_persistence_repositories.py`
 - `tests/test_memory_runtime_integration.py`
 - `tests/test_memory_candidate_pipeline.py`
+- `tests/test_memory_promotion.py`
 - `tests/test_retrieval.py`
 - `docs/memory_engine.md`
 - `docs/memory_lifecycle.md`
@@ -107,7 +114,7 @@ Each development day should have a section:
 - `pytest`
 - `python -m compileall backend scripts tests`
 - Current test status:
-  - 342 passed.
+  - 353 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
@@ -117,6 +124,7 @@ Each development day should have a section:
 - Persistence repository coverage verifies memory, persona, and knowledge save/retrieve/list/delete behavior without database or engine coupling.
 - Memory Runtime Integration coverage verifies relevant memory retrieval, empty-memory behavior, multiple-memory ordering, RuntimeSession integration, RuntimeContext memory section assembly, prompt rendering, persona identity separation, and no durable record mutation.
 - Memory Candidate Pipeline coverage verifies deterministic extraction, queue add/list/clear, approval, rejection, duplicate handling, RuntimeSession candidate production, no automatic durable memory write, and no MemoryEngine import/call from the candidate pipeline.
+- Memory Promotion coverage verifies approved-only promotion, pending/rejected rejection, data integrity, provenance preservation, no persona mutation, and that the promotion boundary is the only MemoryEngine write connection.
 
 ### Design Decisions
 - `SessionManager` owns temporary session lifecycle only.
@@ -142,14 +150,16 @@ Each development day should have a section:
 - `ReviewQueue.approve()` changes review status only; it does not create memory.
 - Candidate extraction is deterministic and does not call an LLM.
 - Runtime candidate extraction is optional and does not change existing sessions that do not provide a candidate extractor and review queue.
+- Approval is still not memory creation; promotion is a separate explicit boundary.
+- `MemoryPromotionBoundary` owns the only candidate-to-`MemoryRecord` conversion path.
 
 ### Problems / Notes
 - No persistence, database, frontend, automatic memory persistence, LLM summarization, automatic approval, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
-- Add a user-facing review/promotion boundary for approved memory candidates.
-- Keep durable memory promotion separate from RuntimeSession and SessionManager.
+- Add user-facing controls for listing, approving, rejecting, and promoting memory candidates.
+- Keep future UI/API memory review flows routed through the promotion boundary.
 
 ## 2026-07-15
 

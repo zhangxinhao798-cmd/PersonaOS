@@ -319,14 +319,19 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added in-memory `ReviewQueue` with add, list, approve, reject, clear, and duplicate suppression behavior.
 - Integrated optional candidate extraction into `RuntimeSession` without automatic memory writing.
 - Confirmed approved candidates are not automatically written to `MemoryEngine`.
-- Current phase is Memory Review / Candidate Pipeline v1 completed.
-- Current recorded verification status: 342 tests passing.
+- Added Memory Promotion Boundary v1.
+- Added `MemoryPromotionBoundary` as the explicit bridge from approved `MemoryCandidate` to `MemoryRecord`.
+- Added approval-state validation so pending and rejected candidates cannot be promoted.
+- Added candidate-to-memory mapping for content, category, confidence, importance, timestamp, and provenance source.
+- Confirmed RuntimeSession, SessionManager, CandidateExtractor, and ReviewQueue do not call `MemoryEngine.create_memory()`.
+- Current phase is Memory Promotion Boundary v1 completed.
+- Current recorded verification status: 353 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Add a user-facing review/promotion boundary for approved memory candidates before any durable MemoryEngine write path.
+- Add user-facing controls around pending candidates and approved-candidate promotion.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.
 - Keep provider switching simple and model-independent.

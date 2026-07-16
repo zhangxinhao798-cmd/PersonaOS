@@ -45,6 +45,7 @@ API Response Schema v1 is complete.
 Persistence Architecture v1 repository boundaries are complete.
 Memory Runtime Integration v1 is complete.
 Memory Review / Candidate Pipeline v1 is complete.
+Memory Promotion Boundary v1 is complete.
 
 Current completed integration state:
 
@@ -136,6 +137,10 @@ Current completed integration state:
 - `ReviewQueue` added for pending, approved, and rejected memory candidates.
 - `RuntimeSession` can optionally produce memory candidates from user turns when provided with a candidate extractor and review queue.
 - Candidate approval does not write `MemoryEngine`, create `MemoryRecord`, call an LLM, or persist state.
+- `MemoryPromotionBoundary` added as the explicit bridge from approved `MemoryCandidate` to `MemoryRecord`.
+- Promotion validates candidate approval before writing to `MemoryEngine`.
+- Promotion preserves content, category, confidence, importance, timestamp, and provenance through the resulting `MemoryRecord`.
+- RuntimeSession, SessionManager, CandidateExtractor, and ReviewQueue still do not call `MemoryEngine`.
 
 ## Architecture Rules
 
@@ -154,7 +159,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 342 tests passing.
+Latest recorded verification status is 353 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -169,12 +174,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Memory Review / Candidate Pipeline v1 completed.
+Memory Promotion Boundary v1 completed.
 
 
 ## Next Goal
 
-Add a user-facing review/promotion boundary for approved memory candidates without letting RuntimeSession or SessionManager automatically write durable memory.
+Add user-facing controls for reviewing and promoting memory candidates while routing all durable memory writes through `MemoryPromotionBoundary`.
 
 Integration Phase Step 1 completed:
 
@@ -382,11 +387,22 @@ Memory Review / Candidate Pipeline completed:
 8. Confirmed no LLM summarization, automatic approval, database persistence, vector database, emotion system, or persona reconstruction was introduced.
 9. Verified 342 automated tests passing.
 
+Memory Promotion Boundary completed:
+
+1. Added `MemoryPromotionBoundary`.
+2. Added candidate approval validation before promotion.
+3. Added explicit candidate-to-`MemoryRecord` mapping for content, category, confidence, importance, timestamp, and provenance source.
+4. Added `MemoryEngine.create_memory()` call only inside the promotion boundary.
+5. Confirmed pending and rejected candidates cannot be promoted.
+6. Confirmed RuntimeSession, SessionManager, CandidateExtractor, and ReviewQueue do not write durable memory.
+7. Confirmed Persona identity and Evolution state are not modified by promotion.
+8. Verified 353 automated tests passing.
+
 ## Next Recommended Phase
 
-Memory candidate review and promotion boundary.
+Memory candidate review controls.
 
-The next work should expose pending candidates for human review and define an explicit promotion path from approved `MemoryCandidate` to `MemoryRecord`. Keep RuntimeSession temporary history separate from durable Memory, and preserve persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
+The next work should expose pending candidates through CLI/API controls so a human can approve, reject, and explicitly promote candidates. Keep RuntimeSession temporary history separate from durable Memory, and preserve persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
 
 ## Future Considerations
 

@@ -18,6 +18,8 @@ class MemoryCandidate:
     content: str
     confidence: float
     reason: str
+    category: str = ""
+    importance: float = 0.5
     metadata: dict = field(default_factory=dict)
     created_at: str = ""
     review_status: str = "pending"
@@ -52,6 +54,8 @@ class MemoryCandidate:
             "content": self.content,
             "confidence": self.confidence,
             "reason": self.reason,
+            "category": self.category,
+            "importance": self.importance,
             "metadata": dict(self.metadata),
             "created_at": self.created_at,
             "review_status": self.review_status,

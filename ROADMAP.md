@@ -436,12 +436,15 @@ Completed:
 - RuntimeSession optional candidate production.
 - No automatic memory writing from conversation.
 - No LLM summarization or automatic approval.
+- Memory Promotion Boundary v1.
+- Approved-candidate-to-`MemoryRecord` conversion.
+- Explicit promotion into `MemoryEngine`.
 
 Next:
 
-- Add a user-facing memory candidate review/promotion boundary.
-- Define explicit approved-candidate-to-`MemoryRecord` conversion.
-- Keep promotion separate from RuntimeSession and SessionManager.
+- Add user-facing review controls for pending candidates.
+- Add CLI/API endpoints for approve, reject, and explicit promotion.
+- Keep all durable memory writes routed through `MemoryPromotionBoundary`.
 
 ## Phase 3: Persona System
 
@@ -632,4 +635,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is a memory candidate review and promotion boundary.
+The immediate next focus is user-facing memory candidate review controls.

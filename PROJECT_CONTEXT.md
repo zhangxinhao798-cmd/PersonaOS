@@ -450,6 +450,13 @@ a deterministic `CandidateExtractor` and place them in an in-memory
 changes candidate review state only; it does not write to `MemoryEngine`,
 repositories, databases, or vector stores.
 
+Memory Promotion Boundary v1 is complete. `MemoryPromotionBoundary` is the
+only implemented bridge from approved `MemoryCandidate` objects into
+`MemoryEngine`. It validates candidate approval, maps content, category,
+confidence, importance, timestamp, and provenance into `MemoryRecord`, and then
+calls `MemoryEngine.create_memory()`. RuntimeSession, SessionManager,
+CandidateExtractor, and ReviewQueue still do not write durable memory directly.
+
 ## 6. Persona System
 
 The Persona system is intended to make identity explicit.

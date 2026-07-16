@@ -10,6 +10,12 @@ from backend.core.memory_candidate import (
     MemoryCandidateNotFoundError,
     ReviewQueue,
 )
+from backend.core.memory_promotion import (
+    CandidateNotApprovedError,
+    InvalidMemoryCandidateError,
+    MemoryPromotionBoundary,
+    MemoryPromotionError,
+)
 from backend.core.persona_importer import PersonaImporter
 from backend.core.persona_activation import PersonaActivationManager
 from backend.core.persona_library import PersonaLibraryEngine
