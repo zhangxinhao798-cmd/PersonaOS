@@ -44,6 +44,7 @@ HTTP Server Transport v1 is complete.
 API Response Schema v1 is complete.
 Persistence Architecture v1 repository boundaries are complete.
 Memory Runtime Integration v1 is complete.
+Memory Review / Candidate Pipeline v1 is complete.
 
 Current completed integration state:
 
@@ -130,6 +131,11 @@ Current completed integration state:
 - `RuntimeContextAssembler` now carries retrieved memory and relevance metadata into `RuntimeContext.memories`.
 - Prompt assembly preserves retrieved memory under the independent `## Memory` section.
 - Memory Runtime Integration does not call `MemoryEngine`, write durable memory, summarize chat, mutate persona state, mutate memory records, or introduce database/vector storage.
+- `MemoryCandidate` added as the reviewable candidate boundary between conversation and durable memory.
+- `CandidateExtractor` added as a deterministic, rule-based extractor for simple user preferences, long-term goals, explicit personal facts, and stable habits.
+- `ReviewQueue` added for pending, approved, and rejected memory candidates.
+- `RuntimeSession` can optionally produce memory candidates from user turns when provided with a candidate extractor and review queue.
+- Candidate approval does not write `MemoryEngine`, create `MemoryRecord`, call an LLM, or persist state.
 
 ## Architecture Rules
 
@@ -148,7 +154,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 330 tests passing.
+Latest recorded verification status is 342 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -163,12 +169,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Memory Runtime Integration v1 completed.
+Memory Review / Candidate Pipeline v1 completed.
 
 
 ## Next Goal
 
-Decide the next memory product boundary: manual memory review, memory extraction candidates, or persistent repository implementation without letting RuntimeSession or SessionManager automatically write durable memory.
+Add a user-facing review/promotion boundary for approved memory candidates without letting RuntimeSession or SessionManager automatically write durable memory.
 
 Integration Phase Step 1 completed:
 
@@ -364,11 +370,23 @@ Memory Runtime Integration completed:
 8. Confirmed no automatic memory write, no automatic memory generation, no `MemoryEngine` call, no database, no vector database, and no durable persona/memory mutation.
 9. Verified 330 automated tests passing.
 
+Memory Review / Candidate Pipeline completed:
+
+1. Added `MemoryCandidate` as a reviewable proposal layer.
+2. Added deterministic `CandidateExtractor`.
+3. Added simple rule support for user preferences, long-term goals, explicit personal facts, and stable habits.
+4. Added `ReviewQueue` with add, list, approve, reject, clear, and duplicate suppression.
+5. Integrated optional candidate extraction into `RuntimeSession`.
+6. Confirmed conversation turns can produce candidates but never become durable memory directly.
+7. Confirmed approval changes candidate state only and does not write `MemoryEngine`.
+8. Confirmed no LLM summarization, automatic approval, database persistence, vector database, emotion system, or persona reconstruction was introduced.
+9. Verified 342 automated tests passing.
+
 ## Next Recommended Phase
 
-Memory product boundary decision.
+Memory candidate review and promotion boundary.
 
-The next work should decide whether to implement manual memory review, memory extraction candidates, or persistent repository storage first. Keep RuntimeSession temporary history separate from durable Memory, and preserve persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
+The next work should expose pending candidates for human review and define an explicit promotion path from approved `MemoryCandidate` to `MemoryRecord`. Keep RuntimeSession temporary history separate from durable Memory, and preserve persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
 
 ## Future Considerations
 

@@ -41,6 +41,36 @@ The distinction is important because a digital mind should not treat every prior
 
 The Memory Engine may use conversation history as an input, but it should not expose raw history as memory without evaluation.
 
+## Memory Candidate Review Boundary
+
+PersonaOS now defines an explicit candidate layer between runtime conversation
+and durable memory.
+
+The intended flow is:
+
+```text
+Conversation
+    -> CandidateExtractor
+    -> MemoryCandidate
+    -> ReviewQueue
+    -> Human Approval
+    -> MemoryEngine
+```
+
+`MemoryCandidate` is a reviewable proposal, not a durable memory record.
+`CandidateExtractor` is deterministic and rule-based in v1. It can identify
+simple user preferences, long-term goals, explicit personal facts, and stable
+habits, but it does not call an LLM, summarize conversation, or approve
+anything automatically.
+
+`ReviewQueue` stores pending, approved, and rejected candidates in memory.
+Approval means the candidate has passed review for a future promotion path; it
+does not write to `MemoryEngine` by itself.
+
+This boundary protects the distinction between conversation and memory. Runtime
+sessions may produce memory candidates, but conversation turns must never become
+durable memory without review.
+
 ## Responsibilities
 
 The Memory Engine is responsible for:

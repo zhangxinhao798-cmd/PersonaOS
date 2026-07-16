@@ -3,6 +3,8 @@
 from backend.models.final_prompt import FinalPrompt
 from backend.models.fusion import FusionContext
 from backend.models.llm_response import LLMResponse
+from backend.models.memory_candidate import MemoryCandidate
+from backend.models.memory_record import MemoryRecord
 from backend.models.expression_package import (
     ExpressionPackage,
     ExpressionPackageManifest,

@@ -4,6 +4,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import ClassVar
 
+from backend.core.memory_candidate import CandidateExtractor, ReviewQueue
 from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
@@ -62,6 +63,8 @@ class RuntimeSession:
     persona_os_context: PersonaOSContext
     chat_runtime: ChatRuntime
     memory_retriever: RuntimeMemoryRetriever | None = None
+    candidate_extractor: CandidateExtractor | None = None
+    review_queue: ReviewQueue | None = None
     conversation: list[ConversationTurn] = field(default_factory=list)
     metadata: dict = field(default_factory=dict)
     created_at: str = ""
@@ -85,6 +88,7 @@ class RuntimeSession:
             metadata={"status": "pending"},
         )
         self.conversation.append(user_turn)
+        self._extract_memory_candidates(user_turn)
         runtime_context = self._context_for_current_turn(user_turn)
 
         try:
@@ -170,3 +174,15 @@ class RuntimeSession:
             raise EmptyUserInputError("User input is required.")
 
         return user_input
+
+    def _extract_memory_candidates(self, user_turn: ConversationTurn) -> None:
+        if self.candidate_extractor is None or self.review_queue is None:
+            return
+
+        candidates = self.candidate_extractor.extract(user_turn)
+        queued_candidates = self.review_queue.add_many(candidates)
+        user_turn.metadata["memory_candidates"] = [
+            candidate.id for candidate in queued_candidates
+        ]
+        user_turn.metadata["memory_candidate_count"] = len(queued_candidates)
+        user_turn.metadata["memory_candidate_persistence"] = "review_required"

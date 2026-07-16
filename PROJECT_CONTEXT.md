@@ -86,7 +86,7 @@ backend/
 
 `backend/runtime/` contains the controlled runtime conversation boundaries. `chat_runtime.py` defines the controlled runtime generation boundary, and `session.py` owns temporary in-memory conversation history for interactive sessions.
 
-`backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `fusion.py` contains `FusionContext` for persona-aware memory interpretation output. `runtime_context.py` contains `RuntimeContext`, the runtime-ready data boundary for future adapter layers. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
+`backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `fusion.py` contains `FusionContext` for persona-aware memory interpretation output. `runtime_context.py` contains `RuntimeContext`, the runtime-ready data boundary for future adapter layers. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_candidate.py` contains the reviewable `MemoryCandidate` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
 
 `backend/main.py` contains the backend entry point. It provides `create_app()` and prints a minimal startup log when run with `python -m backend.main`.
 
@@ -438,6 +438,17 @@ The current concrete `MemoryRecord` model contains:
 Importance and confidence are intentionally separate. A memory can be important but uncertain, or reliable but minor.
 
 Memory Layer v1 is complete. The current implementation supports `create_memory()`, `get_memories()`, `retrieve_memory()`, `update_memory()`, and `forget_memory()`. `MemoryRetriever` v1 adds keyword-based retrieval over memory content and category, weighted by confidence and importance.
+
+Memory Runtime Integration v1 is complete. Runtime can read relevant memories
+from prepared `PersonaOSContext.memories` through `RuntimeMemoryRetriever` and
+carry them into the independent prompt memory section.
+
+Memory Review / Candidate Pipeline v1 is complete. Runtime sessions can
+optionally produce reviewable `MemoryCandidate` objects from user turns through
+a deterministic `CandidateExtractor` and place them in an in-memory
+`ReviewQueue`. These candidates are not durable memories. Approval or rejection
+changes candidate review state only; it does not write to `MemoryEngine`,
+repositories, databases, or vector stores.
 
 ## 6. Persona System
 

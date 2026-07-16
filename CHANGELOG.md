@@ -313,14 +313,20 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Extended `RuntimeContextAssembler` to preserve a separate memory section with retrieval relevance metadata.
 - Confirmed memory enters `RuntimeContext` and rendered prompts through the independent `## Memory` section without being merged into persona identity.
 - Confirmed Runtime does not save chat history as memory, generate memories, mutate memory records, call `MemoryEngine`, or introduce database/vector storage.
-- Current phase is Memory Runtime Integration v1 completed.
-- Current recorded verification status: 330 tests passing.
+- Added Memory Review / Candidate Pipeline v1.
+- Added `MemoryCandidate` as a reviewable proposal between conversation and durable memory.
+- Added deterministic `CandidateExtractor` rules for user preferences, long-term goals, explicit personal facts, and stable habits.
+- Added in-memory `ReviewQueue` with add, list, approve, reject, clear, and duplicate suppression behavior.
+- Integrated optional candidate extraction into `RuntimeSession` without automatic memory writing.
+- Confirmed approved candidates are not automatically written to `MemoryEngine`.
+- Current phase is Memory Review / Candidate Pipeline v1 completed.
+- Current recorded verification status: 342 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Decide the next memory product boundary: manual memory review, memory extraction candidates, or persistent repository implementation.
+- Add a user-facing review/promotion boundary for approved memory candidates before any durable MemoryEngine write path.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.
 - Keep provider switching simple and model-independent.

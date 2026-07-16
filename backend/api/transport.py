@@ -47,6 +47,8 @@ class PersonaRuntimeBundle:
     persona_os_context: PersonaOSContext
     chat_runtime: ChatRuntime
     memory_retriever: RuntimeMemoryRetriever | None = None
+    candidate_extractor: object | None = None
+    review_queue: object | None = None
     metadata: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -174,6 +176,8 @@ class ApiTransport:
                 **bundle.metadata,
             },
             memory_retriever=bundle.memory_retriever,
+            candidate_extractor=bundle.candidate_extractor,
+            review_queue=bundle.review_queue,
         )
         return ApiTransportResponse(
             status_code=201,

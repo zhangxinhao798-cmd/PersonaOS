@@ -401,7 +401,7 @@ Next steps:
 
 ## Phase 2: Memory System
 
-Status: Memory Layer v1 complete
+Status: Memory candidate review foundation complete
 
 The current MemoryEngine stores `MemoryRecord` objects in a simple in-memory list. The next stage is to grow this into a structured memory system while keeping behavior small, testable, and modular.
 
@@ -411,6 +411,10 @@ Goals:
 - Add memory retrieval beyond returning every stored record.
 - Add memory filtering by category, source, confidence, importance, and timestamp.
 - Add importance and confidence ranking.
+- Add read-only runtime memory retrieval.
+- Add reviewable memory candidates between conversation and durable memory.
+- Add deterministic candidate extraction.
+- Add candidate review queue.
 - Define clearer memory lifecycle operations:
   - Create
   - Retrieve
@@ -421,6 +425,23 @@ Goals:
 - Expand tests for memory creation, retrieval, filtering, ranking, update, and persistence.
 
 Memory should remain distinct from raw conversation history and external knowledge.
+
+Completed:
+
+- Memory Runtime Integration v1.
+- `RuntimeMemoryRetriever` read path.
+- `MemoryCandidate` model.
+- Deterministic `CandidateExtractor`.
+- `ReviewQueue` for pending, approved, and rejected candidates.
+- RuntimeSession optional candidate production.
+- No automatic memory writing from conversation.
+- No LLM summarization or automatic approval.
+
+Next:
+
+- Add a user-facing memory candidate review/promotion boundary.
+- Define explicit approved-candidate-to-`MemoryRecord` conversion.
+- Keep promotion separate from RuntimeSession and SessionManager.
 
 ## Phase 3: Persona System
 
@@ -611,4 +632,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is a SessionManager or Chat API boundary.
+The immediate next focus is a memory candidate review and promotion boundary.

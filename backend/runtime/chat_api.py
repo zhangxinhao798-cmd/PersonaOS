@@ -1,5 +1,6 @@
 """Provider-independent chat API boundary for PersonaOS."""
 
+from backend.core.memory_candidate import CandidateExtractor, ReviewQueue
 from backend.models.context import PersonaOSContext
 from backend.models.llm_response import LLMResponse
 from backend.models.persona_library import PersonaLibraryEntry
@@ -26,6 +27,8 @@ class ChatApiBoundary:
         session_id: str | None = None,
         metadata: dict | None = None,
         memory_retriever: RuntimeMemoryRetriever | None = None,
+        candidate_extractor: CandidateExtractor | None = None,
+        review_queue: ReviewQueue | None = None,
     ) -> ManagedSession:
         """Create a temporary chat session."""
 
@@ -36,6 +39,8 @@ class ChatApiBoundary:
             session_id=session_id,
             metadata=metadata,
             memory_retriever=memory_retriever,
+            candidate_extractor=candidate_extractor,
+            review_queue=review_queue,
         )
 
     def send_message(self, session_id: str, user_input: str) -> LLMResponse:
@@ -76,6 +81,8 @@ class ChatApiBoundary:
         chat_runtime: ChatRuntime,
         metadata: dict | None = None,
         memory_retriever: RuntimeMemoryRetriever | None = None,
+        candidate_extractor: CandidateExtractor | None = None,
+        review_queue: ReviewQueue | None = None,
     ) -> ManagedSession:
         """Switch the active persona reference for a session."""
 
@@ -86,4 +93,6 @@ class ChatApiBoundary:
             chat_runtime=chat_runtime,
             metadata=metadata,
             memory_retriever=memory_retriever,
+            candidate_extractor=candidate_extractor,
+            review_queue=review_queue,
         )

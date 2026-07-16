@@ -61,6 +61,22 @@ Create turns an interaction, event, observation, or decision into a memory recor
 
 Creation should capture content, category, confidence, importance, source, timestamp, and any relevant provenance. Not every interaction should create memory. Creation should favor future usefulness and avoid treating raw conversation history as durable memory.
 
+In the current implementation, conversation-derived creation begins with a
+reviewable `MemoryCandidate`, not a `MemoryRecord`. The v1 candidate path is:
+
+```text
+Conversation
+    -> CandidateExtractor
+    -> MemoryCandidate
+    -> ReviewQueue
+    -> Human Approval
+    -> future MemoryEngine promotion
+```
+
+`CandidateExtractor` uses deterministic rules only. `ReviewQueue` can approve
+or reject candidates, but approval does not automatically create durable memory.
+Promotion into `MemoryEngine` remains a separate future boundary.
+
 ### Retrieve
 
 Retrieve selects memories relevant to the current context.

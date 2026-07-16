@@ -4,6 +4,12 @@ from backend.core.expression_package_loader import (
     ExpressionPackageError,
     ExpressionPackageLoader,
 )
+from backend.core.memory_candidate import (
+    CandidateExtractor,
+    MemoryCandidateError,
+    MemoryCandidateNotFoundError,
+    ReviewQueue,
+)
 from backend.core.persona_importer import PersonaImporter
 from backend.core.persona_activation import PersonaActivationManager
 from backend.core.persona_library import PersonaLibraryEngine

@@ -90,6 +90,8 @@ When practical, commit implementation changes separately from documentation-only
 
 ## Documentation Synchronization Policy
 
+This is the official PersonaOS documentation synchronization policy.
+
 PersonaOS completion status depends on documentation synchronization. A bug
 fix, feature, or milestone is not considered complete until the required
 project documents are updated.

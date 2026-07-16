@@ -58,6 +58,12 @@ Each development day should have a section:
 - Extended RuntimeContext assembly so retrieved memory can carry relevance metadata into the independent memory section.
 - Confirmed prompt assembly renders retrieved memories under `## Memory` and does not merge memory into persona identity.
 - Confirmed Runtime does not auto-save chat turns as memory, auto-generate memory, call `MemoryEngine`, or mutate durable memory/persona records.
+- Completed Memory Review / Candidate Pipeline v1.
+- Added `MemoryCandidate` as the reviewable layer between conversation turns and durable memory.
+- Added deterministic `CandidateExtractor` rules for user preferences, long-term goals, explicit personal facts, and stable habits.
+- Added `ReviewQueue` for pending, approved, and rejected candidates.
+- Integrated optional candidate extraction into `RuntimeSession`.
+- Confirmed approved candidates are not automatically written to `MemoryEngine`.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -71,6 +77,8 @@ Each development day should have a section:
 - `backend/repositories/knowledge_repository.py`
 - `backend/runtime/session_repository.py`
 - `backend/runtime/memory_runtime.py`
+- `backend/models/memory_candidate.py`
+- `backend/core/memory_candidate.py`
 - `scripts/serve_api.py`
 - `backend/core/retrieval.py`
 - `backend/engine/runtime_context_assembler.py`
@@ -84,7 +92,13 @@ Each development day should have a section:
 - `tests/test_serve_api.py`
 - `tests/test_persistence_repositories.py`
 - `tests/test_memory_runtime_integration.py`
+- `tests/test_memory_candidate_pipeline.py`
 - `tests/test_retrieval.py`
+- `docs/memory_engine.md`
+- `docs/memory_lifecycle.md`
+- `docs/development_workflow.md`
+- `PROJECT_CONTEXT.md`
+- `ROADMAP.md`
 - `CHANGELOG.md`
 - `DAILY_PROGRESS.md`
 - `HANDOFF.md`
@@ -93,7 +107,7 @@ Each development day should have a section:
 - `pytest`
 - `python -m compileall backend scripts tests`
 - Current test status:
-  - 330 passed.
+  - 342 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
@@ -102,6 +116,7 @@ Each development day should have a section:
 - API response schema coverage verifies message responses are JSON serializable and frontend-consumable.
 - Persistence repository coverage verifies memory, persona, and knowledge save/retrieve/list/delete behavior without database or engine coupling.
 - Memory Runtime Integration coverage verifies relevant memory retrieval, empty-memory behavior, multiple-memory ordering, RuntimeSession integration, RuntimeContext memory section assembly, prompt rendering, persona identity separation, and no durable record mutation.
+- Memory Candidate Pipeline coverage verifies deterministic extraction, queue add/list/clear, approval, rejection, duplicate handling, RuntimeSession candidate production, no automatic durable memory write, and no MemoryEngine import/call from the candidate pipeline.
 
 ### Design Decisions
 - `SessionManager` owns temporary session lifecycle only.
@@ -123,14 +138,18 @@ Each development day should have a section:
 - `RuntimeMemoryRetriever` reads already-prepared `PersonaOSContext.memories`; it does not connect to `MemoryEngine`.
 - Retrieved memory is passed into RuntimeContext as memory context, not persona identity.
 - Conversation history remains separate from durable memory and is not automatically transformed into `MemoryRecord`.
+- `MemoryCandidate` is a proposal, not durable memory.
+- `ReviewQueue.approve()` changes review status only; it does not create memory.
+- Candidate extraction is deterministic and does not call an LLM.
+- Runtime candidate extraction is optional and does not change existing sessions that do not provide a candidate extractor and review queue.
 
 ### Problems / Notes
-- No persistence, database, frontend, MemoryEngine connection, automatic memory extraction, automatic memory generation, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
+- No persistence, database, frontend, automatic memory persistence, LLM summarization, automatic approval, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
-- Decide whether the next memory milestone should be manual memory review, memory extraction candidates, or persistent repository implementation.
-- Keep durable memory extraction as a separate future review pipeline, not part of RuntimeSession or SessionManager.
+- Add a user-facing review/promotion boundary for approved memory candidates.
+- Keep durable memory promotion separate from RuntimeSession and SessionManager.
 
 ## 2026-07-15
 
