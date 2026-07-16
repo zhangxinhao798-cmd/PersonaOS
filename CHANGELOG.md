@@ -112,8 +112,13 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added integration verification coverage for the PersonaSource to activated PersonaSelector lifecycle.
 - Completed RuntimeContext boundary and RuntimeContextAssembler preparation layer.
 - Updated architecture toward Runtime Intelligence phase.
-- Recorded LLM Adapter boundary as next step.
-- Confirmed no Ollama, `qwen3:14B`, or LLM runtime integration exists yet.
+- Completed structured runtime prompt pipeline with `PromptPackage`, `PromptBuilder`, `FinalPrompt`, and `PromptRenderer`.
+- Completed provider-independent adapter and response boundaries with `BaseLLMAdapter` and `LLMResponse`.
+- Added `ProviderConfig` and `AdapterRegistry`.
+- Added `OllamaAdapter` v1.
+- Verified a real local Ollama request using `qwen3:14b`.
+- Confirmed standardized `LLMResponse` mapping and usage metadata.
+- Confirmed the manual smoke test did not mutate durable PersonaOS state.
 
 ### Design Decisions
 
@@ -151,10 +156,12 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - `PersonaActivationManager` controls activation availability without mutating PersonaEngine or PersonaVersion snapshots.
 - `PersonaSelector` selects only approved, active persona entries with valid current version references.
 - Persona data remains independent from LLM/model provider state.
-- Runtime Intelligence has started with `RuntimeContext` and `RuntimeContextAssembler`.
-- `RuntimeContextAssembler` prepares runtime-ready context without model calls or inference.
-- RuntimeContext must remain independent from Ollama, `qwen3:14B`, OpenAI, Claude, and other model providers.
-- Runtime Intelligence should continue with a replaceable LLM adapter and provider abstraction boundaries.
+- Runtime Intelligence has completed the initial local model path through `RuntimeContext`, `RuntimeContextAssembler`, `PromptBuilder`, `PromptRenderer`, `BaseLLMAdapter`, `ProviderConfig`, `AdapterRegistry`, and `OllamaAdapter` v1.
+- `RuntimeContextAssembler` prepares runtime-ready context without inference.
+- Prompt formatting remains deterministic and separate from provider transport.
+- `RuntimeContext` must remain independent from Ollama, `qwen3:14b`, OpenAI, Claude, and other model providers.
+- `qwen3:14b` is the first verified local runtime model, not persona identity.
+- Runtime Intelligence should continue with controlled `ChatRuntime` or `RuntimeService` integration while preserving replaceable provider boundaries.
 - Documented future Expression Layer direction including voice, speech style, TTS, and multimodal interface possibilities.
 - Expression capabilities remain future architectural directions only.
 
@@ -215,15 +222,20 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - PersonaLibraryEntry model boundary is complete.
 - Persona Library lifecycle foundation is complete, including review, activation, and integration verification.
 - RuntimeContext boundary and RuntimeContextAssembler are complete.
-- Current phase is Runtime Intelligence preparation.
-- Current recorded verification status: 125 tests passing.
+- Structured prompt pipeline, adapter boundary, provider config/registry, and OllamaAdapter v1 are complete.
+- The first local Ollama path with `qwen3:14b` has been verified manually.
+- Current phase is Runtime Intelligence local model path verified.
+- Current recorded verification status: 165 tests passing.
+- Manual live smoke test passed with local Ollama reachable, `qwen3:14b` responding, usage metadata returned, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Define an LLM adapter boundary without weakening engine boundaries.
-- Add a model configuration layer and provider abstraction.
-- Keep `RuntimeContext` independent from specific providers such as Ollama, `qwen3:14B`, OpenAI, Claude, and other model providers.
+- Design a controlled `ChatRuntime` or `RuntimeService` boundary without weakening engine boundaries.
+- Connect approved active persona selection to generation.
+- Add configuration loading without hard-coding model selection.
+- Keep provider switching simple and model-independent.
+- Keep `RuntimeContext` independent from specific providers such as Ollama, `qwen3:14b`, OpenAI, Claude, and other model providers.
 - Expand confidence handling for knowledge evidence in a future step.
 - Add persistent memory storage in a future memory phase.
 - Expand Evolution Engine versioning and rollback in a future phase.

@@ -35,6 +35,12 @@ RuntimeContext
     ->
 PromptBuilder
     ->
+PromptPackage
+    ->
+PromptRenderer
+    ->
+FinalPrompt
+    ->
 BaseLLMAdapter
     ->
 Provider Adapter
@@ -49,11 +55,13 @@ User Output
 ```
 
 Some stages in this flow are current boundaries, while others are planned
-boundaries. `RuntimeContext`, `RuntimeContextAssembler`, `BaseLLMAdapter`, and
-`LLMResponse` exist as implemented boundary components. `PromptBuilder`, model
-configuration, provider adapters, provider calls, and response processing are
-planned runtime boundaries and should not be treated as implemented until code
-and tests exist.
+boundaries. `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`,
+`PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`,
+`LLMResponse`, `ProviderConfig`, `AdapterRegistry`, and `OllamaAdapter` v1 exist
+as implemented boundary components. Controlled chat runtime orchestration,
+response processing, streaming, tool calling, multimodal requests, frontend
+integration, automatic durable memory writes, and production persistence remain
+unimplemented.
 
 ## 3. RuntimeContext
 
@@ -110,16 +118,16 @@ retrieval, confidence policy, or evolution.
 
 ## 5. PromptBuilder
 
-`PromptBuilder` is a planned boundary for constructing model input. It should
-convert `RuntimeContext` and the current user input into a structured,
+`PromptBuilder` is an implemented boundary for constructing model input. It
+converts `RuntimeContext` and the current user input into a structured,
 inspectable prompt package.
 
 Responsibilities:
 
-- Convert `RuntimeContext` and current user input into structured model input.
-- Express persona traits, values, thinking patterns, speech patterns,
-  boundaries, examples, memory, knowledge, confidence, and relevant runtime
-  metadata.
+- Convert `RuntimeContext` and current user input into structured prompt
+  sections.
+- Preserve persona, memory, knowledge, skills, confidence, fusion, conversation,
+  user input, and metadata boundaries.
 - Keep formatting separate from provider transport.
 
 Rules:
@@ -127,12 +135,16 @@ Rules:
 - `PromptBuilder` must not call providers.
 - `PromptBuilder` must not mutate persona or memory data.
 - `PromptBuilder` should produce an inspectable prompt package.
-- Provider adapters may translate the prompt package into provider-specific
-  request payloads.
+- `PromptRenderer` converts the prompt package into `FinalPrompt` before a
+  provider adapter sends it.
 
 The prompt package should be understandable before it reaches any provider. This
 keeps prompt construction separate from transport, authentication, endpoint
 behavior, and provider-specific request formats.
+
+`PromptPackage` is a structured runtime artifact, not a provider request.
+`PromptRenderer` renders `PromptPackage` into a deterministic `FinalPrompt`
+string while preserving section ordering and metadata.
 
 ## 6. BaseLLMAdapter
 
@@ -155,9 +167,12 @@ can call adapters through a stable boundary.
 
 ## 7. Provider Adapters
 
-Future provider adapters may include:
+Provider adapters include:
 
 - `OllamaAdapter`
+
+Future provider adapters may include:
+
 - `OpenAIAdapter`
 - `ClaudeAdapter`
 - `GeminiAdapter`
@@ -211,8 +226,8 @@ does not imply that the response is true, durable, or approved for storage.
 
 ## 9. Model Configuration
 
-Model configuration is a planned boundary for selecting providers and model
-settings without editing core engines.
+Model configuration has started with `ProviderConfig` and `AdapterRegistry` for
+selecting providers and model settings without editing core engines.
 
 Possible fields:
 
@@ -223,7 +238,7 @@ Possible fields:
 - Generation parameters
 - Credentials reference
 
-Future model switching should allow a configuration such as:
+Model switching should allow a configuration such as:
 
 ```text
 provider: ollama
@@ -233,9 +248,9 @@ model: qwen3:14b
 to change to another configured provider and model without modifying PersonaOS
 core engines.
 
-Configuration should select adapters through a controlled factory or registry
-boundary. Core engines should remain unaware of provider SDKs, credentials,
-transport details, and endpoint-specific request structures.
+Configuration selects adapters through the registry boundary. Core engines
+should remain unaware of provider SDKs, credentials, transport details, and
+endpoint-specific request structures.
 
 ## 10. Runtime Ownership Rules
 
@@ -301,12 +316,18 @@ depending on provider SDK error types.
 
 ## 13. Initial Ollama Path
 
-The first planned provider integration path is:
+The first provider integration path has been verified locally:
 
 ```text
 RuntimeContext
     ->
 PromptBuilder
+    ->
+PromptPackage
+    ->
+PromptRenderer
+    ->
+FinalPrompt
     ->
 OllamaAdapter
     ->
@@ -317,9 +338,14 @@ qwen3:14b
 LLMResponse
 ```
 
-This is the first planned provider integration. Ollama and `qwen3:14b` are not
-part of PersonaOS core identity. Another provider should be replaceable later
-through the same adapter and configuration boundaries.
+This is the first verified provider integration. Ollama and `qwen3:14b` are not
+part of PersonaOS core identity. `qwen3:14b` is the current first runtime model,
+not persona identity. Another provider should be replaceable later through the
+same adapter and configuration boundaries.
+
+The manual live smoke test confirmed that local Ollama was reachable at the
+configured endpoint, `qwen3:14b` returned a valid response, usage metadata was
+returned, and no durable persona or memory state was modified.
 
 Streaming, tools, multimodal input, and advanced provider features are deferred.
 They should be added only after the core prompt, adapter, configuration, and
@@ -350,29 +376,58 @@ Completed:
 
 - `RuntimeContext`
 - `RuntimeContextAssembler`
+- `PromptPackage`
+- `PromptBuilder`
+- `FinalPrompt`
+- `PromptRenderer`
 - `BaseLLMAdapter`
 - `LLMResponse`
+- `ProviderConfig`
+- `AdapterRegistry`
+- `OllamaAdapter` v1
+- Initial local `qwen3:14b` path verification
 
 Not yet implemented:
 
-- `PromptBuilder`
-- Model configuration layer
-- Adapter registry or factory
-- `OllamaAdapter`
-- `qwen3:14b` runtime calls
+- `ChatRuntime` or `RuntimeService`
 - Response processing
 - Streaming
 - Tools
+- Multimodal requests
+- Frontend integration
+- Automatic durable memory writes
 - Persistence
 
 This status reflects runtime architecture boundaries only. It should not be
-read as a claim that provider-specific generation or response processing exists.
+read as a claim that production chat orchestration, streaming, tool calling,
+frontend integration, automatic memory persistence, or response processing
+exists.
 
 ## 16. Next Recommended Step
 
-The next coding step should be the `PromptBuilder` boundary or model
-configuration boundary before provider-specific Ollama integration.
+The next coding step should be a controlled `ChatRuntime` or `RuntimeService`
+boundary.
 
-Ollama integration does not exist yet. `qwen3:14b` runtime calls do not exist
-yet. Provider-specific work should begin only after the provider-independent
-runtime boundaries are clear, inspectable, and tested.
+The next runtime flow should be:
+
+```text
+approved and active PersonaLibraryEntry
+    ->
+PersonaSelector
+    ->
+PersonaOSContext
+    ->
+RuntimeContextAssembler
+    ->
+PromptBuilder
+    ->
+PromptRenderer
+    ->
+configured LLM adapter
+    ->
+LLMResponse
+```
+
+Provider-specific work should continue only through replaceable adapter and
+configuration boundaries. Runtime integration must not silently mutate durable
+persona, version, memory, knowledge, skill, or library state.

@@ -84,41 +84,62 @@ Completed:
   - [x] Persona Library lifecycle integration verification
 - Runtime Intelligence Phase preparation:
   - [x] runtime context assembly
-  - [ ] LLM Adapter boundary
-  - [ ] model configuration layer
-  - [ ] provider abstraction
-  - [ ] Ollama adapter
-  - [ ] `qwen3:14B` integration
+  - [x] `RuntimeContext` boundary
+  - [x] `RuntimeContextAssembler`
+  - [x] `PromptPackage`
+  - [x] `PromptBuilder`
+  - [x] `FinalPrompt`
+  - [x] `PromptRenderer`
+  - [x] `BaseLLMAdapter`
+  - [x] `LLMResponse`
+  - [x] `ProviderConfig`
+  - [x] `AdapterRegistry`
+  - [x] `OllamaAdapter` v1
+  - [x] local Ollama / `qwen3:14b` smoke verification
 
 ### Runtime Intelligence Phase Preparation
 
-Runtime Context Assembly is completed.
+Runtime Context Assembly, the structured prompt pipeline, provider-independent adapter boundaries, provider registry/configuration, OllamaAdapter v1, and the first local `qwen3:14b` smoke verification are completed.
 
 Completed:
 
 - `RuntimeContext` data boundary.
 - `RuntimeContextAssembler` for preparing runtime-ready context from active persona, memory, knowledge, skills, confidence, and fusion context.
-- Runtime context preparation without model calls, inference, Ollama integration, `qwen3:14B` integration, or provider-specific dependencies.
+- `PromptPackage` structured runtime prompt artifact.
+- `PromptBuilder` deterministic formatting from `RuntimeContext`.
+- `FinalPrompt` rendered prompt artifact.
+- `PromptRenderer` deterministic prompt rendering from `PromptPackage`.
+- `BaseLLMAdapter` provider-independent generation contract.
+- `LLMResponse` standardized provider response boundary.
+- `ProviderConfig` provider/model configuration data boundary.
+- `AdapterRegistry` deterministic adapter registration and lookup.
+- `OllamaAdapter` v1 provider transport boundary.
+- Manual local Ollama smoke verification with `qwen3:14b`.
 
 Next item:
 
-- LLM Adapter Boundary Design.
+- Controlled Chat Runtime integration.
 
-LLM Adapter Boundary Design should create a provider-independent interface between PersonaOS runtime context and external language models.
+Controlled Chat Runtime integration should connect an approved active persona selection to runtime generation without collapsing engine, prompt, adapter, or provider responsibilities.
 
 Requirements:
 
 - Model independent.
 - Replaceable providers.
 - No core engine modification.
+- No automatic durable memory or persona mutation.
 
-Implementation order:
+Next runtime flow:
 
 ```text
-RuntimeContext
-    -> LLM Adapter Boundary
-    -> Ollama Adapter
-    -> qwen3:14B integration
+approved and active PersonaLibraryEntry
+    -> PersonaSelector
+    -> PersonaOSContext
+    -> RuntimeContextAssembler
+    -> PromptBuilder
+    -> PromptRenderer
+    -> configured LLM adapter
+    -> LLMResponse
 ```
 
 ### Step 2: Persona + Memory Fusion
@@ -157,16 +178,15 @@ Progress:
 
 Current focus:
 
-- Runtime Intelligence Phase preparation.
+- Controlled Chat Runtime integration.
 
 Next steps:
 
-1. LLM Adapter Boundary Design
-2. Model configuration layer
-3. Provider abstraction
-4. Ollama Adapter
-5. `qwen3:14B` integration
-6. Keep persona data and `RuntimeContext` independent from model providers
+1. Design `ChatRuntime` or `RuntimeService` boundary.
+2. Connect approved active persona selection to generation.
+3. Add configuration loading without hard-coding model selection.
+4. Normalize runtime errors.
+5. Keep persona data and `RuntimeContext` independent from model providers.
 
 ## Phase 2: Memory System
 
@@ -299,6 +319,48 @@ Possible future directions:
 
 These capabilities belong to future expression and interface layers. They should be built after Runtime Intelligence and core architecture stabilization.
 
+## Future Persona Experience Systems
+
+These systems are long-term architectural directions, not implemented features. They remain separate from Persona core identity and Runtime Intelligence.
+
+Expression Layer:
+
+- Language style.
+- Speech patterns.
+- Vocabulary.
+- Catchphrases.
+- Multimodal expression.
+- Expression remains independent from personality.
+
+Voice Layer:
+
+- Replaceable TTS adapters.
+- Voice profiles.
+- Speaking rhythm and tone.
+- Voice remains independent from cognition and identity.
+
+Avatar Layer:
+
+- Visual persona representation.
+- Replaceable avatar providers.
+- Avatar state remains independent from core persona identity.
+
+Relationship Layer:
+
+- Relationship-specific memory.
+- Trust and familiarity progression.
+- Shared experiences.
+- Long-term goals.
+- User-persona relationship state.
+- The same persona may maintain separate relationships with different users.
+
+Emotion Layer:
+
+- Temporary emotional state.
+- Emotional continuity.
+- Emotion-aware expression.
+- Emotional state must not silently rewrite durable persona identity.
+
 ## Long-Term Vision
 
 Future directions may include:
@@ -318,4 +380,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Runtime Intelligence Phase preparation.
+The immediate next focus is Controlled Chat Runtime integration.

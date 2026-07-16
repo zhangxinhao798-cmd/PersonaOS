@@ -21,6 +21,12 @@ PersonaLibraryEntry model boundary is complete.
 Persona Library lifecycle and activation foundation is complete.
 RuntimeContext boundary is complete.
 RuntimeContextAssembler is complete.
+PromptPackage and PromptBuilder are complete.
+FinalPrompt and PromptRenderer are complete.
+BaseLLMAdapter and LLMResponse are complete.
+ProviderConfig and AdapterRegistry are complete.
+OllamaAdapter v1 is complete.
+The local Ollama path has been smoke-tested successfully with `qwen3:14b`.
 
 Current completed integration state:
 
@@ -47,7 +53,12 @@ Current completed integration state:
 - Persona selection now requires an approved, active persona with a valid current version reference.
 - `RuntimeContext` added as the runtime-ready context boundary for future model adapters.
 - `RuntimeContextAssembler` added to assemble prepared active persona, memory, knowledge, skills, confidence, and fusion context without model calls or inference.
-
+- `PromptPackage` and `PromptBuilder` added for deterministic structured prompt packaging.
+- `FinalPrompt` and `PromptRenderer` added for deterministic prompt rendering.
+- `BaseLLMAdapter` and `LLMResponse` added as provider-independent adapter and response boundaries.
+- `ProviderConfig` and `AdapterRegistry` added for provider configuration and deterministic adapter lookup.
+- `OllamaAdapter` v1 added as the first provider-specific transport boundary.
+- Manual local Ollama smoke test verified `RuntimeContext -> PromptBuilder -> PromptPackage -> PromptRenderer -> FinalPrompt -> OllamaAdapter -> local Ollama -> qwen3:14b -> LLMResponse`.
 
 ## Architecture Rules
 
@@ -66,7 +77,9 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 125 tests passing.
+Latest recorded verification status is 165 tests passing.
+
+Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` returned a valid response, usage metadata was returned, and the smoke test did not modify durable persona or memory state.
 
 Integration tests have been added for PersonaOS initialization, context processing, confidence boundary ownership, empty context handling, and orchestration flow.
 
@@ -79,12 +92,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Runtime Intelligence preparation.
+Runtime Intelligence local model path verified.
 
 
 ## Next Goal
 
-Runtime Intelligence preparation.
+Controlled Chat Runtime integration.
 
 Integration Phase Step 1 completed:
 
@@ -133,11 +146,22 @@ Runtime Context Assembly completed:
 3. Preserved source boundaries between PersonaOS internal context and future model adapters.
 4. Avoided Ollama, `qwen3:14B`, provider dependencies, prompts, and LLM runtime calls.
 
+Runtime Intelligence provider path completed:
+
+1. Added `PromptPackage` and `PromptBuilder`.
+2. Added `FinalPrompt` and `PromptRenderer`.
+3. Added `BaseLLMAdapter` and `LLMResponse`.
+4. Added `ProviderConfig` and `AdapterRegistry`.
+5. Added `OllamaAdapter` v1.
+6. Added manual local Ollama smoke test script.
+7. Verified a real local request through `qwen3:14b`.
+8. Preserved durable PersonaOS state boundaries.
+
 ## Next Recommended Phase
 
-Runtime Intelligence preparation.
+Controlled Chat Runtime integration.
 
-The next work should design the LLM Adapter boundary. Model providers should remain replaceable, and persona data plus `RuntimeContext` must remain independent from LLM/provider state.
+The next work should design a controlled `ChatRuntime` or `RuntimeService` boundary, connect approved active `PersonaLibraryEntry` selection to runtime generation, add configuration loading, normalize runtime errors, and preserve provider replaceability. Model providers should remain replaceable, and persona data plus `RuntimeContext` must remain independent from LLM/provider state.
 
 ## Future Considerations
 
@@ -157,9 +181,8 @@ These are long-term expression and interface extensions. They are not part of Ru
 - Do not rewrite existing engines.
 - Do not introduce frontend yet.
 - Do not add unnecessary dependencies.
-- Do not integrate Ollama yet.
-- Do not make `qwen3:14B` runtime calls yet.
-- Do not add provider-specific dependencies yet.
+- Do not add new provider integrations without an explicit boundary task.
+- Do not add streaming, tool calling, multimodal behavior, or automatic durable memory writes yet.
 - Keep Python backend first.
 - Run tests after changes.
 
@@ -173,4 +196,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from Integration Phase.
+Then continue from Runtime Intelligence local model path verification toward controlled Chat Runtime integration.
