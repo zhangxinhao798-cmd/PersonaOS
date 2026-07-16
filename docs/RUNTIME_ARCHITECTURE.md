@@ -58,7 +58,7 @@ Some stages in this flow are current boundaries, while others are planned
 boundaries. `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`,
 `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`,
 `LLMResponse`, `ProviderConfig`, `AdapterRegistry`, `OllamaAdapter` v1,
-`ChatRuntime`, `RuntimeSession`, and Runtime Configuration System v1 exist as implemented boundary components.
+`ChatRuntime`, `RuntimeSession`, Runtime Configuration System v1, Expression Package v1, and Expression Runtime Integration v1 exist as implemented boundary components.
 The interactive CLI is the first local user-facing runtime interface. Response
 processing, streaming, tool calling, multimodal
 requests, production API/frontend integration, automatic durable memory writes,
@@ -79,6 +79,7 @@ It may contain:
 - Skills
 - Confidence
 - Fusion context
+- Expression guidance
 - Metadata
 
 Rules:
@@ -87,6 +88,7 @@ Rules:
 - `RuntimeContext` should not mutate source records.
 - `RuntimeContext` should preserve source boundaries.
 - `RuntimeContext` should remain model-provider independent.
+- Expression guidance should remain separate from persona identity, voice state, relationship state, and emotion state.
 
 The runtime context exists to make prepared information available to the model
 path. It is not the owner of any engine state.
@@ -102,6 +104,7 @@ Responsibilities:
 - Translate `PersonaOSContext` into runtime-ready context.
 - Include selected and activated persona information.
 - Carry memory, knowledge, skills, confidence, and fusion output.
+- Carry optional expression guidance from prepared metadata.
 - Handle missing optional data safely.
 - Preserve references and source boundaries.
 
@@ -127,8 +130,8 @@ Responsibilities:
 
 - Convert `RuntimeContext` and current user input into structured prompt
   sections.
-- Preserve persona, memory, knowledge, skills, confidence, fusion, conversation,
-  user input, and metadata boundaries.
+- Preserve persona, memory, knowledge, skills, confidence, fusion, expression,
+  conversation, user input, and metadata boundaries.
 - Keep formatting separate from provider transport.
 
 Rules:
@@ -146,6 +149,11 @@ behavior, and provider-specific request formats.
 `PromptPackage` is a structured runtime artifact, not a provider request.
 `PromptRenderer` renders `PromptPackage` into a deterministic `FinalPrompt`
 string while preserving section ordering and metadata.
+
+Expression guidance is rendered as its own prompt section. It may include text
+style such as tone, rhythm, pacing, vocabulary, catchphrases, sentence patterns,
+pause patterns, emphasis patterns, and avoid rules. It is not persona identity,
+voice cloning, TTS, avatar behavior, emotion state, or relationship state.
 
 ## 6. BaseLLMAdapter
 

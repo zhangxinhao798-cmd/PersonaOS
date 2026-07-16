@@ -198,7 +198,7 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Temporary conversation history is not durable `MemoryEngine` memory.
 - Runtime configuration selects provider, model, endpoint, and options without changing persona identity.
 - Sample Persona Package + CLI package loading makes the package boundary usable from the local runtime while preserving review, activation, and persona lifecycle boundaries.
-- The next persona package boundary should be a second sample Persona Package.
+- The next backend boundary should be a SessionManager or Chat API boundary.
 - Documented future Expression Layer direction including voice, speech style, TTS, and multimodal interface possibilities.
 - Expression capabilities remain future architectural directions only.
 
@@ -272,18 +272,24 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - `/persona list` shows loadable package IDs and names.
 - `/persona use <package_id>` switches the active in-memory package-derived persona during a CLI session.
 - Package switching preserves deterministic validation, deterministic loading, review, activation, selector, runtime, and provider boundaries.
-- Current phase is Second sample Persona Package.
-- Current recorded verification status: 240 tests passing.
+- Added the second sample `Strategist` Persona Package under `personas/strategist`.
+- Added richer `/persona list` output with package id, name, version, and description.
+- Added `/persona info <package_id>`.
+- Added `default_persona` support in `config/runtime.json`.
+- Added `--persona <package_id>` startup override.
+- Added Expression Package v1 models and deterministic loader.
+- Added sample expression packages under `expressions/architect` and `expressions/strategist`.
+- Integrated expression guidance into `RuntimeContext`, `PromptPackage`, and rendered prompts.
+- Current phase is SessionManager or Chat API boundary preparation.
+- Current recorded verification status: 273 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Add a second sample Persona Package under `personas/`.
-- Verify `/persona list` with multiple valid packages.
-- Verify `/persona use <package_id>` between package-derived personas.
+- Add a SessionManager or Chat API boundary for future Web UI usage.
 - Preserve deterministic package validation and loading.
-- Preserve review, activation, versioning, library, selector, runtime, and provider boundaries.
+- Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.
 - Keep provider switching simple and model-independent.
 - Keep `RuntimeContext` independent from specific providers such as Ollama, `qwen3:14b`, OpenAI, Claude, and other model providers.
 - Expand confidence handling for knowledge evidence in a future step.

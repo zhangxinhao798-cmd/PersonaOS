@@ -110,7 +110,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 240 tests passing.
+Latest recorded verification status is 273 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -125,12 +125,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Runtime Configuration and live model switching verified.
+Persona package selection and expression runtime integration verified.
 
 
 ## Next Goal
 
-Second sample Persona Package.
+SessionManager or Chat API boundary.
 
 Integration Phase Step 1 completed:
 
@@ -247,11 +247,25 @@ CLI multi-persona package selection completed:
 6. Kept persona package switching independent from runtime provider/model configuration.
 7. Verified 240 automated tests passing.
 
+Persona package selection UX and Expression Layer foundation completed:
+
+1. Added the second sample `Strategist` Persona Package under `personas/strategist`.
+2. Added richer `/persona list` output with package id, name, version, and description.
+3. Added `/persona info <package_id>`.
+4. Added `default_persona` support in `config/runtime.json`.
+5. Added CLI startup override with `--persona <package_id>`.
+6. Added `ExpressionPackageManifest`, `ExpressionStyle`, `ExpressionPackage`, and `ExpressionPackageValidationResult`.
+7. Added deterministic `ExpressionPackageLoader`.
+8. Added sample expression packages under `expressions/architect` and `expressions/strategist`.
+9. Integrated expression guidance into `RuntimeContext.expression`, `PromptPackage.expression`, and the rendered prompt `## Expression` section.
+10. Preserved PersonaProfile, persona lifecycle, runtime provider, voice, avatar, relationship, and emotion boundaries.
+11. Verified 273 automated tests passing.
+
 ## Next Recommended Phase
 
-Second sample Persona Package.
+SessionManager or Chat API boundary.
 
-The next work should add a second deterministic sample persona package under `personas/`, verify that `/persona list` shows multiple valid packages, and verify that `/persona use <package_id>` can switch between package-derived personas while preserving deterministic validation, deterministic loading, review, activation, versioning, library, selector, and runtime boundaries.
+The next work should prepare PersonaOS for Web/API usage by adding a SessionManager or Chat API boundary while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, and provider boundaries.
 
 ## Future Considerations
 
@@ -286,4 +300,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from CLI multi-persona package selection completion toward a second sample Persona Package.
+Then continue from Expression Runtime Integration completion toward a SessionManager or Chat API boundary.

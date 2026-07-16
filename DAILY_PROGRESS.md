@@ -274,6 +274,14 @@ Each development day should have a section:
 - Added `/persona use <package_id>`.
 - Verified in-memory switching between package-derived personas through the CLI boundary.
 - Preserved deterministic package validation, deterministic loading, review, activation, selector, runtime, and provider boundaries during switching.
+- Added the second sample `Strategist` Persona Package.
+- Added richer `/persona list` output with package id, name, version, and description.
+- Added `/persona info <package_id>`.
+- Added `default_persona` support in `config/runtime.json`.
+- Added CLI startup override with `--persona <package_id>`.
+- Added Expression Package v1 models and deterministic loader.
+- Added sample expression packages for Architect and Strategist.
+- Integrated expression guidance into RuntimeContext, PromptPackage, and rendered prompts.
 
 ### Files Changed
 - `PROJECT_CONTEXT.md`
@@ -285,7 +293,7 @@ Each development day should have a section:
 - `docs/development_workflow.md`
 
 ### Tests
-- Current test count: 240 passed.
+- Current test count: 273 passed.
 - Live local Ollama smoke test passed.
 - Ollama was reachable at the configured local endpoint.
 - `qwen3:14b` returned a valid response.
@@ -306,6 +314,10 @@ Each development day should have a section:
 - Latest fallback verification passed with `python -m compileall backend tests`.
 - Sample Architect package validation and CLI package loading tests passed.
 - CLI multi-persona package selection tests passed.
+- Second sample Strategist package tests passed.
+- Persona package metadata CLI command tests passed.
+- Expression package tests passed.
+- Expression runtime integration tests passed.
 - Persona Library lifecycle integration coverage verifies source import, profile building, version snapshot creation, review approval, activation, and selector availability.
 - Runtime context assembly coverage verifies `RuntimeContext` creation, assembly from existing components, missing optional data handling, and boundary preservation.
 
@@ -327,7 +339,9 @@ Each development day should have a section:
 - `qwen3:14b` is restored as the current default model.
 - Persona Package v1 creates file-backed package boundaries without automatic review, automatic activation, LLM calls, or persona reconstruction.
 - CLI multi-persona package selection creates an in-memory switching boundary without durable package mutation.
-- The next Persona boundary should be a second sample Persona Package.
+- Expression Package v1 separates text expression style from Persona Core identity.
+- Expression Runtime Integration carries expression guidance into prompts without mutating PersonaProfile.
+- The next boundary should prepare SessionManager or Chat API behavior for future Web UI usage.
 - Expression Layer capabilities remain future interface extensions and are not part of Runtime Intelligence implementation.
 
 ### Problems / Notes
@@ -337,13 +351,15 @@ Each development day should have a section:
 - Persona Package v1 boundary is complete.
 - Sample Persona Package + CLI package loading is complete.
 - CLI multi-persona package selection is complete.
-- Expression Layer implementation has not started.
+- Second sample Persona Package is complete.
+- Persona package selection UX is complete.
+- Expression Package v1 is complete.
+- Expression Runtime Integration v1 is complete.
 - No production API/frontend runtime, streaming, tool calling, persistence, automatic durable memory writes, voice, avatar, emotion, or relationship logic has been introduced.
 
 ### Next Session
-- Add a second sample Persona Package under `personas/`.
-- Verify `/persona list` with multiple valid packages.
-- Verify `/persona use <package_id>` between package-derived personas.
+- Add a SessionManager or Chat API boundary for future Web UI usage.
+- Preserve temporary `RuntimeSession` history as non-durable state.
 - Preserve deterministic package validation and loading.
-- Preserve review, versioning, library, activation, selector, runtime, and provider boundaries.
+- Preserve review, versioning, library, activation, selector, expression, runtime, session, and provider boundaries.
 - Keep package switching independent from runtime provider/model configuration.

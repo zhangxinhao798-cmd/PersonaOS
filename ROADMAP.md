@@ -147,9 +147,9 @@ Completed:
 
 Next item:
 
-- Second sample Persona Package.
+- SessionManager or Chat API boundary.
 
-The second sample Persona Package should prove that the CLI package discovery and switching path works with more than one validated package while preserving review, activation, and persona lifecycle rules.
+The next backend boundary should prepare PersonaOS for Web/API usage while preserving RuntimeSession temporary history, persona package selection, expression package loading, and provider boundaries.
 
 Requirements:
 
@@ -285,9 +285,9 @@ Completed scope:
 
 ## Second sample Persona Package
 
-Status: Current
+Status: Completed
 
-Planned scope:
+Completed scope:
 
 - Add a second sample persona package under `personas/`.
 - Include manifest, profile, examples, sources, and optional knowledge files.
@@ -297,6 +297,61 @@ Planned scope:
 - Preserve deterministic package validation and loading.
 - Preserve review, versioning, library, activation, selector, runtime, and provider boundaries.
 - Avoid durable writes, automatic approval persistence, persona reconstruction, relationship state, emotion state, voice, or avatar behavior.
+
+## Persona package selection UX
+
+Status: Completed
+
+Completed scope:
+
+- Added richer `/persona list` output with package id, name, version, and description.
+- Added `/persona info <package_id>`.
+- Added `default_persona` support in `config/runtime.json`.
+- Added CLI startup override with `--persona <package_id>`.
+- Preserved package files and durable PersonaOS state.
+
+## Expression Package v1
+
+Status: Completed
+
+Completed scope:
+
+- Added `ExpressionPackageManifest`.
+- Added `ExpressionStyle`.
+- Added `ExpressionPackage`.
+- Added `ExpressionPackageValidationResult`.
+- Added `ExpressionPackageLoader`.
+- Added sample expression packages under `expressions/architect` and `expressions/strategist`.
+- Modeled tone, rhythm, pacing, vocabulary, catchphrases, sentence patterns, pause patterns, emphasis patterns, and avoid rules.
+- Preserved separation between Persona Core and Expression Layer.
+- Explicitly avoided voice cloning, TTS, avatar, relationship, and emotion behavior.
+
+## Expression Runtime Integration v1
+
+Status: Completed
+
+Completed scope:
+
+- Runtime CLI loads optional expression packages by active persona id.
+- Expression guidance is stored in `PersonaOSContext.metadata.expression`.
+- `RuntimeContext` carries expression guidance through `expression`.
+- `PromptPackage` includes an `expression` section.
+- `PromptRenderer` renders expression guidance as `## Expression`.
+- Persona switching also switches expression context.
+- Missing expression packages do not block runtime use.
+
+## SessionManager / Chat API preparation
+
+Status: Current
+
+Planned scope:
+
+- Add an in-memory SessionManager or API-ready chat boundary.
+- Manage multiple `session_id` values for future Web UI usage.
+- Preserve `RuntimeSession` as temporary conversation history only.
+- Expose persona list, persona info, active persona, send message, clear history, and switch persona through backend boundaries.
+- Avoid frontend implementation until the backend API boundary is stable.
+- Avoid durable memory writes, database persistence, voice, avatar, relationship, and emotion behavior.
 
 ### Step 2: Persona + Memory Fusion
 
@@ -334,15 +389,15 @@ Progress:
 
 Current focus:
 
-- Second sample Persona Package.
+- SessionManager or Chat API boundary.
 
 Next steps:
 
-1. Add a second sample package under `personas/`.
-2. Add deterministic package validation coverage for multiple packages.
-3. Verify `/persona list` with multiple packages.
-4. Verify `/persona use <package_id>` between package-derived personas.
-5. Preserve review, versioning, library, activation, selector, runtime, and provider boundaries.
+1. Add an in-memory SessionManager or API-ready chat boundary.
+2. Support creating and clearing sessions.
+3. Support sending a message through an existing `RuntimeSession`.
+4. Support switching active persona package per session.
+5. Preserve review, versioning, library, activation, selector, expression, runtime, and provider boundaries.
 
 ## Phase 2: Memory System
 
@@ -556,4 +611,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is the second sample Persona Package.
+The immediate next focus is a SessionManager or Chat API boundary.
