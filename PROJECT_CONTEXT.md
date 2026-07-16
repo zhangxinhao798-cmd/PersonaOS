@@ -381,7 +381,7 @@ Current verification status:
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
 - `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
-- Current recorded test status: 273 tests passing.
+- Current recorded test status: 366 tests passing.
 - Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both responded successfully through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected the temporary `gemma4:12b` switch, `qwen3:14b` worked again after restoration, and no durable PersonaOS state was modified.
 
 Current implementation limits:
@@ -442,6 +442,9 @@ Memory Layer v1 is complete. The current implementation supports `create_memory(
 Memory Runtime Integration v1 is complete. Runtime can read relevant memories
 from prepared `PersonaOSContext.memories` through `RuntimeMemoryRetriever` and
 carry them into the independent prompt memory section.
+API-level regression coverage verifies that configured API-created sessions can
+carry `RuntimeMemoryRetriever` into message handling and pass retrieved memory
+plus relevance metadata into the runtime context.
 
 Memory Review / Candidate Pipeline v1 is complete. Runtime sessions can
 optionally produce reviewable `MemoryCandidate` objects from user turns through
@@ -456,6 +459,15 @@ only implemented bridge from approved `MemoryCandidate` objects into
 confidence, importance, timestamp, and provenance into `MemoryRecord`, and then
 calls `MemoryEngine.create_memory()`. RuntimeSession, SessionManager,
 CandidateExtractor, and ReviewQueue still do not write durable memory directly.
+
+Memory Candidate Review Controls v1 is complete. `MemoryReviewApiBoundary`
+provides the controlled review surface for listing, approving, rejecting,
+clearing, and explicitly promoting memory candidates. API Transport exposes
+these controls as stable JSON routes while remaining transport-only: it does
+not import `MemoryEngine`, call `create_memory()`, call model providers, or
+bypass `ChatApiBoundary`/runtime boundaries. Approval and rejection still only
+change candidate review state. Durable memory creation requires a separate
+explicit promotion call that routes through `MemoryPromotionBoundary`.
 
 ## 6. Persona System
 
@@ -670,4 +682,4 @@ Recommended immediate tasks:
 - Preserve human review before approval and activation.
 - Keep persona data independent from LLM/model provider state.
 
-The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, the first interactive local CLI, Runtime Configuration System v1, live model switching verification, Persona Package v1, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, and Expression Runtime Integration v1. The best next work is small, well-tested backend progress toward API/Web readiness while preserving the existing boundaries between persona, expression, voice, memory, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, runtime configuration, package loading, and model-provider transport responsibilities.
+The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, the first interactive local CLI, Runtime Configuration System v1, live model switching verification, Persona Package v1, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, API/Web readiness boundaries, Memory Runtime Integration v1, Memory Candidate Pipeline v1, Memory Promotion Boundary v1, and Memory Candidate Review Controls v1. The best next work is small, well-tested backend progress toward memory review UX and future persistence planning while preserving the existing boundaries between persona, expression, voice, memory, candidate review, promotion, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, runtime configuration, package loading, API transport, and model-provider transport responsibilities.

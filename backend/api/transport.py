@@ -37,6 +37,35 @@ class PersonaRuntimeProvider(Protocol):
         """Return runtime dependencies for a selected persona."""
 
 
+class MemoryReviewProvider(Protocol):
+    """Provides controlled review actions for memory candidates."""
+
+    def list_candidates(self, status: str | None = None) -> list[object]:
+        """Return queued candidates."""
+
+    def approve_candidate(
+        self,
+        candidate_id: str,
+        reason: str = "",
+        reviewed_at: str = "",
+    ) -> object:
+        """Approve a queued candidate."""
+
+    def reject_candidate(
+        self,
+        candidate_id: str,
+        reason: str = "",
+        reviewed_at: str = "",
+    ) -> object:
+        """Reject a queued candidate."""
+
+    def promote_candidate(self, candidate_id: str) -> object:
+        """Promote an approved candidate through the configured boundary."""
+
+    def clear_candidates(self) -> None:
+        """Clear queued candidates."""
+
+
 @dataclass
 class PersonaRuntimeBundle:
     """Runtime dependencies needed to create one temporary session."""
@@ -74,9 +103,11 @@ class ApiTransport:
         self,
         chat_api: ChatApiBoundary,
         runtime_provider: PersonaRuntimeProvider,
+        memory_review_api: MemoryReviewProvider | None = None,
     ) -> None:
         self.chat_api = chat_api
         self.runtime_provider = runtime_provider
+        self.memory_review_api = memory_review_api
 
     def handle_request(
         self,
@@ -91,6 +122,24 @@ class ApiTransport:
         request_body = dict(body or {})
 
         try:
+            if normalized_method == "GET" and segments == ["memory", "candidates"]:
+                return self._list_memory_candidates(request_body)
+
+            if normalized_method == "DELETE" and segments == ["memory", "candidates"]:
+                return self._clear_memory_candidates()
+
+            if (
+                normalized_method == "POST"
+                and len(segments) == 4
+                and segments[0] == "memory"
+                and segments[1] == "candidates"
+            ):
+                return self._handle_memory_candidate_action(
+                    candidate_id=segments[2],
+                    action=segments[3],
+                    body=request_body,
+                )
+
             if normalized_method == "GET" and segments == ["personas"]:
                 return self._list_personas()
 
@@ -210,6 +259,109 @@ class ApiTransport:
             body=self._serialize_message_response(managed_session, response),
         )
 
+    def _list_memory_candidates(self, body: dict) -> ApiTransportResponse:
+        review_api = self._require_memory_review_api()
+        status = body.get("status")
+        if status is not None and not isinstance(status, str):
+            raise ApiValidationError("status must be a string.")
+
+        try:
+            candidates = review_api.list_candidates(status=status)
+        except Exception as exc:
+            return self._memory_review_error_response(exc)
+
+        return ApiTransportResponse(
+            status_code=200,
+            body={
+                "candidates": [
+                    self._serialize_memory_candidate(candidate)
+                    for candidate in candidates
+                ]
+            },
+        )
+
+    def _clear_memory_candidates(self) -> ApiTransportResponse:
+        review_api = self._require_memory_review_api()
+        try:
+            review_api.clear_candidates()
+        except Exception as exc:
+            return self._memory_review_error_response(exc)
+
+        return ApiTransportResponse(
+            status_code=200,
+            body={"cleared": True},
+        )
+
+    def _handle_memory_candidate_action(
+        self,
+        candidate_id: str,
+        action: str,
+        body: dict,
+    ) -> ApiTransportResponse:
+        if not candidate_id.strip():
+            raise ApiValidationError("candidate_id is required.")
+
+        review_api = self._require_memory_review_api()
+        reason = body.get("reason", "")
+        reviewed_at = body.get("reviewed_at", "")
+        if not isinstance(reason, str):
+            raise ApiValidationError("reason must be a string.")
+        if not isinstance(reviewed_at, str):
+            raise ApiValidationError("reviewed_at must be a string.")
+
+        try:
+            if action == "approve":
+                candidate = review_api.approve_candidate(
+                    candidate_id,
+                    reason=reason,
+                    reviewed_at=reviewed_at,
+                )
+                return ApiTransportResponse(
+                    status_code=200,
+                    body={
+                        "candidate": self._serialize_memory_candidate(candidate)
+                    },
+                )
+
+            if action == "reject":
+                candidate = review_api.reject_candidate(
+                    candidate_id,
+                    reason=reason,
+                    reviewed_at=reviewed_at,
+                )
+                return ApiTransportResponse(
+                    status_code=200,
+                    body={
+                        "candidate": self._serialize_memory_candidate(candidate)
+                    },
+                )
+
+            if action == "promote":
+                memory = review_api.promote_candidate(candidate_id)
+                return ApiTransportResponse(
+                    status_code=201,
+                    body={
+                        "candidate_id": candidate_id,
+                        "memory": self._serialize_memory_record(memory),
+                    },
+                )
+        except Exception as exc:
+            return self._memory_review_error_response(exc)
+
+        return ApiTransportResponse(
+            status_code=404,
+            body={
+                "error": "not_found",
+                "message": "Memory candidate action not found.",
+            },
+        )
+
+    def _require_memory_review_api(self) -> MemoryReviewProvider:
+        if self.memory_review_api is None:
+            raise ApiValidationError("Memory review controls are not configured.")
+
+        return self.memory_review_api
+
     def _path_segments(self, path: str) -> list[str]:
         clean_path = path.split("?", 1)[0].strip("/")
         if not clean_path:
@@ -237,6 +389,68 @@ class ApiTransport:
             "metadata": dict(response.metadata),
             "usage": dict(response.usage),
         }
+
+    def _serialize_memory_candidate(self, candidate: object) -> dict:
+        if hasattr(candidate, "to_dict"):
+            return dict(candidate.to_dict())
+
+        return {
+            "id": getattr(candidate, "id", ""),
+            "source_turn": dict(getattr(candidate, "source_turn", {}) or {}),
+            "candidate_type": getattr(candidate, "candidate_type", ""),
+            "content": getattr(candidate, "content", ""),
+            "confidence": getattr(candidate, "confidence", 0.0),
+            "reason": getattr(candidate, "reason", ""),
+            "category": getattr(candidate, "category", ""),
+            "importance": getattr(candidate, "importance", 0.0),
+            "metadata": dict(getattr(candidate, "metadata", {}) or {}),
+            "created_at": getattr(candidate, "created_at", ""),
+            "review_status": getattr(candidate, "review_status", ""),
+            "reviewed_at": getattr(candidate, "reviewed_at", ""),
+            "review_reason": getattr(candidate, "review_reason", ""),
+        }
+
+    def _serialize_memory_record(self, memory: object) -> dict:
+        state = getattr(memory, "state", "")
+        return {
+            "content": getattr(memory, "content", ""),
+            "category": getattr(memory, "category", ""),
+            "confidence": getattr(memory, "confidence", 0.0),
+            "importance": getattr(memory, "importance", 0.0),
+            "source": getattr(memory, "source", ""),
+            "timestamp": getattr(memory, "timestamp", ""),
+            "state": getattr(state, "value", str(state)),
+        }
+
+    def _memory_review_error_response(self, exc: Exception) -> ApiTransportResponse:
+        error_name = exc.__class__.__name__
+        if error_name == "MemoryCandidateNotFoundError":
+            return ApiTransportResponse(
+                status_code=404,
+                body={"error": "candidate_not_found", "message": str(exc)},
+            )
+        if error_name == "CandidateNotApprovedError":
+            return ApiTransportResponse(
+                status_code=400,
+                body={"error": "candidate_not_approved", "message": str(exc)},
+            )
+        if error_name in {
+            "InvalidMemoryCandidateError",
+            "MemoryPromotionError",
+            "MemoryReviewValidationError",
+        }:
+            return ApiTransportResponse(
+                status_code=400,
+                body={"error": "memory_review_error", "message": str(exc)},
+            )
+
+        return ApiTransportResponse(
+            status_code=500,
+            body={
+                "error": "memory_review_error",
+                "message": "Memory review request failed.",
+            },
+        )
 
     def _serialize_message_response(
         self,

@@ -439,11 +439,16 @@ Completed:
 - Memory Promotion Boundary v1.
 - Approved-candidate-to-`MemoryRecord` conversion.
 - Explicit promotion into `MemoryEngine`.
+- Memory Candidate Review Controls v1.
+- `MemoryReviewApiBoundary`.
+- API Transport routes for candidate listing, approval, rejection, clearing, and explicit promotion.
+- Stable JSON review-control responses.
+- All durable writes remain routed through `MemoryPromotionBoundary`.
 
 Next:
 
-- Add user-facing review controls for pending candidates.
-- Add CLI/API endpoints for approve, reject, and explicit promotion.
+- Decide whether review controls should also be exposed through the interactive CLI.
+- Prepare future persistent storage through repository boundaries without allowing RuntimeSession, SessionManager, CandidateExtractor, or ReviewQueue to write durable memory directly.
 - Keep all durable memory writes routed through `MemoryPromotionBoundary`.
 
 ## Phase 3: Persona System
@@ -635,4 +640,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is user-facing memory candidate review controls.
+The immediate next focus is memory review UX and future persistence planning after completing API-level Memory Candidate Review Controls v1.

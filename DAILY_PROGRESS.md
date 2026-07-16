@@ -69,6 +69,13 @@ Each development day should have a section:
 - Added explicit validation so pending and rejected candidates cannot be promoted.
 - Added candidate-to-`MemoryRecord` mapping for content, category, confidence, importance, timestamp, and provenance source.
 - Confirmed RuntimeSession, SessionManager, CandidateExtractor, and ReviewQueue still do not directly write durable memory.
+- Completed Memory Candidate Review Controls v1.
+- Added `MemoryReviewApiBoundary` for controlled candidate listing, approval, rejection, clearing, and explicit promotion.
+- Extended `ApiTransport` with memory candidate review routes.
+- Confirmed approval and rejection update candidate review state only and do not create durable memory.
+- Confirmed explicit promotion requires an approved candidate and routes through `MemoryPromotionBoundary`.
+- Confirmed API Transport still does not import `MemoryEngine`, call `create_memory()`, call providers, or bypass runtime boundaries.
+- Added API-level memory read-path regression coverage proving session creation can carry `RuntimeMemoryRetriever` into message handling.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -82,6 +89,7 @@ Each development day should have a section:
 - `backend/repositories/knowledge_repository.py`
 - `backend/runtime/session_repository.py`
 - `backend/runtime/memory_runtime.py`
+- `backend/runtime/memory_review_api.py`
 - `backend/models/memory_candidate.py`
 - `backend/core/memory_candidate.py`
 - `backend/core/memory_promotion.py`
@@ -100,6 +108,7 @@ Each development day should have a section:
 - `tests/test_memory_runtime_integration.py`
 - `tests/test_memory_candidate_pipeline.py`
 - `tests/test_memory_promotion.py`
+- `tests/test_memory_review_controls.py`
 - `tests/test_retrieval.py`
 - `docs/memory_engine.md`
 - `docs/memory_lifecycle.md`
@@ -114,10 +123,11 @@ Each development day should have a section:
 - `pytest`
 - `python -m compileall backend scripts tests`
 - Current test status:
-  - 353 passed.
+  - 366 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
+- API Transport coverage also verifies configured sessions can inject runtime memory retrieval and pass retrieved memory plus relevance metadata into the runtime context.
 - SessionRepository coverage verifies in-memory repository create/get/list/delete behavior and SessionManager repository usage.
 - HTTP Server Transport coverage verifies server startup, persona listing, session creation, message sending, response JSON, and error JSON through the existing ApiTransport path.
 - API response schema coverage verifies message responses are JSON serializable and frontend-consumable.
@@ -125,6 +135,7 @@ Each development day should have a section:
 - Memory Runtime Integration coverage verifies relevant memory retrieval, empty-memory behavior, multiple-memory ordering, RuntimeSession integration, RuntimeContext memory section assembly, prompt rendering, persona identity separation, and no durable record mutation.
 - Memory Candidate Pipeline coverage verifies deterministic extraction, queue add/list/clear, approval, rejection, duplicate handling, RuntimeSession candidate production, no automatic durable memory write, and no MemoryEngine import/call from the candidate pipeline.
 - Memory Promotion coverage verifies approved-only promotion, pending/rejected rejection, data integrity, provenance preservation, no persona mutation, and that the promotion boundary is the only MemoryEngine write connection.
+- Memory Candidate Review Controls coverage verifies candidate listing, status filtering, approval, rejection, clearing, approved-only promotion, stable JSON serialization, missing-boundary behavior, and API architecture boundary preservation.
 
 ### Design Decisions
 - `SessionManager` owns temporary session lifecycle only.
@@ -152,14 +163,16 @@ Each development day should have a section:
 - Runtime candidate extraction is optional and does not change existing sessions that do not provide a candidate extractor and review queue.
 - Approval is still not memory creation; promotion is a separate explicit boundary.
 - `MemoryPromotionBoundary` owns the only candidate-to-`MemoryRecord` conversion path.
+- `MemoryReviewApiBoundary` is the human-control surface for review actions; it delegates durable writes only to `MemoryPromotionBoundary`.
+- API Transport owns route handling and JSON serialization only; it does not import `MemoryEngine`, call `create_memory()`, or bypass runtime/provider boundaries.
 
 ### Problems / Notes
 - No persistence, database, frontend, automatic memory persistence, LLM summarization, automatic approval, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
-- Add user-facing controls for listing, approving, rejecting, and promoting memory candidates.
-- Keep future UI/API memory review flows routed through the promotion boundary.
+- Decide whether memory candidate review controls also need CLI commands alongside the API boundary.
+- Prepare future persistent memory storage through repository boundaries without allowing runtime, session, extractor, or review queue components to write durable memory directly.
 
 ## 2026-07-15
 
@@ -418,6 +431,12 @@ Each development day should have a section:
 - Added Expression Package v1 models and deterministic loader.
 - Added sample expression packages for Architect and Strategist.
 - Integrated expression guidance into RuntimeContext, PromptPackage, and rendered prompts.
+- Completed Memory Candidate Review Controls v1.
+- Added `MemoryReviewApiBoundary` for controlled candidate listing, approval, rejection, clearing, and explicit promotion.
+- Added API Transport memory candidate review routes.
+- Preserved the path `ReviewQueue -> MemoryReviewApiBoundary -> MemoryPromotionBoundary -> MemoryEngine`.
+- Confirmed approval and rejection do not create durable memory.
+- Confirmed explicit promotion requires an approved candidate and routes through `MemoryPromotionBoundary`.
 
 ### Files Changed
 - `PROJECT_CONTEXT.md`
@@ -454,6 +473,9 @@ Each development day should have a section:
 - Persona package metadata CLI command tests passed.
 - Expression package tests passed.
 - Expression runtime integration tests passed.
+- Memory candidate review controls tests passed.
+- API Transport regression tests passed.
+- Full test suite passed with 365 tests.
 - Persona Library lifecycle integration coverage verifies source import, profile building, version snapshot creation, review approval, activation, and selector availability.
 - Runtime context assembly coverage verifies `RuntimeContext` creation, assembly from existing components, missing optional data handling, and boundary preservation.
 
@@ -479,6 +501,9 @@ Each development day should have a section:
 - Expression Runtime Integration carries expression guidance into prompts without mutating PersonaProfile.
 - SessionManager and Chat API Boundary now prepare PersonaOS for future Web UI usage.
 - Expression Layer capabilities remain future interface extensions and are not part of Runtime Intelligence implementation.
+- Memory Candidate Review Controls expose human-governed review actions without making ReviewQueue or API Transport responsible for durable memory writing.
+- `MemoryReviewApiBoundary` is the review control surface; `MemoryPromotionBoundary` remains the only implemented bridge into `MemoryEngine`.
+- API Transport serializes review candidates and promoted memories as stable JSON without importing `MemoryEngine` or calling providers/adapters directly.
 
 ### Problems / Notes
 - Persona Library lifecycle foundation is complete.
@@ -491,11 +516,14 @@ Each development day should have a section:
 - Persona package selection UX is complete.
 - Expression Package v1 is complete.
 - Expression Runtime Integration v1 is complete.
+- Memory Candidate Review Controls v1 is complete.
 - No production API/frontend runtime, streaming, tool calling, persistence, automatic durable memory writes, voice, avatar, emotion, or relationship logic has been introduced.
 
 ### Next Session
 - Build future Web/API integration on top of `ChatApiBoundary`.
 - Preserve temporary `RuntimeSession` history as non-durable state.
+- Decide whether memory candidate review controls need CLI commands in addition to the API boundary.
+- Prepare future persistent storage through repository boundaries without changing MemoryEngine ownership.
 - Preserve deterministic package validation and loading.
 - Preserve review, versioning, library, activation, selector, expression, runtime, session, and provider boundaries.
 - Keep package switching independent from runtime provider/model configuration.

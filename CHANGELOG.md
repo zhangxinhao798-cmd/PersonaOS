@@ -324,14 +324,24 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added approval-state validation so pending and rejected candidates cannot be promoted.
 - Added candidate-to-memory mapping for content, category, confidence, importance, timestamp, and provenance source.
 - Confirmed RuntimeSession, SessionManager, CandidateExtractor, and ReviewQueue do not call `MemoryEngine.create_memory()`.
-- Current phase is Memory Promotion Boundary v1 completed.
-- Current recorded verification status: 353 tests passing.
+- Added Memory Candidate Review Controls v1.
+- Added `MemoryReviewApiBoundary` as the controlled review interface for memory candidates.
+- Extended `ApiTransport` with memory candidate review routes for listing, approving, rejecting, clearing, and explicit promotion.
+- Preserved the required flow: `ReviewQueue -> MemoryReviewApiBoundary -> MemoryPromotionBoundary -> MemoryEngine`.
+- Confirmed approval and rejection update candidate review state only and do not create durable memory.
+- Confirmed promotion can only create a `MemoryRecord` after explicit approval and through `MemoryPromotionBoundary`.
+- Confirmed API Transport still does not import `MemoryEngine`, call `create_memory()`, call providers, or bypass runtime boundaries.
+- Verified API responses for memory candidate controls are stable JSON and frontend-consumable.
+- Added API-level regression coverage proving configured sessions can inject `RuntimeMemoryRetriever` and pass retrieved memory into the runtime context.
+- Current phase is Memory Candidate Review Controls v1 completed.
+- Current recorded verification status: 366 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Add user-facing controls around pending candidates and approved-candidate promotion.
+- Decide whether memory candidate review controls should also be exposed through the interactive CLI.
+- Prepare future persistent storage through repository boundaries without letting RuntimeSession, SessionManager, CandidateExtractor, or ReviewQueue write durable memory directly.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.
 - Keep provider switching simple and model-independent.

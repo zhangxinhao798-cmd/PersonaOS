@@ -26,6 +26,11 @@ from backend.runtime.memory_runtime import (
     RetrievedMemory,
     RuntimeMemoryRetriever,
 )
+from backend.runtime.memory_review_api import (
+    MemoryReviewApiBoundary,
+    MemoryReviewApiError,
+    MemoryReviewValidationError,
+)
 from backend.core.memory_candidate import (
     CandidateExtractor,
     MemoryCandidateError,

@@ -7,6 +7,7 @@ import json
 from backend.api import ApiTransport, PersonaRuntimeBundle
 from backend.api import transport as api_transport_module
 from backend.models import LLMResponse
+from backend.runtime import RuntimeMemoryRetriever
 from backend.runtime import ChatApiBoundary
 
 from tests.test_session_manager import (
@@ -215,6 +216,40 @@ def test_api_does_not_modify_persona_or_memory_state() -> None:
     assert snapshot_entry(provider.entry) == entry_before
     assert memory.__dict__ == memory_before
     assert knowledge.__dict__ == knowledge_before
+
+
+def test_api_session_can_inject_runtime_memory_retrieval() -> None:
+    provider = FakeRuntimeProvider()
+    transport = ApiTransport(
+        chat_api=ChatApiBoundary(),
+        runtime_provider=provider,
+    )
+
+    original_get_runtime_bundle = provider.get_runtime_bundle
+
+    def get_runtime_bundle_with_memory(persona_id: str | None = None):
+        bundle = original_get_runtime_bundle(persona_id)
+        bundle.memory_retriever = RuntimeMemoryRetriever()
+        return bundle
+
+    provider.get_runtime_bundle = get_runtime_bundle_with_memory
+
+    transport.handle_request("POST", "/sessions", {"session_id": "session-1"})
+    response = transport.handle_request(
+        "POST",
+        "/sessions/session-1/messages",
+        {"message": "temporary session memory fixture"},
+    )
+
+    runtime_context = provider.runtime.calls[0]["persona_os_context"]
+    assert response.status_code == 200
+    assert len(runtime_context.memories.memories) == 1
+    assert (
+        runtime_context.memories.memories[0].content
+        == "Session Architect temporary session memory fixture."
+    )
+    assert runtime_context.memories.relevance[0]["rank"] == 1
+    assert runtime_context.metadata["memory_retrieval"]["enabled"] is True
 
 
 def test_api_does_not_bypass_chat_runtime() -> None:

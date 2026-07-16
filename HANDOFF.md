@@ -46,6 +46,7 @@ Persistence Architecture v1 repository boundaries are complete.
 Memory Runtime Integration v1 is complete.
 Memory Review / Candidate Pipeline v1 is complete.
 Memory Promotion Boundary v1 is complete.
+Memory Candidate Review Controls v1 is complete.
 
 Current completed integration state:
 
@@ -141,6 +142,11 @@ Current completed integration state:
 - Promotion validates candidate approval before writing to `MemoryEngine`.
 - Promotion preserves content, category, confidence, importance, timestamp, and provenance through the resulting `MemoryRecord`.
 - RuntimeSession, SessionManager, CandidateExtractor, and ReviewQueue still do not call `MemoryEngine`.
+- `MemoryReviewApiBoundary` added as the controlled review interface for memory candidates.
+- API Transport now supports listing, approving, rejecting, clearing, and explicitly promoting memory candidates.
+- Approval and rejection update candidate review state only and do not create durable memory.
+- Explicit promotion routes through `MemoryPromotionBoundary`; API Transport does not import `MemoryEngine` or call `create_memory()`.
+- API-level memory read-path regression coverage verifies configured sessions can inject `RuntimeMemoryRetriever` and pass retrieved memory plus relevance metadata into runtime context during message handling.
 
 ## Architecture Rules
 
@@ -159,7 +165,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 353 tests passing.
+Latest recorded verification status is 366 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -174,12 +180,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Memory Promotion Boundary v1 completed.
+Memory Candidate Review Controls v1 completed.
 
 
 ## Next Goal
 
-Add user-facing controls for reviewing and promoting memory candidates while routing all durable memory writes through `MemoryPromotionBoundary`.
+Decide whether memory candidate review controls should also be exposed through the interactive CLI, then prepare future persistent storage through repository boundaries without allowing runtime, session, extractor, or review queue components to write durable memory directly.
 
 Integration Phase Step 1 completed:
 
