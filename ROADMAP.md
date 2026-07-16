@@ -610,6 +610,30 @@ Planned:
 
 The current Web Experience loads `zh-CN.json` through Language Resource Boundary v1.1. English remains a visible but disabled extension entry and must not be presented as available. Automatic language detection remains deferred.
 
+## Language Preference Boundary
+
+Status: Architecture decision recorded; backend implementation planned
+
+Language preference belongs to the User / Runtime Context layer and must remain independent from Persona identity. Persona remains language-agnostic and defines thinking patterns, values, expression style, decision patterns, and capabilities rather than a fixed language.
+
+Planned:
+
+- [ ] Carry `language: "zh-CN"` or `language: "en-US"` in RuntimeContext.
+- [ ] Have PromptRenderer emit a Simplified Chinese output instruction for `zh-CN`.
+- [ ] Have PromptRenderer emit an English output instruction for `en-US`.
+- [ ] Preserve independence from Persona, Relationship, Memory, and provider configuration.
+- [ ] Complete and maintain Chinese resource coverage.
+- [ ] Complete English resource coverage and enable it only after review.
+- [ ] Persist user language preference through a future User/Preference boundary.
+- [ ] Add automatic language detection.
+- [ ] Add multilingual Persona descriptions.
+- [ ] Support additional locales.
+
+Explicitly deferred:
+
+- Language-specific Persona identity.
+- Automatic language changes based on Persona.
+
 ## Web Experience v0.3
 
 Status: Completed

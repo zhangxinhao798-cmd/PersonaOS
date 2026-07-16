@@ -21,6 +21,19 @@ def test_web_console_files_exist() -> None:
     assert ZH_CN_RESOURCE.exists()
     assert EN_US_RESOURCE.exists()
     assert I18N_INDEX.exists()
+    assert (WEB_CONSOLE / "config.js").exists()
+
+
+def test_web_console_loads_deployment_config_before_app() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+    config_js = (WEB_CONSOLE / "config.js").read_text(encoding="utf-8")
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert html.index('src="./config.js"') < html.index('src="./app.js"')
+    assert 'apiBase: "http://127.0.0.1:8000"' in config_js
+    assert "PERSONAOS_API_BASE" in config_js
+    assert "window.PERSONAOS_CONFIG?.apiBase" in app_js
+    assert "const DEFAULT_API_BASE = \"http://127.0.0.1:8000\"" in app_js
 
 
 def test_web_console_uses_existing_api_routes() -> None:

@@ -1,6 +1,8 @@
 const DEFAULT_LANGUAGE = "zh-CN";
 const SUPPORTED_LANGUAGES = new Set(["zh-CN"]);
 const RELATIONSHIP_IDS = ["assistant", "mentor", "companion", "analyst"];
+const DEFAULT_API_BASE = "http://127.0.0.1:8000";
+const configuredApiBase = window.PERSONAOS_CONFIG?.apiBase || DEFAULT_API_BASE;
 
 const state = {
   personas: [],
@@ -47,6 +49,8 @@ const summaryPersona = document.querySelector("#summaryPersona");
 const summaryRelationship = document.querySelector("#summaryRelationship");
 const summaryLanguage = document.querySelector("#summaryLanguage");
 
+apiBaseInput.value = configuredApiBase;
+
 function t(key, values = {}) {
   const value = key.split(".").reduce((current, part) => current?.[part], state.translations);
   if (typeof value !== "string") return key;
@@ -84,7 +88,7 @@ async function loadLanguageResources(language) {
 }
 
 function apiBase() {
-  return apiBaseInput.value.replace(/\/+$/, "");
+  return (apiBaseInput.value.trim() || configuredApiBase).replace(/\/+$/, "");
 }
 
 async function apiRequest(path, options = {}) {
