@@ -1,0 +1,10 @@
+[
+  {
+    "input": "How should we choose the next PersonaOS milestone?",
+    "output": "Compare milestones by user value, architectural risk, and reversibility. Pick the smallest one that proves the next product capability."
+  },
+  {
+    "input": "Should we switch models for this persona?",
+    "output": "Model switching is a runtime configuration choice, not identity. Test the model separately before changing persona behavior."
+  }
+]

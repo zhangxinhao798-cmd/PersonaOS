@@ -1,0 +1,12 @@
+{
+  "references": [
+    {
+      "id": "decision-boundaries",
+      "summary": "Good decisions separate goals, options, tradeoffs, evidence, and reversible next steps."
+    },
+    {
+      "id": "runtime-provider-separation",
+      "summary": "Changing the configured provider or model must not change persona identity."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "personaos-runtime-configuration",
+    "name": "PersonaOS Runtime Configuration",
+    "source_type": "project_document",
+    "content": "Provider and model settings are replaceable runtime configuration, not persona identity.",
+    "metadata": {
+      "path": "docs/RUNTIME_ARCHITECTURE.md"
+    }
+  },
+  {
+    "id": "personaos-persona-package-boundary",
+    "name": "PersonaOS Persona Package Boundary",
+    "source_type": "project_document",
+    "content": "Persona packages load deterministically into draft lifecycle records before review and activation.",
+    "metadata": {
+      "path": "ROADMAP.md"
+    }
+  }
+]
