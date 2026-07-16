@@ -152,6 +152,39 @@ def test_cli_does_not_use_hard_coded_persona_profile() -> None:
     assert "review before activation" in entry.profile.values
 
 
+def test_cli_default_persona_can_be_configured_to_strategist(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+    monkeypatch.setattr(
+        chat_persona,
+        "default_persona_package_path",
+        lambda: Path("personas") / "strategist",
+    )
+
+    runtime = chat_persona.build_runtime()
+
+    assert runtime.persona_entry.id == "strategist"
+    assert runtime.persona_entry.name == "Strategist"
+    assert runtime.persona_entry.is_selectable() is True
+
+
+def test_configured_missing_default_persona_has_readable_error(
+    capsys,
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        chat_persona,
+        "default_persona_package_path",
+        lambda: Path("personas") / "missing-default",
+    )
+
+    result = chat_persona.main()
+
+    assert result == 1
+    output = capsys.readouterr().out
+    assert "Persona package loading failed:" in output
+    assert "missing-default" in output
+
+
 def test_package_derived_persona_name_appears_in_status(monkeypatch) -> None:
     patch_runtime_dependencies(monkeypatch)
     runtime = chat_persona.build_runtime()

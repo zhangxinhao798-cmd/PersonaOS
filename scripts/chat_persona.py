@@ -51,6 +51,7 @@ from backend.runtime import (  # noqa: E402
 from config.runtime import (  # noqa: E402
     RuntimeConfigError,
     build_adapter_registry,
+    load_default_persona_package_id,
     load_provider_config,
     resolve_configured_adapter,
 )
@@ -80,6 +81,18 @@ def provider_config() -> ProviderConfig:
     return load_provider_config()
 
 
+def default_persona_package_id() -> str:
+    """Load the configured default persona package id."""
+
+    return load_default_persona_package_id()
+
+
+def default_persona_package_path() -> Path:
+    """Resolve the configured default persona package path."""
+
+    return DEFAULT_PERSONAS_DIR / default_persona_package_id()
+
+
 def configured_adapter(config: ProviderConfig):
     """Resolve the configured adapter through AdapterRegistry."""
 
@@ -88,12 +101,13 @@ def configured_adapter(config: ProviderConfig):
 
 
 def build_draft_persona_entry(
-    package_path: Path = DEFAULT_PERSONA_PACKAGE_PATH,
+    package_path: Path | None = None,
 ) -> PersonaLibraryEntry:
     """Load the default persona package into a draft library entry."""
 
+    resolved_package_path = package_path or default_persona_package_path()
     loader = PersonaPackageLoader()
-    package = loader.load(package_path)
+    package = loader.load(resolved_package_path)
     return loader.to_library_entry(
         package,
         created_at="2026-07-16",
@@ -207,11 +221,12 @@ def build_persona_os_context(entry: PersonaLibraryEntry) -> PersonaOSContext:
 
 
 def build_runtime(
-    persona_package_path: Path = DEFAULT_PERSONA_PACKAGE_PATH,
+    persona_package_path: Path | None = None,
 ) -> InteractiveRuntime:
     """Wire existing runtime boundaries for the interactive CLI."""
 
-    entry = prepare_persona_for_cli_runtime(persona_package_path)
+    resolved_package_path = persona_package_path or default_persona_package_path()
+    entry = prepare_persona_for_cli_runtime(resolved_package_path)
     if not entry.is_approved_for_activation():
         raise ChatRuntimeError("Persona is not approved.")
     if not entry.is_active():
@@ -239,7 +254,7 @@ def build_runtime(
         session=session,
         persona_entry=entry,
         provider_config=config,
-        personas_dir=persona_package_path.parent,
+        personas_dir=resolved_package_path.parent,
     )
 
 

@@ -10,6 +10,7 @@ from backend.models import ProviderConfig
 from config.runtime import (
     RuntimeConfigError,
     build_adapter_registry,
+    load_default_persona_package_id,
     load_provider_config,
     provider_config_from_mapping,
     resolve_configured_adapter,
@@ -51,6 +52,50 @@ def test_default_runtime_config_loads_current_ollama_settings() -> None:
     assert config.model == "qwen3:14b"
     assert config.endpoint == "http://localhost:11434"
     assert config.options == {}
+
+
+def test_loads_default_persona_package_id_from_json(tmp_path: Path) -> None:
+    path = write_config(
+        tmp_path / "runtime.json",
+        {
+            "provider": "ollama",
+            "model": "qwen3:14b",
+            "endpoint": "http://localhost:11434",
+            "default_persona": "strategist",
+        },
+    )
+
+    assert load_default_persona_package_id(path) == "strategist"
+
+
+def test_default_persona_package_id_falls_back_to_architect(
+    tmp_path: Path,
+) -> None:
+    path = write_config(
+        tmp_path / "runtime.json",
+        {
+            "provider": "ollama",
+            "model": "qwen3:14b",
+            "endpoint": "http://localhost:11434",
+        },
+    )
+
+    assert load_default_persona_package_id(path) == "architect"
+
+
+def test_default_persona_package_id_must_be_string(tmp_path: Path) -> None:
+    path = write_config(
+        tmp_path / "runtime.json",
+        {
+            "provider": "ollama",
+            "model": "qwen3:14b",
+            "endpoint": "http://localhost:11434",
+            "default_persona": ["strategist"],
+        },
+    )
+
+    with pytest.raises(RuntimeConfigError):
+        load_default_persona_package_id(path)
 
 
 def test_missing_required_provider_config_field_is_rejected() -> None:

@@ -11,6 +11,7 @@ from backend.models import ProviderConfig
 
 
 DEFAULT_RUNTIME_CONFIG_PATH = Path(__file__).with_name("runtime.json")
+DEFAULT_PERSONA_PACKAGE_ID = "architect"
 
 
 class RuntimeConfigError(Exception):
@@ -19,6 +20,29 @@ class RuntimeConfigError(Exception):
 
 def load_provider_config(path: str | Path | None = None) -> ProviderConfig:
     """Load provider configuration from a JSON file."""
+
+    raw_config = load_runtime_config_mapping(path)
+    return provider_config_from_mapping(raw_config)
+
+
+def load_default_persona_package_id(path: str | Path | None = None) -> str:
+    """Load the default local persona package id from runtime configuration."""
+
+    raw_config = load_runtime_config_mapping(path)
+    default_persona = raw_config.get(
+        "default_persona",
+        DEFAULT_PERSONA_PACKAGE_ID,
+    )
+    if not isinstance(default_persona, str) or not default_persona.strip():
+        raise RuntimeConfigError(
+            "Runtime configuration default_persona must be a string."
+        )
+
+    return default_persona.strip()
+
+
+def load_runtime_config_mapping(path: str | Path | None = None) -> dict[str, Any]:
+    """Load the raw runtime configuration mapping from JSON."""
 
     config_path = Path(path) if path is not None else DEFAULT_RUNTIME_CONFIG_PATH
     try:
@@ -33,7 +57,7 @@ def load_provider_config(path: str | Path | None = None) -> ProviderConfig:
     if not isinstance(raw_config, dict):
         raise RuntimeConfigError("Runtime configuration must be a JSON object.")
 
-    return provider_config_from_mapping(raw_config)
+    return raw_config
 
 
 def provider_config_from_mapping(raw_config: dict[str, Any]) -> ProviderConfig:

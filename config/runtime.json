@@ -2,6 +2,6 @@
   "provider": "ollama",
   "model": "qwen3:14b",
   "endpoint": "http://localhost:11434",
+  "default_persona": "architect",
   "options": {}
 }
-
