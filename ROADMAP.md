@@ -590,20 +590,24 @@ Explicitly deferred:
 
 ## Frontend Internationalization
 
-Status: Planned
+Status: Language Resource Boundary v1 completed
 
 Frontend internationalization is a future productization direction and does not change Persona, Runtime, or provider architecture.
 
 Planned:
 
-- [ ] Chinese UI support.
+- [x] Chinese UI resource foundation.
 - [ ] English UI support.
 - [x] Basic Chinese/English language selection entry.
-- [ ] A dedicated `frontend/i18n/` language-file boundary for user-facing interface text.
-- [ ] Explicit language selection with a deterministic default and fallback.
-- [ ] Keep UI language independent from active persona identity and model provider.
+- [x] A dedicated `frontend/web-console/i18n/` language-file boundary for user-facing interface text.
+- [x] Deterministic `zh-CN` default loading.
+- [x] Keep UI language independent from active persona identity and model provider.
+- [x] Resource-driven onboarding, Persona, Relationship, Chat, Session, and status copy.
+- [ ] Hide the unfinished English selector entry in Language Resource Boundary v1.1.
+- [ ] Add `en-US.json` only when the English interface is complete.
+- [ ] Add supported-language registry and missing-key validation.
 
-The current Web Experience contains only the language selection entry. Complete UI translation and the `frontend/i18n/` language-resource boundary remain unimplemented.
+The current Web Experience loads `zh-CN.json` through Language Resource Boundary v1. English remains unimplemented and must not be presented as available. Automatic language detection remains deferred.
 
 ## Web Experience v0.3
 
@@ -706,4 +710,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is manual Web Experience v0.3 end-to-end verification, followed by a small `frontend/i18n/` language-resource boundary for Chinese and English. Relationship Evolution, Relationship Memory, automatic relationship generation, and emotion simulation remain deferred.
+The immediate next focus is Language Resource Boundary v1.1: complete the Chinese-default experience, hide unfinished English selection, introduce the i18n index/registry boundary, and detect missing keys. Relationship Evolution, Relationship Memory, automatic relationship generation, and emotion simulation remain deferred.

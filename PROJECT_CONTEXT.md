@@ -180,7 +180,7 @@ PersonaOS Web Experience v0.2 provides browsable persona identity information, e
 
 PersonaOS Web Experience v0.3 adds a first-use welcome flow that explains Digital Mind, Persona, Memory, Skills, and Evolution without presenting unimplemented behavior as complete. Persona summaries expose package-derived traits and style plus curated suitable scenarios. Relationship choices explain both interaction behavior and intended use before session creation. A current experience summary keeps Persona, Relationship, Language, and session-scoped memory context visible after startup.
 
-Frontend internationalization is a future productization direction. A basic Chinese/English language selection entry now exists, but UI copy is not yet managed by a complete translation system. Language resources are planned under a dedicated `frontend/i18n/` boundary and must remain independent from persona identity and model provider configuration.
+Language Resource Boundary v1 is implemented under `frontend/web-console/i18n/`. The Web Experience loads `zh-CN.json` as its deterministic default and resolves onboarding, Persona, Relationship, Chat, Session, and status copy through resource keys. The `en-US` entry is reserved but disabled until an English resource exists. UI language remains independent from Persona identity, Relationship context, Runtime, Memory, API contracts, and model provider configuration.
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
@@ -413,7 +413,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, runtime configuration loading, Persona Package v1 boundaries, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, Relationship Context Boundary v1, Relationship Selection v1, and Web Experience v0.3 exist. Persistence, automatic persona reconstruction, automatic package review or activation persistence, voice cloning, TTS, avatar, relationship evolution, relationship memory, emotion state, complete frontend internationalization, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, runtime configuration loading, Persona Package v1 boundaries, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, Relationship Context Boundary v1, Relationship Selection v1, Web Experience v0.3, and Language Resource Boundary v1 exist. Persistence, automatic persona reconstruction, automatic package review or activation persistence, voice cloning, TTS, avatar, relationship evolution, relationship memory, emotion state, English frontend resources, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
@@ -701,7 +701,7 @@ Recommended immediate tasks:
 - Keep relationship choice explicit and session-scoped; do not generate or evolve relationships automatically.
 - Preserve temporary session history as non-durable runtime state.
 - Keep persona, relationship, expression, model provider, and session responsibilities separate.
-- Establish frontend Chinese/English language resources under `frontend/i18n/` without coupling language choice to persona identity.
+- Complete the Chinese-default Language Resource Boundary v1.1 and add missing-key validation without coupling language choice to persona identity.
 - Preserve deterministic validation and loading.
 - Preserve conversion into existing `PersonaProfile`, `PersonaVersion`, and draft `PersonaLibraryEntry` boundaries.
 - Preserve human review before approval and activation.

@@ -8,6 +8,12 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 
 ### Added
 
+- Completed Language Resource Boundary v1 for the PersonaOS Web Experience.
+- Added the canonical Chinese resource file at `frontend/web-console/i18n/zh-CN.json`.
+- Migrated onboarding, persona, relationship, chat, session, and status copy into the language resource boundary.
+- Set `zh-CN` as the deterministic default and reserved a disabled `en-US` extension point.
+- Added language-resource loading, interpolation, translated attributes, and boundary tests.
+- Confirmed existing Persona, Relationship, Session, Chat, and API behavior remains unchanged with 397 automated tests passing.
 - Completed PersonaOS Web Experience v0.3 first-use onboarding.
 - Added an architecture-accurate welcome experience covering Digital Mind, Persona, Memory, Skills, and Evolution.
 - Extended persona API summaries and experience cards with traits, style, and curated suitable scenarios from persona packages.

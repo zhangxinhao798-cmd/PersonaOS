@@ -53,6 +53,7 @@ Relationship Boundary v1 is complete.
 PersonaOS Web Experience v0.2 is complete.
 Relationship Selection v1 is complete for explicit Web/API session creation.
 PersonaOS Web Experience v0.3 is complete.
+Language Resource Boundary v1 is complete.
 
 Current completed integration state:
 
@@ -171,13 +172,15 @@ Current completed integration state:
 - Web/API session creation accepts explicit assistant, mentor, companion, or analyst relationship selection.
 - API Transport validates the relationship selection and creates a session-scoped `RelationshipContext` before delegating through `ChatApiBoundary`.
 - The Web Experience includes a Persona Experience card with persona name, version, description, and active relationship type.
-- The Web Experience includes a basic Chinese/English language selection entry. It changes the frontend language preference boundary only; complete UI translation and `frontend/i18n/` language files remain unimplemented.
+- The Web Experience loads its default Chinese interface from `frontend/web-console/i18n/zh-CN.json`.
+- `zh-CN` is the deterministic default; `en-US` remains a disabled extension point until its resource is implemented.
+- Language selection remains independent from Persona identity, Relationship context, Runtime, Memory, and provider configuration.
 - Relationship Selection v1 does not add relationship persistence, relationship evolution, relationship memory, emotion simulation, or automatic relationship generation.
 - Web Experience v0.3 adds an architecture-accurate first-use welcome flow for Digital Mind, Persona, Memory, Skills, and Evolution.
 - Persona API summaries and the Persona Experience card now include package-derived traits, style, and curated suitable scenarios.
 - Assistant, Mentor, Companion, and Analyst choices each expose a description and usage scenario before session creation.
 - A current experience summary shows Persona, Relationship, Language, and session-scoped Memory context after session creation.
-- Frontend `data-i18n` keys preserve a future language-resource extension point; full Chinese/English translation remains unimplemented.
+- Frontend `data-i18n` keys now resolve through Language Resource Boundary v1; English translation remains unimplemented.
 
 ## Architecture Rules
 
@@ -211,7 +214,7 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Web Experience v0.3 first-use onboarding completed.
+Language Resource Boundary v1 completed with `zh-CN` as the default Web Experience language.
 
 User-Persona Relationship is now recognized as a core PersonaOS system. The implemented scope is limited to the context boundary: relationship type, interaction style, tone, permissions, lifecycle, and metadata can travel through session and runtime context without changing Persona identity.
 
@@ -220,12 +223,12 @@ Still planned, not implemented:
 - Relationship Evolution with explicit governance and review.
 - Relationship Memory with a separate relationship-scoped memory boundary.
 - Emotion simulation or automatic relationship generation.
-- Complete frontend internationalization for Chinese and English through future `frontend/i18n/` language files.
+- English language resources and complete bilingual switching.
 
 
 ## Next Goal
 
-Manually verify the complete Web Experience v0.3 flow against the running local HTTP API and configured Ollama model. The next small productization boundary may establish `frontend/i18n/` language files while keeping language selection independent from Persona and Runtime.
+Complete Language Resource Boundary v1.1 by removing remaining mixed-language user-facing copy, hiding unfinished English selection, and adding missing-key validation without changing Persona or Runtime boundaries.
 
 Integration Phase Step 1 completed:
 
@@ -446,9 +449,9 @@ Memory Promotion Boundary completed:
 
 ## Next Recommended Phase
 
-Web Experience v0.3 end-to-end interaction verification and Frontend Internationalization Boundary v1.
+Language Resource Boundary v1.1 Chinese-default experience completion.
 
-The next work should manually verify persona selection, all four relationship selections, session creation, and message generation against the local service. After verification, introduce only the `frontend/i18n/` language-resource boundary for Chinese and English. Relationship Evolution, Relationship Memory, emotion simulation, and automatic relationship generation remain deferred.
+The next work should remove remaining mixed-language user-facing copy, hide unfinished English selection, add an i18n index/registry boundary, and validate missing translation keys. Relationship Evolution, Relationship Memory, emotion simulation, and automatic relationship generation remain deferred.
 
 ## Future Considerations
 

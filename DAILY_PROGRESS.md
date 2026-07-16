@@ -28,6 +28,14 @@ Each development day should have a section:
 ## 2026-07-16
 
 ### Completed
+- Completed Language Resource Boundary v1.
+- Added `frontend/web-console/i18n/zh-CN.json` as the canonical Chinese UI resource.
+- Migrated onboarding, Persona, Relationship, Language, Chat, Session, and status copy into the language resource.
+- Added deterministic `zh-CN` loading and reusable translation-key interpolation.
+- Preserved a disabled `en-US` selector entry for future English resources without claiming English support.
+- Kept UI language independent from Persona identity, Relationship context, Runtime, Memory, and the API contract.
+- Added frontend tests for resource structure, language loading, relationship copy, and hard-coded copy removal.
+- Verified 397 automated tests passing.
 - Completed PersonaOS Web Experience v0.3.
 - Added first-use onboarding that accurately explains Digital Mind, Persona, Memory, Skills, and Evolution boundaries.
 - Added dismissible and reopenable welcome behavior using a frontend-only local preference.
