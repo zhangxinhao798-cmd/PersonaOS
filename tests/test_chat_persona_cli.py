@@ -1,13 +1,19 @@
 """Tests for the minimal PersonaOS interactive CLI."""
 
 import copy
+from pathlib import Path
 
+import pytest
+
+from backend.core import PersonaPackageError
 from backend.core.knowledge import KnowledgeRecord
 from backend.models import (
     LLMResponse,
     PersonaActivation,
     PersonaActivationStatus,
     PersonaLibraryEntry,
+    PersonaLibraryLifecycleState,
+    PersonaReviewStatus,
     PersonaProfile,
     PersonaVersion,
     ProviderConfig,
@@ -56,6 +62,13 @@ class FakeSession:
         return len(self.history)
 
 
+class FakeAdapter:
+    provider = "fake"
+
+    def generate(self, _runtime_context, _user_input: str) -> LLMResponse:
+        return LLMResponse(content="fake response")
+
+
 def make_entry() -> PersonaLibraryEntry:
     profile = PersonaProfile(
         name="CLI Persona",
@@ -102,6 +115,100 @@ def make_runtime(
             endpoint="http://localhost:11434",
         ),
     )
+
+
+def patch_runtime_dependencies(monkeypatch) -> None:
+    monkeypatch.setattr(
+        chat_persona,
+        "provider_config",
+        lambda: ProviderConfig(
+            provider="ollama",
+            model="qwen3:14b",
+            endpoint="http://localhost:11434",
+        ),
+    )
+    monkeypatch.setattr(
+        chat_persona,
+        "configured_adapter",
+        lambda _config: FakeAdapter(),
+    )
+
+
+def test_cli_loads_architect_package_by_default() -> None:
+    entry = chat_persona.build_draft_persona_entry()
+
+    assert entry.id == "architect"
+    assert entry.name == "Architect"
+    assert entry.profile is not None
+    assert entry.profile.name == "Architect"
+
+
+def test_cli_does_not_use_hard_coded_persona_profile() -> None:
+    entry = chat_persona.build_draft_persona_entry()
+
+    assert entry.name != "PersonaOS Runtime Guide"
+    assert entry.profile is not None
+    assert entry.profile.traits["focus"] == "modular architecture"
+    assert "review before activation" in entry.profile.values
+
+
+def test_package_derived_persona_name_appears_in_status(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+    runtime = chat_persona.build_runtime()
+    output: list[str] = []
+
+    chat_persona.handle_command("/status", runtime, output.append)
+
+    assert "Persona: Architect" in output
+    assert "Provider: ollama" in output
+    assert "Model: qwen3:14b" in output
+
+
+def test_missing_package_path_gives_readable_error(capsys, monkeypatch) -> None:
+    def raise_missing_package() -> None:
+        raise PersonaPackageError(
+            "Package path does not exist: personas/missing"
+        )
+
+    monkeypatch.setattr(chat_persona, "build_runtime", raise_missing_package)
+
+    result = chat_persona.main()
+
+    assert result == 1
+    output = capsys.readouterr().out
+    assert "Persona package loading failed:" in output
+    assert "personas/missing" in output
+
+
+def test_package_remains_draft_before_cli_startup_approval_flow() -> None:
+    entry = chat_persona.build_draft_persona_entry()
+
+    assert entry.lifecycle_state == PersonaLibraryLifecycleState.DRAFT
+    assert entry.review_status == PersonaReviewStatus.PENDING_REVIEW
+    assert entry.is_approved_for_activation() is False
+    assert entry.is_active() is False
+    assert entry.is_selectable() is False
+
+
+def test_cli_startup_approval_flow_is_in_memory(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+
+    before = {
+        path: path.read_bytes()
+        for path in Path("personas/architect").glob("*.json")
+    }
+
+    runtime = chat_persona.build_runtime()
+
+    after = {
+        path: path.read_bytes()
+        for path in Path("personas/architect").glob("*.json")
+    }
+    assert before == after
+    assert runtime.persona_entry.name == "Architect"
+    assert runtime.persona_entry.is_approved_for_activation() is True
+    assert runtime.persona_entry.is_active() is True
+    assert runtime.persona_entry.is_selectable() is True
 
 
 def test_help_does_not_call_runtime_session_send() -> None:
@@ -297,4 +404,3 @@ def test_no_durable_persona_or_memory_state_is_mutated() -> None:
     )
     assert memory.__dict__ == memory_before
     assert knowledge.__dict__ == knowledge_before
-

@@ -19,6 +19,8 @@ from backend.adapters import (  # noqa: E402
 from backend.core import (  # noqa: E402
     PersonaActivationManager,
     PersonaLibraryEngine,
+    PersonaPackageError,
+    PersonaPackageLoader,
     PersonaSelector,
 )
 from backend.core.knowledge import KnowledgeRecord  # noqa: E402
@@ -27,8 +29,6 @@ from backend.engine.runtime_context_assembler import (  # noqa: E402
 )
 from backend.models import (  # noqa: E402
     PersonaLibraryEntry,
-    PersonaProfile,
-    PersonaVersion,
     ProviderConfig,
 )
 from backend.models.context import (  # noqa: E402
@@ -54,6 +54,9 @@ from config.runtime import (  # noqa: E402
     load_provider_config,
     resolve_configured_adapter,
 )
+
+
+DEFAULT_PERSONA_PACKAGE_PATH = PROJECT_ROOT / "personas" / "architect"
 
 
 @dataclass
@@ -82,57 +85,25 @@ def configured_adapter(config: ProviderConfig):
     return resolve_configured_adapter(config, registry)
 
 
-def build_persona_entry() -> PersonaLibraryEntry:
-    """Build a valid in-memory persona lifecycle for the CLI session."""
+def build_draft_persona_entry(
+    package_path: Path = DEFAULT_PERSONA_PACKAGE_PATH,
+) -> PersonaLibraryEntry:
+    """Load the default persona package into a draft library entry."""
 
-    profile = PersonaProfile(
-        name="PersonaOS Runtime Guide",
-        traits={
-            "focus": "clear local-first runtime conversation",
-            "tone": "calm, concise, and helpful",
-        },
-        values=[
-            "architectural boundaries",
-            "replaceable providers",
-            "temporary session history",
-        ],
-        style="structured, friendly, and precise",
-        boundaries=[
-            "do not claim durable writes",
-            "do not mutate persona identity during runtime",
-        ],
-        thinking_patterns=[
-            "separate persona, memory, knowledge, runtime, and provider logic",
-        ],
-        communication_style=[
-            "answer naturally",
-            "keep explanations concise",
-        ],
-    )
-    version = PersonaVersion(
-        id="interactive-runtime-guide-v1",
-        persona_name=profile.name,
-        version="1.0",
+    loader = PersonaPackageLoader()
+    package = loader.load(package_path)
+    return loader.to_library_entry(
+        package,
         created_at="2026-07-16",
-        profile_snapshot={
-            "name": profile.name,
-            "traits": dict(profile.traits),
-            "values": list(profile.values),
-            "style": profile.style,
-            "boundaries": list(profile.boundaries),
-        },
-        source_ids=["interactive-runtime-cli"],
-        change_note="In-memory persona for CLI runtime.",
+        change_note="Loaded from local CLI persona package.",
     )
-    entry = PersonaLibraryEntry(
-        id="interactive-runtime-guide",
-        name=profile.name,
-        description="In-memory CLI persona for PersonaOS runtime.",
-        current_version_id=version.id,
-        profile=profile,
-        versions=[version],
-        source_ids=["interactive-runtime-cli"],
-    )
+
+
+def approve_persona_for_cli_runtime(
+    entry: PersonaLibraryEntry,
+) -> PersonaLibraryEntry:
+    """Approve and activate a package-derived entry for this CLI process only."""
+
     entry.submit_for_review(
         reviewer="local-cli",
         notes="Prepared for interactive runtime.",
@@ -197,10 +168,14 @@ def build_persona_os_context(entry: PersonaLibraryEntry) -> PersonaOSContext:
     )
 
 
-def build_runtime() -> InteractiveRuntime:
+def build_runtime(
+    persona_package_path: Path = DEFAULT_PERSONA_PACKAGE_PATH,
+) -> InteractiveRuntime:
     """Wire existing runtime boundaries for the interactive CLI."""
 
-    entry = build_persona_entry()
+    entry = approve_persona_for_cli_runtime(
+        build_draft_persona_entry(persona_package_path)
+    )
     if not entry.is_approved_for_activation():
         raise ChatRuntimeError("Persona is not approved.")
     if not entry.is_active():
@@ -402,6 +377,9 @@ def main() -> int:
         return 1
     except RuntimeConfigError as exc:
         print(f"Runtime configuration failed: {exc}")
+        return 1
+    except PersonaPackageError as exc:
+        print(f"Persona package loading failed: {exc}")
         return 1
 
     return run_loop(runtime)
