@@ -1,32 +1,14 @@
-const RELATIONSHIPS = {
-  assistant: {
-    label: "Assistant",
-    description: "Practical, clear support for everyday tasks and questions.",
-    scenario: "Task support, explanations, and focused everyday help.",
-  },
-  mentor: {
-    label: "Mentor",
-    description: "Structured guidance that helps you think and improve.",
-    scenario: "Learning, reflection, planning, and skill development.",
-  },
-  companion: {
-    label: "Companion",
-    description: "A warm, supportive style for open-ended conversation.",
-    scenario: "Open conversation, shared reflection, and steady presence.",
-  },
-  analyst: {
-    label: "Analyst",
-    description: "Neutral, precise discussion focused on evidence and tradeoffs.",
-    scenario: "Research, comparison, diagnosis, and decision analysis.",
-  },
-};
+const DEFAULT_LANGUAGE = "zh-CN";
+const SUPPORTED_LANGUAGES = new Set(["zh-CN"]);
+const RELATIONSHIP_IDS = ["assistant", "mentor", "companion", "analyst"];
 
 const state = {
   personas: [],
   activeSessionId: "",
   activePersonaId: "",
   activeRelationshipType: "assistant",
-  language: "en",
+  language: DEFAULT_LANGUAGE,
+  translations: {},
   isLoading: false,
 };
 
@@ -65,6 +47,42 @@ const summaryPersona = document.querySelector("#summaryPersona");
 const summaryRelationship = document.querySelector("#summaryRelationship");
 const summaryLanguage = document.querySelector("#summaryLanguage");
 
+function t(key, values = {}) {
+  const value = key.split(".").reduce((current, part) => current?.[part], state.translations);
+  if (typeof value !== "string") return key;
+  return value.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? `{${name}}`));
+}
+
+function applyTranslations() {
+  document.title = t("app.page_title");
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    element.title = t(element.dataset.i18nTitle);
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  });
+  renderRelationshipGallery();
+  updateExperience();
+  setLoading(state.isLoading);
+}
+
+async function loadLanguageResources(language) {
+  if (!SUPPORTED_LANGUAGES.has(language)) throw new Error("unsupported language");
+  const response = await fetch(`./i18n/${language}.json`);
+  if (!response.ok) throw new Error(`language resource ${response.status}`);
+  state.translations = await response.json();
+  state.language = language;
+  document.documentElement.lang = language;
+  languageSelect.value = language;
+  applyTranslations();
+}
+
 function apiBase() {
   return apiBaseInput.value.replace(/\/+$/, "");
 }
@@ -76,7 +94,7 @@ async function apiRequest(path, options = {}) {
   });
   const payload = await response.json();
   if (!response.ok) {
-    throw new Error(payload.message || payload.error || "Request failed.");
+    throw new Error(payload.message || payload.error || t("status.request_failed"));
   }
   return payload;
 }
@@ -91,19 +109,24 @@ function activePersona() {
 }
 
 function activeRelationship() {
-  return RELATIONSHIPS[state.activeRelationshipType];
+  const base = `relationship.types.${state.activeRelationshipType}`;
+  return {
+    label: t(`${base}.name`),
+    description: t(`${base}.description`),
+    scenario: t(`${base}.scenario`),
+  };
 }
 
 function displayPersonaVersion(persona) {
-  return persona?.version || persona?.current_version_id || "unknown version";
+  return persona?.version || persona?.current_version_id || t("persona.unknown_version");
 }
 
 function displayPersonaDescription(persona) {
-  return persona?.description || persona?.metadata?.description || "This persona has no description yet.";
+  return persona?.description || persona?.metadata?.description || t("persona.no_description");
 }
 
 function displayPersonaStyle(persona) {
-  return persona?.style || "Not specified by this persona package.";
+  return persona?.style || t("persona.not_specified");
 }
 
 function displayPersonaTraits(persona) {
@@ -116,7 +139,7 @@ function displayPersonaScenarios(persona) {
 }
 
 function displayLanguage() {
-  return state.language === "zh-CN" ? "中文" : "English";
+  return t("language.zh_CN");
 }
 
 function personaInitial(persona) {
@@ -128,7 +151,7 @@ function setLoading(isLoading) {
   messageInput.disabled = isLoading;
   sendMessageButton.disabled = isLoading;
   newSessionButton.disabled = isLoading;
-  sendMessageButton.textContent = isLoading ? "Sending" : "Send";
+  sendMessageButton.textContent = t(isLoading ? "chat.sending" : "chat.send");
 }
 
 function resetVisibleSession() {
@@ -153,11 +176,11 @@ function selectPersona(personaId) {
 function updateExperience() {
   const persona = activePersona();
   const relationship = activeRelationship();
-  personaName.textContent = persona?.name || "No persona selected";
-  personaVersion.textContent = persona ? displayPersonaVersion(persona) : "none";
+  personaName.textContent = persona?.name || t("persona.none");
+  personaVersion.textContent = persona ? displayPersonaVersion(persona) : t("persona.not_specified");
   personaDescription.textContent = persona
     ? displayPersonaDescription(persona)
-    : "Load personas to inspect the available digital identities.";
+    : t("persona.load_hint");
   personaStyle.textContent = displayPersonaStyle(persona);
   renderTextList(personaTraits, displayPersonaTraits(persona), "trait");
   renderTextList(personaScenarios, displayPersonaScenarios(persona), "scenario");
@@ -165,9 +188,9 @@ function updateExperience() {
   relationshipType.textContent = relationship.label;
   relationshipDescription.textContent = relationship.description;
   relationshipScenario.textContent = relationship.scenario;
-  sessionStatus.textContent = state.activeSessionId || "not started";
-  chatTitle.textContent = persona ? `Meet ${persona.name}` : "Choose who you want to meet";
-  summaryPersona.textContent = persona?.name || "none";
+  sessionStatus.textContent = state.activeSessionId || t("session.not_started");
+  chatTitle.textContent = persona ? t("chat.title_with_persona", { name: persona.name }) : t("chat.title_empty");
+  summaryPersona.textContent = persona?.name || t("persona.none");
   summaryRelationship.textContent = relationship.label;
   summaryLanguage.textContent = displayLanguage();
   sessionSummary.hidden = !state.activeSessionId;
@@ -175,7 +198,7 @@ function updateExperience() {
 
 function renderTextList(container, items, className) {
   container.innerHTML = "";
-  const values = items.length > 0 ? items : ["Not specified"];
+  const values = items.length > 0 ? items : [t("persona.not_specified")];
   for (const value of values) {
     const item = document.createElement(container.tagName === "UL" ? "li" : "span");
     item.className = className;
@@ -236,12 +259,18 @@ function selectRelationship(relationshipId) {
   renderRelationshipGallery();
   updateExperience();
   updateEmptyState();
-  setNotice("Relationship selected. Start a new experience to apply it.");
+  setNotice(t("relationship.selected_notice"));
 }
 
 function renderRelationshipGallery() {
   relationshipGallery.innerHTML = "";
-  for (const [id, relationship] of Object.entries(RELATIONSHIPS)) {
+  for (const id of RELATIONSHIP_IDS) {
+    const base = `relationship.types.${id}`;
+    const relationship = {
+      label: t(`${base}.name`),
+      description: t(`${base}.description`),
+      scenario: t(`${base}.scenario`),
+    };
     const button = document.createElement("button");
     button.type = "button";
     button.className = "relationship-option";
@@ -252,7 +281,7 @@ function renderRelationshipGallery() {
     const description = document.createElement("p");
     description.textContent = relationship.description;
     const scenario = document.createElement("span");
-    scenario.textContent = `Use for: ${relationship.scenario}`;
+    scenario.textContent = `${t("relationship.works_well_for")}: ${relationship.scenario}`;
     button.append(name, description, scenario);
     button.addEventListener("click", () => selectRelationship(id));
     relationshipGallery.appendChild(button);
@@ -268,7 +297,13 @@ function appendMessage(role, content) {
   item.className = `message ${role}`;
   const label = document.createElement("div");
   label.className = "message-role";
-  label.textContent = role === "assistant" ? activePersona()?.name || role : role;
+  label.textContent = role === "assistant"
+    ? activePersona()?.name || role
+    : role === "user"
+      ? t("chat.role_user")
+      : role === "system"
+        ? t("chat.role_system")
+        : role;
   const body = document.createElement("div");
   body.className = "message-content";
   body.textContent = content;
@@ -280,7 +315,7 @@ function appendMessage(role, content) {
 }
 
 function appendLoadingMessage() {
-  const item = appendMessage("assistant loading", "Thinking through the active persona...");
+  const item = appendMessage("assistant loading", t("chat.thinking"));
   item.setAttribute("aria-busy", "true");
   return item;
 }
@@ -288,7 +323,11 @@ function appendLoadingMessage() {
 function replaceMessage(item, role, content) {
   item.className = `message ${role}`;
   item.removeAttribute("aria-busy");
-  item.querySelector(".message-role").textContent = role === "assistant" ? activePersona()?.name || role : role;
+  item.querySelector(".message-role").textContent = role === "assistant"
+    ? activePersona()?.name || role
+    : role === "system"
+      ? t("chat.role_system")
+      : role;
   item.querySelector(".message-content").textContent = content;
   messages.scrollTop = messages.scrollHeight;
 }
@@ -304,16 +343,16 @@ async function loadPersonas() {
     const payload = await apiRequest("/personas");
     state.personas = payload.personas || [];
     renderPersonas();
-    setNotice(`Loaded ${state.personas.length} persona(s).`);
+    setNotice(t("status.loaded_personas", { count: state.personas.length }));
   } catch (error) {
-    setNotice(`Could not load personas: ${error.message}`, true);
+    setNotice(t("status.load_personas_failed", { message: error.message }), true);
   }
 }
 
 async function createSession() {
   const personaId = personaSelect.value;
   if (!personaId) {
-    setNotice("Choose a persona first.", true);
+    setNotice(t("status.choose_persona"), true);
     return;
   }
   try {
@@ -329,24 +368,24 @@ async function createSession() {
     for (const item of messages.querySelectorAll(".message")) item.remove();
     updateExperience();
     updateEmptyState();
-    setNotice(`${activeRelationship().label} session created.`);
+    setNotice(t("status.session_created", { relationship: activeRelationship().label }));
     messageInput.focus();
   } catch (error) {
-    setNotice(`Could not create session: ${error.message}`, true);
+    setNotice(t("status.create_session_failed", { message: error.message }), true);
   }
 }
 
 async function loadHistory() {
   if (!state.activeSessionId) {
-    setNotice("Create a session first.", true);
+    setNotice(t("status.create_session_first"), true);
     return;
   }
   try {
     const payload = await apiRequest(`/sessions/${encodeURIComponent(state.activeSessionId)}/history`);
     renderHistory(payload.history || []);
-    setNotice("History loaded.");
+    setNotice(t("status.history_loaded"));
   } catch (error) {
-    setNotice(`Could not load history: ${error.message}`, true);
+    setNotice(t("status.history_failed", { message: error.message }), true);
   }
 }
 
@@ -354,7 +393,7 @@ async function sendMessage(event) {
   event.preventDefault();
   const text = messageInput.value.trim();
   if (!text || !state.activeSessionId) {
-    setNotice(text ? "Start an experience first." : "Type a message first.", true);
+    setNotice(t(text ? "status.create_session_first" : "status.type_message"), true);
     return;
   }
   appendMessage("user", text);
@@ -367,10 +406,10 @@ async function sendMessage(event) {
       body: JSON.stringify({ message: text }),
     });
     replaceMessage(loadingMessage, "assistant", payload.message?.content || "");
-    setNotice("Reply received.");
+    setNotice(t("status.reply_received"));
   } catch (error) {
-    replaceMessage(loadingMessage, "system", `Error: ${error.message}`);
-    setNotice(`Message failed: ${error.message}`, true);
+    replaceMessage(loadingMessage, "system", t("status.error_prefix", { message: error.message }));
+    setNotice(t("status.message_failed", { message: error.message }), true);
   } finally {
     setLoading(false);
     messageInput.focus();
@@ -381,11 +420,15 @@ personaSelect.addEventListener("change", () => selectPersona(personaSelect.value
 relationshipSelect.addEventListener("change", () => {
   selectRelationship(relationshipSelect.value);
 });
-languageSelect.addEventListener("change", () => {
-  state.language = languageSelect.value;
-  document.documentElement.lang = state.language;
-  updateExperience();
-  setNotice(state.language === "zh-CN" ? "已选择中文界面入口。" : "English interface entry selected.");
+languageSelect.addEventListener("change", async () => {
+  const requested = languageSelect.value;
+  if (!SUPPORTED_LANGUAGES.has(requested)) {
+    languageSelect.value = state.language;
+    setNotice(t("language.unavailable"), true);
+    return;
+  }
+  await loadLanguageResources(requested);
+  setNotice(t("language.selected"));
 });
 dismissWelcomeButton.addEventListener("click", () => {
   setWelcomeVisible(false);
@@ -397,13 +440,20 @@ newSessionButton.addEventListener("click", createSession);
 loadHistoryButton.addEventListener("click", loadHistory);
 messageForm.addEventListener("submit", sendMessage);
 
-relationshipSelect.value = state.activeRelationshipType;
-renderRelationshipGallery();
-languageSelect.value = state.language;
-document.documentElement.lang = state.language;
-let welcomeSeen = false;
-try { welcomeSeen = localStorage.getItem("personaos_welcome_seen") === "true"; } catch (error) { /* UI preference only. */ }
-setWelcomeVisible(!welcomeSeen);
-updateExperience();
-updateEmptyState();
-loadPersonas();
+async function initialize() {
+  relationshipSelect.value = state.activeRelationshipType;
+  languageSelect.value = DEFAULT_LANGUAGE;
+  let welcomeSeen = false;
+  try { welcomeSeen = localStorage.getItem("personaos_welcome_seen") === "true"; } catch (error) { /* UI preference only. */ }
+  setWelcomeVisible(!welcomeSeen);
+  updateEmptyState();
+  try {
+    await loadLanguageResources(DEFAULT_LANGUAGE);
+    setNotice(t("chat.notice_initial"));
+    await loadPersonas();
+  } catch (error) {
+    setNotice(state.translations.status ? t("status.resource_failed") : "Language resource could not be loaded.", true);
+  }
+}
+
+initialize();

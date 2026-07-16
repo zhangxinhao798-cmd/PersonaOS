@@ -1,15 +1,22 @@
-"""Tests for PersonaOS Web Experience v0.3 static assets."""
+"""Tests for the PersonaOS Web Experience language resource boundary."""
 
+import json
 from pathlib import Path
 
 
 WEB_CONSOLE = Path("frontend") / "web-console"
+ZH_CN_RESOURCE = WEB_CONSOLE / "i18n" / "zh-CN.json"
+
+
+def load_zh_cn() -> dict:
+    return json.loads(ZH_CN_RESOURCE.read_text(encoding="utf-8"))
 
 
 def test_web_console_files_exist() -> None:
     assert (WEB_CONSOLE / "index.html").exists()
     assert (WEB_CONSOLE / "app.js").exists()
     assert (WEB_CONSOLE / "style.css").exists()
+    assert ZH_CN_RESOURCE.exists()
 
 
 def test_web_console_uses_existing_api_routes() -> None:
@@ -39,7 +46,7 @@ def test_web_console_has_chat_experience_states() -> None:
     app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
     css = (WEB_CONSOLE / "style.css").read_text(encoding="utf-8")
 
-    assert "AI Personality Experience" in html
+    assert 'data-i18n="app.eyebrow"' in html
     assert "appendLoadingMessage" in app_js
     assert "setLoading" in app_js
     assert ".message.user" in css
@@ -66,8 +73,11 @@ def test_web_console_has_language_selection_structure() -> None:
 
     assert 'id="languageSelect"' in html
     assert 'value="zh-CN"' in html
-    assert 'value="en"' in html
-    assert "document.documentElement.lang = state.language" in app_js
+    assert 'value="en-US"' in html
+    assert 'value="en-US" data-i18n="language.en_US" disabled' in html
+    assert 'const DEFAULT_LANGUAGE = "zh-CN"' in app_js
+    assert 'new Set(["zh-CN"])' in app_js
+    assert "document.documentElement.lang = language" in app_js
 
 
 def test_web_console_exposes_persona_experience_card() -> None:
@@ -103,8 +113,8 @@ def test_web_experience_has_architecture_accurate_welcome_flow() -> None:
     app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
 
     assert 'id="welcomeExperience"' in html
-    for concept in ("Digital Mind", "Persona", "Memory", "Skills", "Evolution"):
-        assert concept in html
+    for concept in ("digital_mind", "persona", "memory", "skills", "evolution"):
+        assert f'data-i18n="welcome.concepts.{concept}.name"' in html
     assert "personaos_welcome_seen" in app_js
     assert 'id="showWelcome"' in html
 
@@ -128,7 +138,7 @@ def test_web_experience_explains_relationship_usage() -> None:
     assert 'id="relationshipGallery"' in html
     assert 'id="relationshipScenario"' in html
     assert "renderRelationshipGallery" in app_js
-    assert app_js.count("scenario:") == 4
+    assert 'const RELATIONSHIP_IDS = ["assistant", "mentor", "companion", "analyst"]' in app_js
     assert "description.textContent = relationship.description" in app_js
 
 
@@ -140,7 +150,7 @@ def test_web_experience_has_session_summary() -> None:
     assert 'id="summaryPersona"' in html
     assert 'id="summaryRelationship"' in html
     assert 'id="summaryLanguage"' in html
-    assert "Session scoped" in html
+    assert 'data-i18n="session.memory_scope"' in html
     assert "sessionSummary.hidden = !state.activeSessionId" in app_js
 
 
@@ -151,3 +161,56 @@ def test_web_experience_preserves_i18n_extension_points() -> None:
     assert 'data-i18n="setup.persona"' in html
     assert 'data-i18n="setup.relationship"' in html
     assert 'data-i18n="setup.language"' in html
+
+
+def test_zh_cn_resource_contains_required_ui_sections() -> None:
+    resource = load_zh_cn()
+
+    assert set(resource) == {
+        "app",
+        "welcome",
+        "setup",
+        "persona",
+        "relationship",
+        "language",
+        "chat",
+        "session",
+        "status",
+    }
+    assert resource["app"]["page_title"] == "PersonaOS 体验"
+    assert resource["setup"]["start"] == "开始体验"
+    assert resource["chat"]["send"] == "发送"
+    assert resource["chat"]["placeholder"] == "输入消息..."
+
+
+def test_relationship_copy_is_loaded_from_language_resource() -> None:
+    resource = load_zh_cn()
+    relationship_types = resource["relationship"]["types"]
+
+    assert set(relationship_types) == {"assistant", "mentor", "companion", "analyst"}
+    for relationship in relationship_types.values():
+        assert relationship["name"]
+        assert relationship["description"]
+        assert relationship["scenario"]
+
+
+def test_web_console_loads_default_language_resource() -> None:
+    app_js = (WEB_CONSOLE / "app.js").read_text(encoding="utf-8")
+
+    assert "loadLanguageResources(DEFAULT_LANGUAGE)" in app_js
+    assert 'fetch(`./i18n/${language}.json`)' in app_js
+    assert "applyTranslations" in app_js
+    assert "navigator.language" not in app_js
+
+
+def test_primary_ui_copy_is_not_hard_coded_in_html() -> None:
+    html = (WEB_CONSOLE / "index.html").read_text(encoding="utf-8")
+
+    for copy in (
+        "Choose a persona",
+        "Choose a relationship",
+        "Start experience",
+        "Send a message...",
+        "Session scoped",
+    ):
+        assert copy not in html

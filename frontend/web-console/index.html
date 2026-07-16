@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PersonaOS Experience</title>
+    <title>PersonaOS</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
@@ -11,26 +11,23 @@
       <div class="welcome-inner">
         <header class="welcome-header">
           <span class="brand-mark" aria-hidden="true">P</span>
-          <span>PersonaOS</span>
+          <span data-i18n="app.name"></span>
         </header>
         <div class="welcome-copy">
-          <p class="eyebrow" data-i18n="welcome.eyebrow">A system for digital minds</p>
-          <h1 id="welcomeTitle" data-i18n="welcome.title">Understand the mind before the conversation.</h1>
-          <p>
-            PersonaOS keeps identity, experience, capabilities, and controlled
-            change in explicit boundaries around the language model.
-          </p>
+          <p class="eyebrow" data-i18n="welcome.eyebrow"></p>
+          <h1 id="welcomeTitle" data-i18n="welcome.title"></h1>
+          <p data-i18n="welcome.description"></p>
         </div>
         <dl class="concept-grid">
-          <div><dt>Digital Mind</dt><dd>The complete operating context, not just one model response.</dd></div>
-          <div><dt>Persona</dt><dd>The active identity, values, style, and boundaries.</dd></div>
-          <div><dt>Memory</dt><dd>Reviewed experience that may persist beyond a conversation.</dd></div>
-          <div><dt>Skills</dt><dd>Governed capabilities the persona may use.</dd></div>
-          <div><dt>Evolution</dt><dd>Explicit, reviewable change rather than silent personality drift.</dd></div>
+          <div><dt data-i18n="welcome.concepts.digital_mind.name"></dt><dd data-i18n="welcome.concepts.digital_mind.description"></dd></div>
+          <div><dt data-i18n="welcome.concepts.persona.name"></dt><dd data-i18n="welcome.concepts.persona.description"></dd></div>
+          <div><dt data-i18n="welcome.concepts.memory.name"></dt><dd data-i18n="welcome.concepts.memory.description"></dd></div>
+          <div><dt data-i18n="welcome.concepts.skills.name"></dt><dd data-i18n="welcome.concepts.skills.description"></dd></div>
+          <div><dt data-i18n="welcome.concepts.evolution.name"></dt><dd data-i18n="welcome.concepts.evolution.description"></dd></div>
         </dl>
         <div class="welcome-actions">
-          <button id="dismissWelcome" class="primary-action" type="button" data-i18n="welcome.continue">Choose a persona</button>
-          <p>No account or durable memory is created by this local demo.</p>
+          <button id="dismissWelcome" class="primary-action" type="button" data-i18n="welcome.continue"></button>
+          <p data-i18n="welcome.local_note"></p>
         </div>
       </div>
     </section>
@@ -40,8 +37,8 @@
         <header class="brand">
           <span class="brand-mark" aria-hidden="true">P</span>
           <div>
-            <h1>PersonaOS</h1>
-            <p>Web Experience v0.3</p>
+            <h1 data-i18n="app.name"></h1>
+            <p data-i18n="app.version"></p>
           </div>
         </header>
 
@@ -49,11 +46,11 @@
           <div class="section-heading">
             <div>
               <span class="step">01</span>
-              <h2 id="personaHeading" data-i18n="setup.persona">Choose a persona</h2>
+              <h2 id="personaHeading" data-i18n="setup.persona"></h2>
             </div>
-            <button id="reloadPersonas" class="icon-button" type="button" title="Reload personas" aria-label="Reload personas">↻</button>
+            <button id="reloadPersonas" class="icon-button" type="button" data-i18n-title="setup.reload" data-i18n-aria-label="setup.reload">↻</button>
           </div>
-          <label class="sr-only" for="personaSelect">Persona</label>
+          <label class="sr-only" for="personaSelect" data-i18n="persona.label"></label>
           <select id="personaSelect"></select>
           <div id="personaGallery" class="persona-gallery" aria-live="polite"></div>
         </section>
@@ -62,20 +59,20 @@
           <div class="section-heading">
             <div>
               <span class="step">02</span>
-              <h2 id="relationshipHeading" data-i18n="setup.relationship">Choose a relationship</h2>
+              <h2 id="relationshipHeading" data-i18n="setup.relationship"></h2>
             </div>
           </div>
-          <label class="sr-only" for="relationshipSelect">Relationship</label>
+          <label class="sr-only" for="relationshipSelect" data-i18n="relationship.label"></label>
           <select id="relationshipSelect" class="sr-only">
-            <option value="assistant">Assistant</option>
-            <option value="mentor">Mentor</option>
-            <option value="companion">Companion</option>
-            <option value="analyst">Analyst</option>
+            <option value="assistant" data-i18n="relationship.types.assistant.name"></option>
+            <option value="mentor" data-i18n="relationship.types.mentor.name"></option>
+            <option value="companion" data-i18n="relationship.types.companion.name"></option>
+            <option value="analyst" data-i18n="relationship.types.analyst.name"></option>
           </select>
           <div id="relationshipGallery" class="relationship-gallery"></div>
           <div class="relationship-detail">
             <p id="relationshipDescription" class="supporting-copy"></p>
-            <p><strong>Works well for:</strong> <span id="relationshipScenario"></span></p>
+            <p><strong data-i18n="relationship.works_well_for"></strong>: <span id="relationshipScenario"></span></p>
           </div>
         </section>
 
@@ -83,35 +80,35 @@
           <div class="section-heading">
             <div>
               <span class="step">03</span>
-              <h2 id="languageHeading" data-i18n="setup.language">Interface language</h2>
+              <h2 id="languageHeading" data-i18n="setup.language"></h2>
             </div>
           </div>
-          <label class="sr-only" for="languageSelect">Language</label>
+          <label class="sr-only" for="languageSelect" data-i18n="language.label"></label>
           <select id="languageSelect">
-            <option value="zh-CN">中文</option>
-            <option value="en">English</option>
+            <option value="zh-CN" data-i18n="language.zh_CN"></option>
+            <option value="en-US" data-i18n="language.en_US" disabled></option>
           </select>
         </section>
 
         <details class="connection-settings">
-          <summary>Connection settings</summary>
-          <label for="apiBase">API Base</label>
+          <summary data-i18n="setup.connection"></summary>
+          <label for="apiBase" data-i18n="setup.api_base"></label>
           <input id="apiBase" value="http://127.0.0.1:8000" />
         </details>
 
-        <button id="newSession" class="primary-action" type="button" data-i18n="setup.start">Start experience</button>
+        <button id="newSession" class="primary-action" type="button" data-i18n="setup.start"></button>
       </aside>
 
       <section class="experience">
         <header class="experience-header">
           <div>
-            <p class="eyebrow">AI Personality Experience</p>
-            <h2 id="chatTitle">Choose who you want to meet</h2>
-            <p id="notice">Select a persona and relationship to begin.</p>
+            <p class="eyebrow" data-i18n="app.eyebrow"></p>
+            <h2 id="chatTitle"></h2>
+            <p id="notice"></p>
           </div>
           <div class="header-actions">
-            <button id="showWelcome" type="button">About</button>
-            <button id="loadHistory" type="button">History</button>
+            <button id="showWelcome" type="button" data-i18n="chat.about"></button>
+            <button id="loadHistory" type="button" data-i18n="chat.history"></button>
           </div>
         </header>
 
@@ -119,53 +116,53 @@
           <div class="identity-avatar" id="personaAvatar" aria-hidden="true">P</div>
           <div class="identity-copy">
             <div class="identity-title">
-              <h3 id="personaName">No persona selected</h3>
-              <span class="status-pill" id="personaVersion">none</span>
+              <h3 id="personaName"></h3>
+              <span class="status-pill" id="personaVersion"></span>
             </div>
-            <p id="personaDescription">Load personas to inspect the available digital identities.</p>
+            <p id="personaDescription"></p>
             <div class="persona-profile-details">
-              <div><span>Style</span><p id="personaStyle">Not specified</p></div>
-              <div><span>Traits</span><div id="personaTraits" class="trait-list"></div></div>
-              <div><span>Suitable scenarios</span><ul id="personaScenarios"></ul></div>
+              <div><span data-i18n="persona.style"></span><p id="personaStyle"></p></div>
+              <div><span data-i18n="persona.traits"></span><div id="personaTraits" class="trait-list"></div></div>
+              <div><span data-i18n="persona.scenarios"></span><ul id="personaScenarios"></ul></div>
             </div>
           </div>
           <dl class="experience-facts">
             <div>
-              <dt>Relationship</dt>
-              <dd id="relationshipType">Assistant</dd>
+              <dt data-i18n="relationship.label"></dt>
+              <dd id="relationshipType"></dd>
             </div>
             <div>
-              <dt>Session</dt>
-              <dd id="sessionStatus">not started</dd>
+              <dt data-i18n="session.label"></dt>
+              <dd id="sessionStatus"></dd>
             </div>
           </dl>
         </section>
 
         <section id="sessionSummary" class="session-summary" hidden aria-label="Current experience summary">
           <div class="summary-title">
-            <span class="step">CURRENT EXPERIENCE</span>
-            <strong>Session ready</strong>
+            <span class="step" data-i18n="session.current"></span>
+            <strong data-i18n="session.ready"></strong>
           </div>
           <dl>
-            <div><dt>Persona</dt><dd id="summaryPersona">none</dd></div>
-            <div><dt>Relationship</dt><dd id="summaryRelationship">none</dd></div>
-            <div><dt>Language</dt><dd id="summaryLanguage">English</dd></div>
-            <div><dt>Memory</dt><dd>Session scoped</dd></div>
+            <div><dt data-i18n="session.persona"></dt><dd id="summaryPersona"></dd></div>
+            <div><dt data-i18n="session.relationship"></dt><dd id="summaryRelationship"></dd></div>
+            <div><dt data-i18n="session.language"></dt><dd id="summaryLanguage"></dd></div>
+            <div><dt data-i18n="session.memory"></dt><dd data-i18n="session.memory_scope"></dd></div>
           </dl>
-          <p>Conversation history stays temporary. It is not automatically promoted to durable Memory.</p>
+          <p data-i18n="session.memory_note"></p>
         </section>
 
         <div id="messages" class="messages" aria-live="polite">
           <section class="empty-state" id="emptyState">
             <span class="empty-mark" aria-hidden="true">P</span>
-            <h3>A conversation shaped by identity</h3>
-            <p>Persona determines who responds. Relationship defines how this session interacts with that identity.</p>
+            <h3 data-i18n="chat.empty_title"></h3>
+            <p data-i18n="chat.empty_description"></p>
           </section>
         </div>
 
         <form id="messageForm" class="composer">
-          <input id="messageInput" autocomplete="off" placeholder="Send a message..." />
-          <button id="sendMessage" type="submit" aria-label="Send message">Send</button>
+          <input id="messageInput" autocomplete="off" data-i18n-placeholder="chat.placeholder" />
+          <button id="sendMessage" type="submit" data-i18n="chat.send" data-i18n-aria-label="chat.send"></button>
         </form>
       </section>
     </main>

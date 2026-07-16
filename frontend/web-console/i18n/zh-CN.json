@@ -1,0 +1,103 @@
+{
+  "app": {
+    "page_title": "PersonaOS 体验",
+    "name": "PersonaOS",
+    "version": "Web Experience v0.3",
+    "eyebrow": "AI 人格体验"
+  },
+  "welcome": {
+    "eyebrow": "数字心智操作系统",
+    "title": "先理解心智，再开始对话。",
+    "description": "PersonaOS 将身份、经验、能力与受控演化放在语言模型之外，并保持清晰边界。",
+    "continue": "选择人格",
+    "local_note": "此本地体验不会创建账户，也不会自动写入长期记忆。",
+    "concepts": {
+      "digital_mind": {"name": "数字心智", "description": "完整的运行上下文，而不只是一条模型回复。"},
+      "persona": {"name": "人格", "description": "当前生效的身份、价值观、风格与边界。"},
+      "memory": {"name": "记忆", "description": "经过审核、可以跨越单次对话保留的经验。"},
+      "skills": {"name": "技能", "description": "人格可以使用的受治理能力。"},
+      "evolution": {"name": "演化", "description": "显式、可审核的变化，而不是悄然发生的人格漂移。"}
+    }
+  },
+  "setup": {
+    "persona": "选择人格",
+    "relationship": "选择关系",
+    "language": "界面语言",
+    "start": "开始体验",
+    "reload": "重新加载人格",
+    "connection": "连接设置",
+    "api_base": "API 地址"
+  },
+  "persona": {
+    "label": "人格",
+    "none": "尚未选择人格",
+    "load_hint": "加载人格后可查看可用的数字身份。",
+    "unknown_version": "未知版本",
+    "no_description": "此人格暂未提供描述。",
+    "style": "表达风格",
+    "traits": "人格特征",
+    "scenarios": "适用场景",
+    "not_specified": "未提供"
+  },
+  "relationship": {
+    "label": "关系",
+    "works_well_for": "适合",
+    "selected_notice": "已选择关系，请开始新的体验以应用。",
+    "types": {
+      "assistant": {"name": "助手", "description": "为日常任务与问题提供清晰、实用的支持。", "scenario": "任务协助、概念解释和专注的日常帮助。"},
+      "mentor": {"name": "导师", "description": "通过结构化引导帮助你思考和进步。", "scenario": "学习、反思、规划和能力成长。"},
+      "companion": {"name": "陪伴者", "description": "以温暖、支持性的方式进行开放对话。", "scenario": "自由交谈、共同反思和稳定陪伴。"},
+      "analyst": {"name": "分析师", "description": "围绕证据与取舍进行中立、精确的讨论。", "scenario": "研究、比较、诊断和决策分析。"}
+    }
+  },
+  "language": {
+    "label": "语言",
+    "zh_CN": "中文",
+    "en_US": "English（即将支持）",
+    "selected": "已切换为中文界面。",
+    "unavailable": "该语言资源尚未提供。"
+  },
+  "chat": {
+    "title_empty": "选择你想交流的人格",
+    "title_with_persona": "与 {name} 交流",
+    "notice_initial": "选择人格和关系后开始体验。",
+    "history": "历史记录",
+    "about": "了解 PersonaOS",
+    "placeholder": "输入消息...",
+    "send": "发送",
+    "sending": "发送中",
+    "thinking": "正在以当前人格思考...",
+    "empty_title": "由身份塑造的对话",
+    "empty_description": "人格决定谁来回应，关系定义本次会话如何与该身份互动。",
+    "role_user": "你",
+    "role_system": "系统"
+  },
+  "session": {
+    "label": "会话",
+    "not_started": "尚未开始",
+    "current": "当前体验",
+    "ready": "会话已就绪",
+    "persona": "人格",
+    "relationship": "关系",
+    "language": "语言",
+    "memory": "记忆",
+    "memory_scope": "会话范围",
+    "memory_note": "对话历史只在临时会话中保留，不会自动升级为长期记忆。"
+  },
+  "status": {
+    "request_failed": "请求失败。",
+    "loaded_personas": "已加载 {count} 个人格。",
+    "load_personas_failed": "无法加载人格：{message}",
+    "choose_persona": "请先选择人格。",
+    "session_created": "{relationship}会话已创建。",
+    "create_session_failed": "无法创建会话：{message}",
+    "create_session_first": "请先开始一次体验。",
+    "history_loaded": "历史记录已加载。",
+    "history_failed": "无法加载历史记录：{message}",
+    "type_message": "请先输入消息。",
+    "reply_received": "已收到回复。",
+    "message_failed": "消息发送失败：{message}",
+    "error_prefix": "错误：{message}",
+    "resource_failed": "无法加载语言资源。"
+  }
+}
