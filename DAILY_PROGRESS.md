@@ -82,6 +82,11 @@ Each development day should have a section:
 - Added minimal CORS and OPTIONS support to the standard-library HTTP wrapper for browser calls.
 - Added framework-free `frontend/web-console` static files.
 - Verified the Web Console path uses HTTP API boundaries for persona loading, session creation, message sending, and history loading.
+- Completed PersonaOS Web Experience v0.1.
+- Upgraded the browser console into an identity-focused persona experience demo.
+- Added a Persona Identity panel showing active persona name, version, and description.
+- Improved the chat experience with distinct user, assistant, system, and loading states.
+- Preserved the existing API call path without modifying Persona Engine, Runtime, Memory Engine, SessionManager, or backend transport behavior.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -120,6 +125,9 @@ Each development day should have a section:
 - `tests/test_memory_review_controls.py`
 - `tests/test_web_console.py`
 - `tests/test_retrieval.py`
+- `frontend/web-console/index.html`
+- `frontend/web-console/app.js`
+- `frontend/web-console/style.css`
 - `docs/memory_engine.md`
 - `docs/memory_lifecycle.md`
 - `docs/development_workflow.md`
@@ -132,13 +140,16 @@ Each development day should have a section:
 ### Tests
 - `pytest`
 - `python -m compileall backend scripts tests`
+- `pytest tests\test_web_console.py`
+- `python -m compileall frontend tests`
 - Current test status:
-  - 373 passed.
+  - 375 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
 - API Transport coverage also verifies configured sessions can inject runtime memory retrieval and pass retrieved memory plus relevance metadata into the runtime context.
 - API Transport coverage now verifies session listing and detached session history retrieval for browser clients.
+- Web Console coverage verifies persona identity UI, chat experience states, existing API routes, and the absence of frontend frameworks.
 - SessionRepository coverage verifies in-memory repository create/get/list/delete behavior and SessionManager repository usage.
 - HTTP Server Transport coverage verifies server startup, persona listing, session creation, message sending, response JSON, and error JSON through the existing ApiTransport path.
 - HTTP Server Transport coverage verifies CORS headers and OPTIONS preflight for browser-based local calls.

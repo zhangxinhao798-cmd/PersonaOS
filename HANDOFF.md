@@ -48,6 +48,7 @@ Memory Review / Candidate Pipeline v1 is complete.
 Memory Promotion Boundary v1 is complete.
 Memory Candidate Review Controls v1 is complete.
 PersonaOS Web Demo v0.1 is complete.
+PersonaOS Web Experience v0.1 is complete.
 
 Current completed integration state:
 
@@ -153,6 +154,10 @@ Current completed integration state:
 - `frontend/web-console` added as a minimal framework-free browser chat console.
 - Web Console v0.1 loads personas, creates sessions, sends messages, displays assistant replies, and loads session history through existing HTTP API boundaries.
 - Web Console v0.1 does not introduce React, Vite, Node tooling, login, database persistence, streaming, or frontend-owned runtime state.
+- Web Experience v0.1 upgrades the browser console into an identity-focused persona experience demo.
+- The Web Experience shows active persona name, version, and description through the existing `/personas` API response.
+- The chat UI now distinguishes user, assistant, system, and loading states while preserving the existing HTTP API boundary.
+- Web Experience v0.1 does not modify Persona Engine, Runtime, Memory Engine, SessionManager, API business logic, database behavior, or durable state.
 
 ## Architecture Rules
 
@@ -171,7 +176,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 373 tests passing.
+Latest recorded verification status is 375 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 

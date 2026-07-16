@@ -340,8 +340,14 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added `frontend/web-console/index.html`, `app.js`, and `style.css` as a framework-free browser chat console.
 - Web Console v0.1 loads personas, creates sessions, sends messages, displays assistant replies, and loads session history through existing HTTP API boundaries.
 - Confirmed Web Console does not introduce React, Vite, Node tooling, login, database persistence, or frontend-owned runtime state.
+- Added PersonaOS Web Experience v0.1.
+- Upgraded the framework-free browser console into an identity-focused persona experience demo.
+- Added a Persona Identity panel showing the active persona name, version, and description from the existing `/personas` API response.
+- Improved the chat experience with clearer user/assistant/system bubbles, loading state, empty state, and active persona labeling.
+- Preserved the existing browser call path through the HTTP API, ApiTransport, ChatApiBoundary, SessionManager, RuntimeSession, ChatRuntime, and adapter boundaries.
+- Confirmed Web Experience v0.1 does not modify Persona Engine, Runtime, Memory Engine, SessionManager, backend API behavior, or durable state.
 - Current phase is PersonaOS Web Demo v0.1 completed.
-- Current recorded verification status: 373 tests passing.
+- Current recorded verification status: 375 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 

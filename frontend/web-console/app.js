@@ -2,6 +2,7 @@ const state = {
   personas: [],
   activeSessionId: "",
   activePersonaId: "",
+  isLoading: false,
 };
 
 const apiBaseInput = document.querySelector("#apiBase");
@@ -12,9 +13,15 @@ const loadHistoryButton = document.querySelector("#loadHistory");
 const messageForm = document.querySelector("#messageForm");
 const messageInput = document.querySelector("#messageInput");
 const messages = document.querySelector("#messages");
+const emptyState = document.querySelector("#emptyState");
 const notice = document.querySelector("#notice");
 const sessionStatus = document.querySelector("#sessionStatus");
 const personaStatus = document.querySelector("#personaStatus");
+const personaName = document.querySelector("#personaName");
+const personaVersion = document.querySelector("#personaVersion");
+const personaDescription = document.querySelector("#personaDescription");
+const chatTitle = document.querySelector("#chatTitle");
+const sendMessageButton = document.querySelector("#sendMessage");
 
 function apiBase() {
   return apiBaseInput.value.replace(/\/+$/, "");
@@ -40,12 +47,45 @@ function setNotice(text, isError = false) {
   notice.classList.toggle("error", isError);
 }
 
+function activePersona() {
+  return state.personas.find((item) => item.id === state.activePersonaId);
+}
+
+function displayPersonaVersion(persona) {
+  return persona?.version || persona?.current_version_id || "unknown version";
+}
+
+function displayPersonaDescription(persona) {
+  return (
+    persona?.description ||
+    persona?.metadata?.description ||
+    "This persona has no description yet."
+  );
+}
+
+function setLoading(isLoading) {
+  state.isLoading = isLoading;
+  messageInput.disabled = isLoading;
+  sendMessageButton.disabled = isLoading;
+  sendMessageButton.textContent = isLoading ? "Sending" : "Send";
+}
+
 function updateStatus() {
   sessionStatus.textContent = state.activeSessionId || "none";
-  const persona = state.personas.find(
-    (item) => item.id === state.activePersonaId,
-  );
+  const persona = activePersona();
   personaStatus.textContent = persona ? persona.name : "none";
+  renderPersonaIdentity(persona);
+}
+
+function renderPersonaIdentity(persona) {
+  personaName.textContent = persona?.name || "No persona selected";
+  personaVersion.textContent = persona ? displayPersonaVersion(persona) : "none";
+  personaDescription.textContent = persona
+    ? displayPersonaDescription(persona)
+    : "Load personas from the API to inspect the active digital identity.";
+  chatTitle.textContent = persona
+    ? `Conversation with ${persona.name}`
+    : "Start a persona session";
 }
 
 function renderPersonas() {
@@ -63,13 +103,17 @@ function renderPersonas() {
   updateStatus();
 }
 
+function updateEmptyState() {
+  emptyState.hidden = messages.querySelectorAll(".message").length > 0;
+}
+
 function appendMessage(role, content) {
   const item = document.createElement("article");
   item.className = `message ${role}`;
 
   const label = document.createElement("div");
   label.className = "message-role";
-  label.textContent = role;
+  label.textContent = role === "assistant" ? activePersona()?.name || role : role;
 
   const body = document.createElement("div");
   body.className = "message-content";
@@ -77,14 +121,35 @@ function appendMessage(role, content) {
 
   item.append(label, body);
   messages.appendChild(item);
+  updateEmptyState();
+  messages.scrollTop = messages.scrollHeight;
+  return item;
+}
+
+function appendLoadingMessage() {
+  const item = appendMessage("assistant loading", "Thinking through the active persona...");
+  item.setAttribute("aria-busy", "true");
+  return item;
+}
+
+function replaceMessage(item, role, content) {
+  item.className = `message ${role}`;
+  item.removeAttribute("aria-busy");
+  const label = item.querySelector(".message-role");
+  const body = item.querySelector(".message-content");
+  label.textContent = role === "assistant" ? activePersona()?.name || role : role;
+  body.textContent = content;
   messages.scrollTop = messages.scrollHeight;
 }
 
 function renderHistory(history) {
-  messages.innerHTML = "";
+  for (const item of messages.querySelectorAll(".message")) {
+    item.remove();
+  }
   for (const turn of history) {
     appendMessage(turn.role || "unknown", turn.content || "");
   }
+  updateEmptyState();
 }
 
 async function loadPersonas() {
@@ -112,9 +177,12 @@ async function createSession() {
     });
     state.activeSessionId = payload.session.session_id;
     state.activePersonaId = personaId;
-    messages.innerHTML = "";
+    for (const item of messages.querySelectorAll(".message")) {
+      item.remove();
+    }
     updateStatus();
-    setNotice("Session created.");
+    updateEmptyState();
+    setNotice("Session created. The active persona is ready.");
   } catch (error) {
     setNotice(`Could not create session: ${error.message}`, true);
   }
@@ -150,8 +218,9 @@ async function sendMessage(event) {
   }
 
   appendMessage("user", text);
+  const loadingMessage = appendLoadingMessage();
   messageInput.value = "";
-  messageInput.disabled = true;
+  setLoading(true);
   try {
     const payload = await apiRequest(
       `/sessions/${encodeURIComponent(state.activeSessionId)}/messages`,
@@ -160,13 +229,13 @@ async function sendMessage(event) {
         body: JSON.stringify({ message: text }),
       },
     );
-    appendMessage("assistant", payload.message?.content || "");
+    replaceMessage(loadingMessage, "assistant", payload.message?.content || "");
     setNotice("Reply received.");
   } catch (error) {
-    appendMessage("system", `Error: ${error.message}`);
+    replaceMessage(loadingMessage, "system", `Error: ${error.message}`);
     setNotice(`Message failed: ${error.message}`, true);
   } finally {
-    messageInput.disabled = false;
+    setLoading(false);
     messageInput.focus();
   }
 }
@@ -180,4 +249,6 @@ newSessionButton.addEventListener("click", createSession);
 loadHistoryButton.addEventListener("click", loadHistory);
 messageForm.addEventListener("submit", sendMessage);
 
+updateStatus();
+updateEmptyState();
 loadPersonas();
