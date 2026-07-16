@@ -82,7 +82,9 @@ backend/
 
 `backend/fusion/` contains cross-engine interpretation layers that preserve engine ownership. `PersonaMemoryFusion` interprets raw memories from the active persona perspective without modifying PersonaEngine or MemoryEngine.
 
-`backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and now acts as the first orchestration entry point. `context_builder.py` defines `ContextBuilder`, which converts engine and fusion outputs into the shared context data model. `runtime_context_assembler.py` defines `RuntimeContextAssembler`, which converts existing PersonaOS internal context into a runtime-ready context boundary for future model adapters without calling models or performing inference.
+`backend/engine/` contains the top-level orchestration layer. `persona_os.py` defines the `PersonaOS` class, which composes the modular engines and now acts as the first orchestration entry point. `context_builder.py` defines `ContextBuilder`, which converts engine and fusion outputs into the shared context data model. `runtime_context_assembler.py` defines `RuntimeContextAssembler`, which converts existing PersonaOS internal context into a runtime-ready context boundary for model adapters without calling models or performing inference.
+
+`backend/runtime/` contains the controlled runtime conversation boundaries. `chat_runtime.py` defines the controlled runtime generation boundary, and `session.py` owns temporary in-memory conversation history for interactive sessions.
 
 `backend/models/` contains shared model definitions. `context.py` contains the `PersonaOSContext` boundary models used by orchestration. `fusion.py` contains `FusionContext` for persona-aware memory interpretation output. `runtime_context.py` contains `RuntimeContext`, the runtime-ready data boundary for future adapter layers. `schemas.py` currently contains placeholder schema boundary classes. `memory_record.py` contains the concrete lightweight `MemoryRecord` model, `memory_state.py` defines the memory lifecycle states, and `persona_profile.py` defines persistent persona identity data.
 
@@ -105,12 +107,42 @@ The orchestration layer currently includes:
 - PersonaOSContext: Defines the shared communication format between engines and orchestration.
 - RuntimeContext: Defines the runtime-ready context boundary for future LLM adapter layers.
 - RuntimeContextAssembler: Prepares runtime-ready context from active persona, memory, knowledge, skills, confidence, and fusion context while preserving source boundaries.
+- ChatRuntime: Connects approved active persona selection, runtime context assembly, and adapter generation through a controlled runtime boundary.
+- RuntimeSession: Stores temporary in-memory conversation history for a live session only.
 
 PersonaOS coordinates engines but does not own engine logic. Persona, memory, knowledge, skills, confidence, and evolution responsibilities remain inside their owning engines. Context data is only a structured communication boundary; it is not memory storage, knowledge storage, persona management, confidence calculation, persistence, or a frontend API.
 
-Runtime Intelligence now includes the provider-independent runtime boundaries and the first local provider transport path. The completed runtime layer includes `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`, `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`, `LLMResponse`, `ProviderConfig`, `AdapterRegistry`, and `OllamaAdapter` v1.
+Runtime Intelligence now includes the provider-independent runtime boundaries, the first local provider transport path, controlled chat runtime orchestration, temporary session history, and the first interactive local CLI interface. The completed runtime layer includes `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`, `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`, `LLMResponse`, `ProviderConfig`, `AdapterRegistry`, `OllamaAdapter` v1, `ChatRuntime`, and `RuntimeSession`.
 
-The first real local provider path has been verified with Ollama and `qwen3:14b`. `qwen3:14b` is the current first runtime model, not PersonaOS identity. Providers remain replaceable, and `OllamaAdapter` owns HTTP transport and Ollama response translation only. Runtime generation still does not directly mutate durable persona, memory, knowledge, skill, version, or library state.
+The first real local provider path has been verified with Ollama and `qwen3:14b`. The full interactive path has also been verified:
+
+```text
+approved active PersonaLibraryEntry
+    ->
+PersonaSelector
+    ->
+PersonaOSContext
+    ->
+RuntimeContextAssembler
+    ->
+ChatRuntime
+    ->
+RuntimeSession
+    ->
+PromptBuilder
+    ->
+PromptRenderer
+    ->
+OllamaAdapter
+    ->
+qwen3:14b
+    ->
+LLMResponse
+```
+
+`qwen3:14b` is the current first runtime model, not PersonaOS identity. Providers remain replaceable, and `OllamaAdapter` owns HTTP transport and Ollama response translation only. Runtime generation still does not directly mutate durable persona, memory, knowledge, skill, version, or library state.
+
+`RuntimeSession` conversation history is temporary in-memory session context. It is not durable `MemoryEngine` memory, does not write memories, and does not update persona profile, version, or library records. The interactive CLI is the first user-facing runtime interface. Its current persona is an in-memory configured persona for local runtime use, not a complete imported persona package.
 
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
@@ -245,6 +277,11 @@ Completed so far:
 - `AdapterRegistry` completed for deterministic adapter registration and lookup.
 - `OllamaAdapter` v1 completed as the first provider-specific transport boundary.
 - Local Ollama smoke test completed with `qwen3:14b` returning a valid `LLMResponse`.
+- `ChatRuntime` completed as the controlled runtime generation boundary.
+- `RuntimeSession` completed for temporary in-memory conversation history.
+- Interactive PersonaOS CLI completed as the first user-facing local runtime interface.
+- Two-turn local conversation verified through the runtime path with `qwen3:14b`.
+- CLI commands verified: `/help`, `/history`, `/status`, `/clear`, and `/exit`.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -291,8 +328,8 @@ Current verification status:
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
 - `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
-- Current recorded test status: 165 tests passing.
-- Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` responded successfully, usage metadata was returned, and no durable PersonaOS state was modified.
+- Current recorded test status: 208 tests passing.
+- Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` responded successfully, usage metadata was returned, the second turn used prior temporary conversation history, CLI commands worked, and no durable PersonaOS state was modified.
 
 Current implementation limits:
 
@@ -301,13 +338,15 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, and local Ollama transport boundaries exist, but persistence, production chat orchestration, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, and interactive CLI boundaries exist, but persistence, production API/frontend orchestration, runtime configuration loading, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
 - RuntimeContextAssembler now prepares a runtime-ready boundary from PersonaOS internal context without inference.
 - PromptBuilder and PromptRenderer format runtime data only; they do not reason, optimize prompts, persist data, or call providers.
 - OllamaAdapter v1 performs provider transport only and maps local Ollama output into `LLMResponse`.
+- ChatRuntime coordinates runtime generation only through approved active persona selection, context assembly, prompt rendering, and adapter boundaries.
+- RuntimeSession stores temporary conversation history only and must not be treated as durable memory.
 - Context Engine is documented in architecture but not yet implemented in backend code.
 - No frontend behavior is implemented.
 
@@ -492,7 +531,7 @@ Current status: Memory Layer v1 complete.
 - Persona Versioning boundary exists.
 - PersonaLibraryEntry model boundary exists.
 - Persona Library lifecycle, review, activation, and integration verification coverage exist.
-- Next work should integrate Runtime Intelligence through a controlled ChatRuntime or RuntimeService boundary.
+- Next work should add runtime configuration loading so provider, model, endpoint, and adapter selection are no longer hard-coded in the CLI.
 - Add persona profiles.
 - Support multiple personas.
 - Connect personas to memory scopes, skill permissions, and operating constraints.
@@ -550,10 +589,11 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Design a controlled `ChatRuntime` or `RuntimeService` boundary.
-- Connect approved and active `PersonaLibraryEntry` selection to runtime generation.
-- Add configuration loading without hard-coding a provider or model.
-- Normalize runtime errors while preserving provider replaceability.
+- Implement a Runtime Configuration System.
+- Load provider, model, endpoint, and options from configuration.
+- Select adapters through `AdapterRegistry`.
+- Remove hard-coded provider/model/endpoint settings from the CLI.
+- Validate missing or invalid provider settings.
 - Keep persona data independent from LLM/model provider state.
 
-The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration, and OllamaAdapter v1. The best next work is small, well-tested backend progress on controlled chat runtime integration while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, and model-provider transport responsibilities.
+The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, and the first interactive local CLI. The best next work is small, well-tested backend progress on runtime configuration while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, and model-provider transport responsibilities.

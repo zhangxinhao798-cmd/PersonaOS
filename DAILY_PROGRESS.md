@@ -236,6 +236,12 @@ Each development day should have a section:
 - Completed `OllamaAdapter` v1.
 - Added manual local Ollama smoke script.
 - Verified successful local `qwen3:14b` response through the full runtime path.
+- Completed `ChatRuntime`.
+- Completed `RuntimeSession`.
+- Completed the interactive local PersonaOS CLI.
+- Verified a two-turn local conversation through the controlled runtime path.
+- Verified command handling for `/help`, `/history`, `/status`, `/clear`, and `/exit`.
+- Verified temporary session history without durable memory or persona mutation.
 
 ### Files Changed
 - `PROJECT_CONTEXT.md`
@@ -244,14 +250,22 @@ Each development day should have a section:
 - `CHANGELOG.md`
 - `DAILY_PROGRESS.md`
 - `docs/RUNTIME_ARCHITECTURE.md`
+- `docs/development_workflow.md`
 
 ### Tests
-- Current test count: 165 passed.
+- Current test count: 208 passed.
 - Live local Ollama smoke test passed.
 - Ollama was reachable at the configured local endpoint.
 - `qwen3:14b` returned a valid response.
 - Usage metadata was returned.
 - Smoke test did not modify durable persona or memory state.
+- Interactive ChatRuntime smoke test passed.
+- The second turn used prior temporary conversation history.
+- `/history` worked.
+- `/status` worked.
+- `/clear` worked.
+- `/exit` worked.
+- Durable persona state remained unchanged.
 - Latest fallback verification passed with `python -m compileall backend tests`.
 - Persona Library lifecycle integration coverage verifies source import, profile building, version snapshot creation, review approval, activation, and selector availability.
 - Runtime context assembly coverage verifies `RuntimeContext` creation, assembly from existing components, missing optional data handling, and boundary preservation.
@@ -265,19 +279,23 @@ Each development day should have a section:
 - `RuntimeContextAssembler` prepares active persona, memory, knowledge, skills, confidence, and fusion context without model calls or inference.
 - `PromptBuilder` and `PromptRenderer` perform deterministic formatting only.
 - `OllamaAdapter` owns provider transport and Ollama response translation only.
+- `ChatRuntime` owns controlled runtime generation through existing selection, context, prompt, and adapter boundaries.
+- `RuntimeSession` owns temporary in-memory conversation history only.
+- Temporary session history is separate from durable `MemoryEngine` memory.
 - `RuntimeContext` must remain independent from Ollama, `qwen3:14b`, OpenAI, Claude, and other model providers.
 - `qwen3:14b` is the first verified local runtime model, not persona identity.
-- The next Runtime Intelligence boundary should be a controlled `ChatRuntime` or `RuntimeService`.
+- The next Runtime Intelligence boundary should be runtime configuration loading and adapter selection through configuration.
 - Expression Layer capabilities remain future interface extensions and are not part of Runtime Intelligence implementation.
 
 ### Problems / Notes
 - Persona Library lifecycle foundation is complete.
-- Runtime Intelligence local model path is verified.
+- Interactive Runtime is complete.
 - Expression Layer implementation has not started.
-- No production chat runtime, streaming, tool calling, frontend behavior, persistence, or automatic durable memory writes have been introduced.
+- No production API/frontend runtime, streaming, tool calling, persistence, automatic durable memory writes, voice, avatar, emotion, or relationship logic has been introduced.
 
 ### Next Session
-- Design controlled `ChatRuntime` or `RuntimeService` boundary.
-- Connect approved active persona selection to generation.
-- Add configuration loading without hard-coding model selection.
+- Implement the Runtime Configuration System.
+- Remove hard-coded provider/model/endpoint settings from the CLI.
+- Load provider, model, endpoint, and options from configuration.
+- Select adapters through `AdapterRegistry`.
 - Keep provider switching simple and model-independent.

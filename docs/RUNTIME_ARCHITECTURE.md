@@ -57,11 +57,12 @@ User Output
 Some stages in this flow are current boundaries, while others are planned
 boundaries. `RuntimeContext`, `RuntimeContextAssembler`, `PromptPackage`,
 `PromptBuilder`, `FinalPrompt`, `PromptRenderer`, `BaseLLMAdapter`,
-`LLMResponse`, `ProviderConfig`, `AdapterRegistry`, and `OllamaAdapter` v1 exist
-as implemented boundary components. Controlled chat runtime orchestration,
-response processing, streaming, tool calling, multimodal requests, frontend
-integration, automatic durable memory writes, and production persistence remain
-unimplemented.
+`LLMResponse`, `ProviderConfig`, `AdapterRegistry`, `OllamaAdapter` v1,
+`ChatRuntime`, and `RuntimeSession` exist as implemented boundary components.
+The interactive CLI is the first local user-facing runtime interface. Response
+processing, runtime configuration loading, streaming, tool calling, multimodal
+requests, production API/frontend integration, automatic durable memory writes,
+and production persistence remain unimplemented.
 
 ## 3. RuntimeContext
 
@@ -224,6 +225,21 @@ Rules:
 `LLMResponse` normalizes provider output into a stable PersonaOS boundary. It
 does not imply that the response is true, durable, or approved for storage.
 
+## 8.1 ChatRuntime And RuntimeSession
+
+`ChatRuntime` is the controlled runtime generation boundary. It connects
+approved active persona selection, `PersonaOSContext`, `RuntimeContextAssembler`,
+prompt construction, prompt rendering, and the configured adapter boundary.
+
+`RuntimeSession` owns temporary in-memory conversation history for an active
+interactive session. This history can support multi-turn generation, but it is
+not durable `MemoryEngine` memory and must not silently update memory, persona
+profile, persona version, or persona library state.
+
+The first interactive CLI uses these boundaries to provide local conversation
+with a configured in-memory persona. That CLI persona is not yet a complete
+imported persona package.
+
 ## 9. Model Configuration
 
 Model configuration has started with `ProviderConfig` and `AdapterRegistry` for
@@ -351,6 +367,41 @@ Streaming, tools, multimodal input, and advanced provider features are deferred.
 They should be added only after the core prompt, adapter, configuration, and
 response boundaries are clear and tested.
 
+## 13.1 Interactive Runtime Path
+
+The first full controlled interactive path has been verified locally:
+
+```text
+approved active PersonaLibraryEntry
+    ->
+PersonaSelector
+    ->
+PersonaOSContext
+    ->
+RuntimeContextAssembler
+    ->
+ChatRuntime
+    ->
+RuntimeSession
+    ->
+PromptBuilder
+    ->
+PromptRenderer
+    ->
+OllamaAdapter
+    ->
+local Ollama endpoint
+    ->
+qwen3:14b
+    ->
+LLMResponse
+```
+
+The verification confirmed that PersonaSelector accepted an approved active
+persona, ChatRuntime completed, Ollama was reachable, `qwen3:14b` responded,
+temporary two-turn conversation history was used, and durable persona state
+remained unchanged.
+
 ## 14. Testing Strategy
 
 Future runtime tests should cover:
@@ -386,47 +437,41 @@ Completed:
 - `AdapterRegistry`
 - `OllamaAdapter` v1
 - Initial local `qwen3:14b` path verification
+- `ChatRuntime`
+- `RuntimeSession`
+- Interactive CLI runtime
+- Temporary conversation history
+- Local multi-turn `qwen3:14b` path verification
 
 Not yet implemented:
 
-- `ChatRuntime` or `RuntimeService`
+- Runtime configuration loader
+- Production API
 - Response processing
 - Streaming
 - Tools
 - Multimodal requests
 - Frontend integration
 - Automatic durable memory writes
+- Context compression
 - Persistence
+- Relationship state
+- Emotion state
+- Voice
+- Avatar
 
 This status reflects runtime architecture boundaries only. It should not be
 read as a claim that production chat orchestration, streaming, tool calling,
-frontend integration, automatic memory persistence, or response processing
-exists.
+frontend integration, automatic memory persistence, relationship state, emotion
+state, voice, avatar, or response processing exists.
 
 ## 16. Next Recommended Step
 
-The next coding step should be a controlled `ChatRuntime` or `RuntimeService`
-boundary.
+The next coding step should be a Runtime Configuration System.
 
-The next runtime flow should be:
-
-```text
-approved and active PersonaLibraryEntry
-    ->
-PersonaSelector
-    ->
-PersonaOSContext
-    ->
-RuntimeContextAssembler
-    ->
-PromptBuilder
-    ->
-PromptRenderer
-    ->
-configured LLM adapter
-    ->
-LLMResponse
-```
+The next step should load provider, model, endpoint, and generation options
+from configuration, select adapters through `AdapterRegistry`, remove hard-coded
+model settings from the CLI, and validate missing or invalid provider settings.
 
 Provider-specific work should continue only through replaceable adapter and
 configuration boundaries. Runtime integration must not silently mutate durable

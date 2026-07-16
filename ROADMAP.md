@@ -96,10 +96,17 @@ Completed:
   - [x] `AdapterRegistry`
   - [x] `OllamaAdapter` v1
   - [x] local Ollama / `qwen3:14b` smoke verification
+  - [x] `ChatRuntime`
+  - [x] `RuntimeSession`
+  - [x] interactive CLI runtime
+  - [x] temporary in-memory conversation history
+  - [x] local two-turn chat verification
+  - [x] CLI commands for help, history, status, clear, and exit
+  - [x] `qwen3:14b` interactive runtime verification
 
 ### Runtime Intelligence Phase Preparation
 
-Runtime Context Assembly, the structured prompt pipeline, provider-independent adapter boundaries, provider registry/configuration, OllamaAdapter v1, and the first local `qwen3:14b` smoke verification are completed.
+Runtime Context Assembly, the structured prompt pipeline, provider-independent adapter boundaries, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, interactive CLI runtime, temporary in-memory conversation history, and local `qwen3:14b` verification are completed.
 
 Completed:
 
@@ -115,12 +122,18 @@ Completed:
 - `AdapterRegistry` deterministic adapter registration and lookup.
 - `OllamaAdapter` v1 provider transport boundary.
 - Manual local Ollama smoke verification with `qwen3:14b`.
+- `ChatRuntime` controlled generation boundary.
+- `RuntimeSession` temporary in-memory conversation history.
+- Interactive local CLI runtime.
+- Local two-turn chat verification.
+- CLI commands for `/help`, `/history`, `/status`, `/clear`, and `/exit`.
+- Interactive `qwen3:14b` runtime verification.
 
 Next item:
 
-- Controlled Chat Runtime integration.
+- Runtime Configuration System.
 
-Controlled Chat Runtime integration should connect an approved active persona selection to runtime generation without collapsing engine, prompt, adapter, or provider responsibilities.
+Runtime Configuration System should make provider, model, endpoint, options, and adapter selection configurable without collapsing engine, prompt, adapter, or provider responsibilities.
 
 Requirements:
 
@@ -129,18 +142,47 @@ Requirements:
 - No core engine modification.
 - No automatic durable memory or persona mutation.
 
-Next runtime flow:
+Current verified runtime flow:
 
 ```text
 approved and active PersonaLibraryEntry
     -> PersonaSelector
     -> PersonaOSContext
     -> RuntimeContextAssembler
+    -> ChatRuntime
+    -> RuntimeSession
     -> PromptBuilder
     -> PromptRenderer
-    -> configured LLM adapter
+    -> OllamaAdapter
+    -> qwen3:14b
     -> LLMResponse
 ```
+
+`RuntimeSession` owns temporary in-memory conversation history only. This history is not durable `MemoryEngine` memory and does not update persona profile, version, or library records.
+
+## Runtime Configuration System
+
+Status: Next
+
+Planned items:
+
+- Configuration file boundary.
+- Provider configuration loading.
+- Adapter selection through `AdapterRegistry`.
+- Default provider/model configuration.
+- CLI configuration override.
+- Validation for missing or invalid provider settings.
+- No core engine changes required when switching models.
+
+The current local provider setting:
+
+```text
+provider: ollama
+model: qwen3:14b
+```
+
+should later be replaceable by configuration only. Configuration loading is not
+implemented yet.
 
 ### Step 2: Persona + Memory Fusion
 
@@ -178,14 +220,14 @@ Progress:
 
 Current focus:
 
-- Controlled Chat Runtime integration.
+- Runtime Configuration System.
 
 Next steps:
 
-1. Design `ChatRuntime` or `RuntimeService` boundary.
-2. Connect approved active persona selection to generation.
-3. Add configuration loading without hard-coding model selection.
-4. Normalize runtime errors.
+1. Add a configuration file boundary.
+2. Load provider, model, endpoint, and options from configuration.
+3. Select adapters through `AdapterRegistry`.
+4. Remove hard-coded model settings from the CLI.
 5. Keep persona data and `RuntimeContext` independent from model providers.
 
 ## Phase 2: Memory System
@@ -380,4 +422,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Controlled Chat Runtime integration.
+The immediate next focus is the Runtime Configuration System.

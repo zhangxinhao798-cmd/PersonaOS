@@ -27,6 +27,10 @@ BaseLLMAdapter and LLMResponse are complete.
 ProviderConfig and AdapterRegistry are complete.
 OllamaAdapter v1 is complete.
 The local Ollama path has been smoke-tested successfully with `qwen3:14b`.
+ChatRuntime is complete.
+RuntimeSession is complete.
+The interactive PersonaOS CLI is complete.
+Two-turn local conversation through `qwen3:14b` has been verified.
 
 Current completed integration state:
 
@@ -59,6 +63,12 @@ Current completed integration state:
 - `ProviderConfig` and `AdapterRegistry` added for provider configuration and deterministic adapter lookup.
 - `OllamaAdapter` v1 added as the first provider-specific transport boundary.
 - Manual local Ollama smoke test verified `RuntimeContext -> PromptBuilder -> PromptPackage -> PromptRenderer -> FinalPrompt -> OllamaAdapter -> local Ollama -> qwen3:14b -> LLMResponse`.
+- `ChatRuntime` added as the controlled runtime generation boundary.
+- `RuntimeSession` added for temporary in-memory conversation history.
+- Interactive local PersonaOS CLI added as the first user-facing runtime interface.
+- Two-turn interactive conversation verified through local Ollama and `qwen3:14b`.
+- CLI commands verified for help, history, status, clear, and exit.
+- Confirmed temporary conversation history is not durable `MemoryEngine` memory and does not mutate persona profile, version, or library state.
 
 ## Architecture Rules
 
@@ -77,9 +87,9 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 165 tests passing.
+Latest recorded verification status is 208 tests passing.
 
-Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` returned a valid response, usage metadata was returned, and the smoke test did not modify durable persona or memory state.
+Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` returned a valid response, usage metadata was returned, two-turn temporary history worked, CLI commands worked, and the smoke tests did not modify durable persona or memory state.
 
 Integration tests have been added for PersonaOS initialization, context processing, confidence boundary ownership, empty context handling, and orchestration flow.
 
@@ -92,12 +102,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Runtime Intelligence local model path verified.
+Interactive Runtime completed.
 
 
 ## Next Goal
 
-Controlled Chat Runtime integration.
+Runtime Configuration System.
 
 Integration Phase Step 1 completed:
 
@@ -157,11 +167,20 @@ Runtime Intelligence provider path completed:
 7. Verified a real local request through `qwen3:14b`.
 8. Preserved durable PersonaOS state boundaries.
 
+Interactive Runtime completed:
+
+1. Added `ChatRuntime` as the controlled runtime generation boundary.
+2. Added `RuntimeSession` for temporary in-memory conversation history.
+3. Added the interactive local PersonaOS CLI.
+4. Verified two-turn local conversation through Ollama and `qwen3:14b`.
+5. Verified temporary history commands and clean exit behavior.
+6. Preserved durable memory and persona state boundaries.
+
 ## Next Recommended Phase
 
-Controlled Chat Runtime integration.
+Runtime Configuration System.
 
-The next work should design a controlled `ChatRuntime` or `RuntimeService` boundary, connect approved active `PersonaLibraryEntry` selection to runtime generation, add configuration loading, normalize runtime errors, and preserve provider replaceability. Model providers should remain replaceable, and persona data plus `RuntimeContext` must remain independent from LLM/provider state.
+The next work should load provider, model, endpoint, and generation options from configuration, remove hard-coded model settings from the CLI, select adapters through `AdapterRegistry`, validate missing or invalid provider settings, and preserve provider replaceability. Model providers should remain replaceable, and persona data plus `RuntimeContext` must remain independent from LLM/provider state.
 
 ## Future Considerations
 
@@ -196,4 +215,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from Runtime Intelligence local model path verification toward controlled Chat Runtime integration.
+Then continue from Interactive Runtime completion toward the Runtime Configuration System.

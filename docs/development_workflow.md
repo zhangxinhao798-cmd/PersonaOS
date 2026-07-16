@@ -84,6 +84,8 @@ Commit changes after implementation, tests, and documentation updates are comple
 
 Commits should be small and focused. A good commit should represent one coherent unit of progress, such as a model addition, an engine capability, a test suite expansion, or a documentation milestone.
 
+When practical, commit implementation changes separately from documentation-only synchronization changes. This keeps code review and project-status updates easier to inspect.
+
 ## Document Update Guide
 
 ### `DAILY_PROGRESS.md`
@@ -122,11 +124,19 @@ Before ending a development session:
 
 - Confirm code changes are focused.
 - Run relevant tests.
+- Run the relevant manual smoke test when a runtime path, provider path, or CLI path changes.
+- Verify the current automated test number before recording it.
 - Record test results in `DAILY_PROGRESS.md`.
 - Update `CHANGELOG.md` if a feature or milestone was completed.
 - Update `PROJECT_CONTEXT.md` if the current architecture or implementation status changed.
 - Update `ROADMAP.md` if project priorities changed.
+- Verify current and next phases match across project documents.
 - Review `git status`.
+- Inspect untracked files before committing.
+- Use `git clean -n` only as a preview when checking removable untracked files.
+- Never run `git clean -f` without checking the preview first.
 - Commit the completed work.
+- Push when the committed work is ready to share.
+- Confirm the working tree is clean after the push.
 
 The goal is to keep PersonaOS understandable across sessions. Each day should leave the next developer or AI assistant with a clear map of what changed, what passed, what matters, and what comes next.
