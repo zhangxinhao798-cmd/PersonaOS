@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 from pathlib import Path
 import sys
@@ -73,6 +74,23 @@ class InteractiveRuntime:
 
 Printer = Callable[[str], None]
 InputReader = Callable[[str], str]
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    """Parse CLI-owned arguments for interactive startup."""
+
+    parser = argparse.ArgumentParser(
+        description="Start the local PersonaOS interactive runtime."
+    )
+    parser.add_argument(
+        "--persona",
+        metavar="PACKAGE_ID",
+        help=(
+            "Persona package id to use for this session. "
+            "Overrides config/runtime.json default_persona."
+        ),
+    )
+    return parser.parse_args(argv)
 
 
 def provider_config() -> ProviderConfig:
@@ -256,6 +274,18 @@ def build_runtime(
         provider_config=config,
         personas_dir=resolved_package_path.parent,
     )
+
+
+def persona_package_path_from_id(package_id: str | None) -> Path | None:
+    """Resolve an optional package id into a local persona package path."""
+
+    if package_id is None:
+        return None
+    package_id = package_id.strip()
+    if not package_id:
+        raise PersonaPackageError("Persona package id cannot be empty.")
+
+    return DEFAULT_PERSONAS_DIR / package_id
 
 
 def switch_persona(
@@ -507,9 +537,12 @@ def run_loop(
         printer("")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
     try:
-        runtime = build_runtime()
+        runtime = build_runtime(
+            persona_package_path_from_id(args.persona)
+        )
     except ChatRuntimeError as exc:
         print(f"Persona lifecycle validation failed: {exc}")
         return 1
@@ -524,4 +557,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))

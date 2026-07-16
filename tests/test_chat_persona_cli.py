@@ -185,6 +185,43 @@ def test_configured_missing_default_persona_has_readable_error(
     assert "missing-default" in output
 
 
+def test_cli_persona_argument_overrides_configured_default(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+    captured = {}
+
+    def fake_run_loop(runtime, *_args, **_kwargs) -> int:
+        captured["runtime"] = runtime
+        return 0
+
+    monkeypatch.setattr(chat_persona, "run_loop", fake_run_loop)
+
+    result = chat_persona.main(["--persona", "strategist"])
+
+    assert result == 0
+    runtime = captured["runtime"]
+    assert runtime.persona_entry.id == "strategist"
+    assert runtime.persona_entry.name == "Strategist"
+
+
+def test_cli_persona_argument_missing_package_has_readable_error(
+    capsys,
+    monkeypatch,
+) -> None:
+    patch_runtime_dependencies(monkeypatch)
+
+    result = chat_persona.main(["--persona", "missing-cli-persona"])
+
+    assert result == 1
+    output = capsys.readouterr().out
+    assert "Persona package loading failed:" in output
+    assert "missing-cli-persona" in output
+
+
+def test_persona_package_path_from_empty_id_is_rejected() -> None:
+    with pytest.raises(PersonaPackageError):
+        chat_persona.persona_package_path_from_id("   ")
+
+
 def test_package_derived_persona_name_appears_in_status(monkeypatch) -> None:
     patch_runtime_dependencies(monkeypatch)
     runtime = chat_persona.build_runtime()
@@ -198,7 +235,7 @@ def test_package_derived_persona_name_appears_in_status(monkeypatch) -> None:
 
 
 def test_missing_package_path_gives_readable_error(capsys, monkeypatch) -> None:
-    def raise_missing_package() -> None:
+    def raise_missing_package(_package_path=None) -> None:
         raise PersonaPackageError(
             "Package path does not exist: personas/missing"
         )
