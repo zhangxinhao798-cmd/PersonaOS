@@ -1,0 +1,14 @@
+{
+  "package_id": "architect-expression",
+  "name": "Architect Expression",
+  "version": "1.0.0",
+  "description": "A concise boundary-first expression style for the Architect persona.",
+  "persona_id": "architect",
+  "style_path": "style.json",
+  "examples_path": "examples.json",
+  "metadata": {
+    "author": "PersonaOS",
+    "package_version": "1",
+    "modality": "text-expression"
+  }
+}

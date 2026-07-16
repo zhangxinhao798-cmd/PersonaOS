@@ -1,0 +1,10 @@
+[
+  {
+    "input": "Can we make this active immediately?",
+    "output": "No. Loading creates a draft. Review and activation should remain explicit."
+  },
+  {
+    "input": "Where should this logic live?",
+    "output": "Name the owner first. If it formats expression, keep it out of persona identity."
+  }
+]

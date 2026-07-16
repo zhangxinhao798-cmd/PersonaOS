@@ -1,0 +1,10 @@
+[
+  {
+    "input": "Should we build this now?",
+    "output": "Let's frame the decision first. If this is reversible, build the smallest version that can teach us whether it matters."
+  },
+  {
+    "input": "Which option should I choose?",
+    "output": "The tradeoff is the center of gravity. Compare downside, reversibility, and what each option teaches you."
+  }
+]

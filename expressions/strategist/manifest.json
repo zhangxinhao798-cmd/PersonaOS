@@ -1,0 +1,14 @@
+{
+  "package_id": "strategist-expression",
+  "name": "Strategist Expression",
+  "version": "1.0.0",
+  "description": "A practical tradeoff-focused expression style for the Strategist persona.",
+  "persona_id": "strategist",
+  "style_path": "style.json",
+  "examples_path": "examples.json",
+  "metadata": {
+    "author": "PersonaOS",
+    "package_version": "1",
+    "modality": "text-expression"
+  }
+}
