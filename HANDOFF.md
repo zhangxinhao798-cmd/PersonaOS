@@ -55,6 +55,7 @@ Relationship Selection v1 is complete for explicit Web/API session creation.
 PersonaOS Web Experience v0.3 is complete.
 Language Resource Boundary v1 is complete.
 Language Resource Boundary v1.1 is complete.
+The Web Console now has a host-aware Demo deployment configuration boundary in `frontend/web-console/config.js`, with manual `PERSONAOS_API_BASE` override support and automatic localhost versus Cloudflare Tunnel API base selection.
 
 Current completed integration state:
 
@@ -184,6 +185,14 @@ Current completed integration state:
 - A current experience summary shows Persona, Relationship, Language, and session-scoped Memory context after session creation.
 - Frontend `data-i18n` keys now resolve through Language Resource Boundary v1.1; missing static HTML keys are tested and English translation remains unimplemented.
 
+## Language Preference Boundary v1
+
+Language preference is a User / Runtime Context concern, not a Persona identity concern. The planned `RuntimeContext.language` field will carry the selected locale, and PromptRenderer will emit an explicit output-language instruction: `zh-CN` requires Simplified Chinese and `en-US` requires English.
+
+This is currently an architectural decision, not a completed backend implementation. Do not add language fields to `PersonaProfile`, `PersonaVersion`, or `PersonaLibraryEntry`; do not make a Persona intrinsically Chinese or English. Keep the boundary independent from Memory, Relationship, provider selection, and Runtime lifecycle.
+
+Future work includes automatic language detection, persisted user language preference, multilingual Persona descriptions, and additional locales.
+
 ## Architecture Rules
 
 Do not merge engine responsibilities.
@@ -216,7 +225,7 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Language Resource Boundary v1 completed with `zh-CN` as the default Web Experience language.
+Language Resource Boundary v1.1 completed with `zh-CN` as the default Web Experience language. Language Preference Boundary v1 has been recorded as an architecture decision; RuntimeContext and PromptRenderer wiring remain future implementation work.
 
 User-Persona Relationship is now recognized as a core PersonaOS system. The implemented scope is limited to the context boundary: relationship type, interaction style, tone, permissions, lifecycle, and metadata can travel through session and runtime context without changing Persona identity.
 
@@ -230,7 +239,7 @@ Still planned, not implemented:
 
 ## Next Goal
 
-Complete the first manual Web Experience pass against the running local API. Keep English disabled until `en-US.json` contains a complete reviewed translation; do not couple language resources to Persona or Runtime boundaries.
+Implement the Language Preference Boundary v1 read path as a small, isolated Runtime Context addition, then test `zh-CN` and `en-US` PromptRenderer instructions. Do not couple language preference to Persona identity or change Memory, Relationship, provider, or Runtime lifecycle boundaries.
 
 Integration Phase Step 1 completed:
 

@@ -182,6 +182,12 @@ PersonaOS Web Experience v0.3 adds a first-use welcome flow that explains Digita
 
 Language Resource Boundary v1.1 is implemented under `frontend/web-console/i18n/`. The Web Experience loads `zh-CN.json` as its deterministic default and resolves onboarding, Persona, Relationship, Chat, Session, History, About, accessibility, loading, empty, error, and status copy through resource keys. The `en-US.json` and `index.js` files are reserved extension structure; English remains disabled until a complete resource exists. UI language remains independent from Persona identity, Relationship context, Runtime, Memory, API contracts, and model provider configuration.
 
+The Web Console also has a Demo deployment configuration boundary in `frontend/web-console/config.js`. It supports a manual `window.PERSONAOS_API_BASE` override and otherwise auto-selects the local API base on `localhost` or `127.0.0.1`, falling back to a replaceable Cloudflare Tunnel Demo API base for non-local deployments. This boundary keeps deployment-time API selection separate from Runtime, Persona, Memory, Relationship, and API contract behavior.
+
+Language Preference Boundary v1 is now an explicit architecture decision. Language preference belongs to the User / Runtime Context layer, not to Persona identity. The planned `RuntimeContext.language` value will carry locales such as `zh-CN` and `en-US`; PromptRenderer will translate that context into an explicit Simplified Chinese or English output instruction for the model. This boundary is currently documented but not yet wired into the backend Runtime implementation. It must not modify `PersonaProfile`, `PersonaVersion`, `PersonaLibraryEntry`, `PersonaEngine`, `MemoryEngine`, Relationship Boundary, or Runtime lifecycle.
+
+Persona identity remains language-agnostic: a Persona defines thinking patterns, values, expression style, decision patterns, and capabilities, but is not a Chinese or English Persona. Future language work includes automatic language detection, persisted user language preference, multilingual Persona descriptions, and additional locale support.
+
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
 The current Persona layer now supports structured import and version snapshots through explicit data and transformation boundaries:

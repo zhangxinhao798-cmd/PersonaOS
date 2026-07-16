@@ -8,6 +8,13 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 
 ### Added
 
+- Recorded Language Preference Boundary v1 as an architecture decision: language belongs to User / Runtime Context, not Persona identity.
+- Defined the future `RuntimeContext.language` and PromptRenderer paths for `zh-CN` Simplified Chinese and `en-US` English output instructions.
+- Documented language-agnostic Persona identity and deferred automatic detection, language preference persistence, multilingual Persona descriptions, and additional locales.
+- Added a host-aware Demo deployment configuration boundary in `frontend/web-console/config.js` so the Web Console can auto-switch between localhost and the public Cloudflare Tunnel API base.
+- Added a deployment-time Web Console API configuration boundary through `frontend/web-console/config.js`.
+- Preserved `http://127.0.0.1:8000` as the default API Base.
+- Added support for a hosting-injected `PERSONAOS_API_BASE` value without changing API or Runtime boundaries.
 - Completed Language Resource Boundary v1.1 for the Chinese-default Web Experience.
 - Completed the remaining static accessibility labels, persona option formatting, role labels, loading, empty, history, and error resource coverage.
 - Added the reserved `frontend/web-console/i18n/en-US.json` and `frontend/web-console/i18n/index.js` extension structure without enabling incomplete English UI.

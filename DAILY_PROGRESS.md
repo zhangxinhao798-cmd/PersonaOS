@@ -7,6 +7,10 @@ Each development day should have a section:
 ## YYYY-MM-DD
 
 ### Completed
+- Added the Web Console deployment configuration boundary for Cloudflare Tunnel preparation.
+- Added `frontend/web-console/config.js` with the localhost API default and optional `PERSONAOS_API_BASE` override.
+- Loaded deployment configuration before `app.js`; the existing connection field remains available as a local override.
+- Confirmed no Persona Engine, Runtime, Memory, Relationship, or API Contract code was changed.
 - What was implemented today.
 
 ### Files Changed
@@ -28,6 +32,8 @@ Each development day should have a section:
 ## 2026-07-16
 
 ### Completed
+- Added a host-aware Demo deployment configuration boundary for `frontend/web-console/config.js`.
+- Preserved manual `window.PERSONAOS_API_BASE` override while auto-selecting localhost or Cloudflare Tunnel API bases from the runtime hostname.
 - Completed Language Resource Boundary v1.1.
 - Completed Chinese resource coverage for onboarding, Persona cards, Persona details, Relationship choices, Chat, Session, History, About, Loading, Error, and empty states.
 - Added the future `en-US.json` resource placeholder and `i18n/index.js` registry structure while keeping incomplete English unavailable.
