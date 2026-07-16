@@ -35,6 +35,7 @@ Runtime Configuration System v1 is complete.
 Live configuration-only model switching between `qwen3:14b` and `gemma4:12b` has been verified.
 `qwen3:14b` has been restored as the current default runtime model.
 Persona Package v1 boundary is complete.
+Sample Architect Persona Package and CLI package loading are complete.
 
 Current completed integration state:
 
@@ -87,6 +88,10 @@ Current completed integration state:
 - Persona package conversion into `PersonaVersion` completed.
 - Persona package conversion into draft `PersonaLibraryEntry` completed.
 - Persona Package v1 performs no automatic review, automatic activation, LLM calls, or persona reconstruction.
+- Sample Architect Persona Package added under `personas/architect`.
+- CLI now loads its default persona from the sample package.
+- CLI startup performs in-memory review approval and activation before runtime selection.
+- CLI no longer constructs a hard-coded runtime guide persona in script code.
 
 ## Architecture Rules
 
@@ -105,7 +110,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 224 tests passing.
+Latest recorded verification status is 235 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -125,7 +130,7 @@ Runtime Configuration and live model switching verified.
 
 ## Next Goal
 
-Sample Persona Package + CLI package loading.
+CLI multi-persona package selection.
 
 Integration Phase Step 1 completed:
 
@@ -221,11 +226,22 @@ Persona Package v1 boundary completed:
 11. Avoided LLM calls and persona reconstruction.
 12. Verified 224 automated tests passing.
 
+Sample Persona Package + CLI package loading completed:
+
+1. Added `personas/architect`.
+2. Added package files: `manifest.json`, `profile.json`, `examples.json`, `sources.json`, and `knowledge.json`.
+3. Verified deterministic package validation and loading.
+4. Verified conversion into a draft `PersonaLibraryEntry`.
+5. Updated the CLI to load the Architect package by default.
+6. Preserved review and activation boundaries through in-memory CLI startup approval and activation.
+7. Verified package files are not modified by CLI startup.
+8. Verified 235 automated tests passing.
+
 ## Next Recommended Phase
 
-Sample Persona Package + CLI package loading.
+CLI multi-persona package selection.
 
-The next work should add a sample Persona Package and CLI package loading while preserving deterministic validation, deterministic loading, conversion into existing persona boundaries, and human review before approval and activation.
+The next work should add CLI package discovery and switching commands such as `/persona list` and `/persona use <package_id>` while preserving deterministic validation, deterministic loading, review, activation, versioning, library, and runtime boundaries.
 
 ## Future Considerations
 
@@ -260,4 +276,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from Persona Package v1 boundary completion toward Sample Persona Package + CLI package loading.
+Then continue from sample package and CLI package loading completion toward CLI multi-persona package selection.

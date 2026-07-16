@@ -147,9 +147,9 @@ Completed:
 
 Next item:
 
-- Sample Persona Package + CLI package loading.
+- CLI multi-persona package selection.
 
-Sample Persona Package + CLI package loading should make the completed Persona Package v1 boundary usable from the local runtime without bypassing review, activation, or persona lifecycle rules.
+CLI multi-persona package selection should allow the local runtime to discover multiple validated persona packages and switch the active in-memory persona during a CLI session without bypassing review, activation, or persona lifecycle rules.
 
 Requirements:
 
@@ -252,18 +252,35 @@ Explicitly deferred:
 
 ## Sample Persona Package + CLI package loading
 
+Status: Completed
+
+Completed scope:
+
+- Added the sample Architect package under `personas/architect`.
+- Added `manifest.json`, `profile.json`, `examples.json`, `sources.json`, and `knowledge.json`.
+- Loaded the sample package through deterministic package loading.
+- Validated the sample package before use.
+- Converted the loaded package into existing persona profile, version, and draft library entry boundaries.
+- Added CLI package loading.
+- Removed hard-coded runtime guide profile construction from the CLI.
+- Preserved human review before approval through in-memory CLI startup review.
+- Preserved explicit activation through in-memory CLI startup activation.
+- Avoided LLM calls and persona reconstruction.
+- Verified 235 tests passing.
+
+## CLI multi-persona package selection
+
 Status: Current
 
 Planned scope:
 
-- Add a sample Persona Package using the Persona Package v1 format.
-- Load the sample package through deterministic package loading.
-- Validate the sample package before use.
-- Convert the loaded package into existing persona profile, version, and draft library entry boundaries.
-- Add CLI package loading.
-- Preserve human review before approval.
-- Preserve explicit activation.
-- Avoid LLM calls and persona reconstruction.
+- Discover available persona packages under `personas/`.
+- Add `/persona list` to show loadable package IDs and names.
+- Add `/persona use <package_id>` to switch the active in-memory persona during a CLI session.
+- Validate the selected package before switching.
+- Preserve review, versioning, library, activation, and selector boundaries.
+- Keep package switching independent from provider/model configuration.
+- Avoid durable writes, automatic approval persistence, and persona reconstruction.
 
 ### Step 2: Persona + Memory Fusion
 
@@ -301,15 +318,15 @@ Progress:
 
 Current focus:
 
-- Sample Persona Package + CLI package loading.
+- CLI multi-persona package selection.
 
 Next steps:
 
-1. Add a sample Persona Package.
-2. Add deterministic sample package loading.
-3. Add CLI package loading.
+1. Add persona package discovery for the CLI.
+2. Add `/persona list`.
+3. Add `/persona use <package_id>`.
 4. Preserve review, versioning, library, activation, and CLI selection boundaries.
-5. Avoid LLM calls and persona reconstruction.
+5. Avoid LLM calls and persona reconstruction during package switching.
 
 ## Phase 2: Memory System
 
@@ -523,4 +540,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Sample Persona Package + CLI package loading.
+The immediate next focus is CLI multi-persona package selection.

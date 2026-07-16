@@ -143,6 +143,14 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added package conversion to `PersonaVersion`.
 - Added package conversion to draft `PersonaLibraryEntry`.
 - Preserved no automatic review, no automatic activation, no LLM calls, and no persona reconstruction.
+- Added sample Architect Persona Package under `personas/architect`.
+- Added sample package files: `manifest.json`, `profile.json`, `examples.json`, `sources.json`, and `knowledge.json`.
+- Added sample package validation and loading tests.
+- Updated the interactive CLI to load the Architect package by default.
+- Removed hard-coded runtime guide persona construction from the CLI.
+- Preserved review and activation boundaries through in-memory CLI startup approval and activation.
+- Verified package-derived persona status in the CLI.
+- Verified package files are not modified by CLI startup.
 
 ### Design Decisions
 
@@ -189,7 +197,8 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - `RuntimeSession` owns temporary in-memory conversation history only.
 - Temporary conversation history is not durable `MemoryEngine` memory.
 - Runtime configuration selects provider, model, endpoint, and options without changing persona identity.
-- Persona Package v1 should continue with sample package loading and CLI package loading while preserving review, activation, and persona lifecycle boundaries.
+- Sample Persona Package + CLI package loading makes the package boundary usable from the local runtime while preserving review, activation, and persona lifecycle boundaries.
+- The next persona package boundary should be CLI multi-persona package selection.
 - Documented future Expression Layer direction including voice, speech style, TTS, and multimodal interface possibilities.
 - Expression capabilities remain future architectural directions only.
 
@@ -257,15 +266,17 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Runtime Configuration System v1 is complete.
 - Live configuration-only model switching has been verified between `qwen3:14b` and `gemma4:12b`.
 - Persona Package v1 boundary is complete.
-- Current phase is Runtime Configuration and live model switching verified.
-- Current recorded verification status: 224 tests passing.
+- Sample Persona Package + CLI package loading is complete.
+- Current phase is CLI multi-persona package selection.
+- Current recorded verification status: 235 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Add a sample Persona Package.
-- Add CLI package loading.
+- Add CLI multi-persona package discovery.
+- Add `/persona list`.
+- Add `/persona use <package_id>`.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, and CLI selection boundaries.
 - Keep provider switching simple and model-independent.
