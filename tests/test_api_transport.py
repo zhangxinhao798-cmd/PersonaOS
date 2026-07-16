@@ -102,6 +102,53 @@ def test_get_session_success() -> None:
     assert response.body["session"]["turn_count"] == 0
 
 
+def test_list_sessions_success() -> None:
+    transport, _ = make_transport()
+    transport.handle_request("POST", "/sessions", {"session_id": "session-1"})
+    transport.handle_request("POST", "/sessions", {"session_id": "session-2"})
+
+    response = transport.handle_request("GET", "/sessions")
+
+    assert response.status_code == 200
+    assert [session["session_id"] for session in response.body["sessions"]] == [
+        "session-1",
+        "session-2",
+    ]
+
+
+def test_get_session_history_success() -> None:
+    transport, _ = make_transport()
+    transport.handle_request("POST", "/sessions", {"session_id": "session-1"})
+    transport.handle_request(
+        "POST",
+        "/sessions/session-1/messages",
+        {"message": "hello history"},
+    )
+
+    response = transport.handle_request("GET", "/sessions/session-1/history")
+
+    assert response.status_code == 200
+    assert response.body["session_id"] == "session-1"
+    assert response.body["history"] == [
+        {
+            "role": "user",
+            "content": "hello history",
+            "created_at": "",
+            "metadata": {"status": "completed"},
+        },
+        {
+            "role": "assistant",
+            "content": "api transport reply",
+            "created_at": "",
+            "metadata": {
+                "status": "completed",
+                "provider": "fake",
+                "model": "fake-model",
+            },
+        },
+    ]
+
+
 def test_delete_session_success() -> None:
     transport, _ = make_transport()
     transport.handle_request("POST", "/sessions", {"session_id": "session-1"})

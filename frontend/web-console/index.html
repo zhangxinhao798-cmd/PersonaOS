@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PersonaOS Web Console</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar" aria-label="Persona and session controls">
+        <header>
+          <h1>PersonaOS</h1>
+          <p>Web Console v0.1</p>
+        </header>
+
+        <section class="panel">
+          <label for="apiBase">API Base</label>
+          <input id="apiBase" value="http://127.0.0.1:8000" />
+          <button id="reloadPersonas" type="button">Reload Personas</button>
+        </section>
+
+        <section class="panel">
+          <label for="personaSelect">Persona</label>
+          <select id="personaSelect"></select>
+          <button id="newSession" type="button">New Session</button>
+        </section>
+
+        <section class="panel">
+          <h2>Status</h2>
+          <dl>
+            <dt>Session</dt>
+            <dd id="sessionStatus">none</dd>
+            <dt>Persona</dt>
+            <dd id="personaStatus">none</dd>
+          </dl>
+        </section>
+      </aside>
+
+      <section class="chat" aria-label="Chat console">
+        <header class="chat-header">
+          <div>
+            <h2>Chat</h2>
+            <p id="notice">Start the API server, choose a persona, then create a session.</p>
+          </div>
+          <button id="loadHistory" type="button">Load History</button>
+        </header>
+
+        <div id="messages" class="messages" aria-live="polite"></div>
+
+        <form id="messageForm" class="composer">
+          <input
+            id="messageInput"
+            autocomplete="off"
+            placeholder="Type a message..."
+          />
+          <button id="sendMessage" type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

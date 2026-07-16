@@ -146,12 +146,23 @@ class ApiTransport:
             if normalized_method == "POST" and segments == ["sessions"]:
                 return self._create_session(request_body)
 
+            if normalized_method == "GET" and segments == ["sessions"]:
+                return self._list_sessions()
+
             if len(segments) == 2 and segments[0] == "sessions":
                 session_id = segments[1]
                 if normalized_method == "GET":
                     return self._get_session(session_id)
                 if normalized_method == "DELETE":
                     return self._delete_session(session_id)
+
+            if (
+                normalized_method == "GET"
+                and len(segments) == 3
+                and segments[0] == "sessions"
+                and segments[2] == "history"
+            ):
+                return self._get_session_history(segments[1])
 
             if (
                 normalized_method == "POST"
@@ -233,11 +244,30 @@ class ApiTransport:
             body={"session": self._serialize_session(managed_session)},
         )
 
+    def _list_sessions(self) -> ApiTransportResponse:
+        sessions = self.chat_api.list_sessions()
+        return ApiTransportResponse(
+            status_code=200,
+            body={
+                "sessions": [
+                    self._serialize_session(session)
+                    for session in sessions
+                ]
+            },
+        )
+
     def _get_session(self, session_id: str) -> ApiTransportResponse:
         managed_session = self.chat_api.get_session(session_id)
         return ApiTransportResponse(
             status_code=200,
             body={"session": self._serialize_session(managed_session)},
+        )
+
+    def _get_session_history(self, session_id: str) -> ApiTransportResponse:
+        history = self.chat_api.get_history(session_id)
+        return ApiTransportResponse(
+            status_code=200,
+            body={"session_id": session_id, "history": history},
         )
 
     def _delete_session(self, session_id: str) -> ApiTransportResponse:

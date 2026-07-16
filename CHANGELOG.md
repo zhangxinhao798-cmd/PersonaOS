@@ -333,14 +333,22 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Confirmed API Transport still does not import `MemoryEngine`, call `create_memory()`, call providers, or bypass runtime boundaries.
 - Verified API responses for memory candidate controls are stable JSON and frontend-consumable.
 - Added API-level regression coverage proving configured sessions can inject `RuntimeMemoryRetriever` and pass retrieved memory into the runtime context.
-- Current phase is Memory Candidate Review Controls v1 completed.
-- Current recorded verification status: 366 tests passing.
+- Added PersonaOS Web Demo v0.1.
+- Added `GET /sessions` for listing temporary API sessions.
+- Added `GET /sessions/{id}/history` for loading detached temporary conversation history.
+- Added minimal CORS and OPTIONS handling to the standard-library HTTP wrapper for browser-based local API calls.
+- Added `frontend/web-console/index.html`, `app.js`, and `style.css` as a framework-free browser chat console.
+- Web Console v0.1 loads personas, creates sessions, sends messages, displays assistant replies, and loads session history through existing HTTP API boundaries.
+- Confirmed Web Console does not introduce React, Vite, Node tooling, login, database persistence, or frontend-owned runtime state.
+- Current phase is PersonaOS Web Demo v0.1 completed.
+- Current recorded verification status: 373 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Decide whether memory candidate review controls should also be exposed through the interactive CLI.
+- Manually verify Web Console v0.1 against a running local API server and Ollama model.
+- Decide whether memory candidate review controls should also be exposed through the interactive CLI or Web Console.
 - Prepare future persistent storage through repository boundaries without letting RuntimeSession, SessionManager, CandidateExtractor, or ReviewQueue write durable memory directly.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.

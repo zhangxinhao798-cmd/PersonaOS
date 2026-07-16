@@ -50,6 +50,27 @@ def http_json(
         return exc.code, payload
 
 
+def http_response(
+    base_url: str,
+    method: str,
+    path: str,
+    body: dict | None = None,
+):
+    data = None
+    headers = {}
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+
+    http_request = request.Request(
+        f"{base_url}{path}",
+        data=data,
+        headers=headers,
+        method=method,
+    )
+    return request.urlopen(http_request, timeout=5)
+
+
 def test_http_server_starts_and_returns_personas() -> None:
     server, thread, provider = start_test_server()
     base_url = f"http://127.0.0.1:{server.server_address[1]}"
@@ -116,3 +137,35 @@ def test_http_server_returns_error_response() -> None:
     assert status == 201
     assert missing_status == 404
     assert missing_payload["error"] == "session_not_found"
+
+
+def test_http_server_returns_cors_headers_for_browser_console() -> None:
+    server, thread, _ = start_test_server()
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        with http_response(base_url, "GET", "/personas") as response:
+            allow_origin = response.headers["Access-Control-Allow-Origin"]
+            allow_methods = response.headers["Access-Control-Allow-Methods"]
+    finally:
+        server.shutdown()
+        thread.join(timeout=5)
+        server.server_close()
+
+    assert allow_origin == "*"
+    assert "POST" in allow_methods
+
+
+def test_http_server_handles_options_preflight() -> None:
+    server, thread, _ = start_test_server()
+    base_url = f"http://127.0.0.1:{server.server_address[1]}"
+    try:
+        with http_response(base_url, "OPTIONS", "/sessions") as response:
+            status = response.status
+            allow_headers = response.headers["Access-Control-Allow-Headers"]
+    finally:
+        server.shutdown()
+        thread.join(timeout=5)
+        server.server_close()
+
+    assert status == 204
+    assert "Content-Type" in allow_headers

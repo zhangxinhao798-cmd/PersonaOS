@@ -47,6 +47,7 @@ Memory Runtime Integration v1 is complete.
 Memory Review / Candidate Pipeline v1 is complete.
 Memory Promotion Boundary v1 is complete.
 Memory Candidate Review Controls v1 is complete.
+PersonaOS Web Demo v0.1 is complete.
 
 Current completed integration state:
 
@@ -147,6 +148,11 @@ Current completed integration state:
 - Approval and rejection update candidate review state only and do not create durable memory.
 - Explicit promotion routes through `MemoryPromotionBoundary`; API Transport does not import `MemoryEngine` or call `create_memory()`.
 - API-level memory read-path regression coverage verifies configured sessions can inject `RuntimeMemoryRetriever` and pass retrieved memory plus relevance metadata into runtime context during message handling.
+- API Transport now supports `GET /sessions` and `GET /sessions/{id}/history` for browser clients.
+- Standard-library HTTP transport now returns CORS headers and handles OPTIONS preflight for local browser calls.
+- `frontend/web-console` added as a minimal framework-free browser chat console.
+- Web Console v0.1 loads personas, creates sessions, sends messages, displays assistant replies, and loads session history through existing HTTP API boundaries.
+- Web Console v0.1 does not introduce React, Vite, Node tooling, login, database persistence, streaming, or frontend-owned runtime state.
 
 ## Architecture Rules
 
@@ -165,7 +171,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 366 tests passing.
+Latest recorded verification status is 373 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -180,12 +186,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Memory Candidate Review Controls v1 completed.
+PersonaOS Web Demo v0.1 completed.
 
 
 ## Next Goal
 
-Decide whether memory candidate review controls should also be exposed through the interactive CLI, then prepare future persistent storage through repository boundaries without allowing runtime, session, extractor, or review queue components to write durable memory directly.
+Manually verify Web Console v0.1 against a running local API server and Ollama model, then decide whether memory candidate review controls should be exposed through CLI commands, Web Console controls, or both.
 
 Integration Phase Step 1 completed:
 

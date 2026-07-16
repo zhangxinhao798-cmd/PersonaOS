@@ -76,6 +76,12 @@ Each development day should have a section:
 - Confirmed explicit promotion requires an approved candidate and routes through `MemoryPromotionBoundary`.
 - Confirmed API Transport still does not import `MemoryEngine`, call `create_memory()`, call providers, or bypass runtime boundaries.
 - Added API-level memory read-path regression coverage proving session creation can carry `RuntimeMemoryRetriever` into message handling.
+- Completed PersonaOS Web Demo v0.1.
+- Added `GET /sessions` to list current temporary sessions.
+- Added `GET /sessions/{id}/history` to return detached temporary conversation history.
+- Added minimal CORS and OPTIONS support to the standard-library HTTP wrapper for browser calls.
+- Added framework-free `frontend/web-console` static files.
+- Verified the Web Console path uses HTTP API boundaries for persona loading, session creation, message sending, and history loading.
 
 ### Files Changed
 - `backend/runtime/session_manager.py`
@@ -83,6 +89,9 @@ Each development day should have a section:
 - `backend/api/__init__.py`
 - `backend/api/transport.py`
 - `backend/api/http_server.py`
+- `frontend/web-console/index.html`
+- `frontend/web-console/app.js`
+- `frontend/web-console/style.css`
 - `backend/repositories/__init__.py`
 - `backend/repositories/memory_repository.py`
 - `backend/repositories/persona_repository.py`
@@ -109,6 +118,7 @@ Each development day should have a section:
 - `tests/test_memory_candidate_pipeline.py`
 - `tests/test_memory_promotion.py`
 - `tests/test_memory_review_controls.py`
+- `tests/test_web_console.py`
 - `tests/test_retrieval.py`
 - `docs/memory_engine.md`
 - `docs/memory_lifecycle.md`
@@ -123,19 +133,22 @@ Each development day should have a section:
 - `pytest`
 - `python -m compileall backend scripts tests`
 - Current test status:
-  - 366 passed.
+  - 373 passed.
 - SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
 - Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
 - API Transport coverage verifies persona listing, session creation, session retrieval, session deletion, message sending, standard response serialization, validation errors, no provider bypass, and no durable state mutation.
 - API Transport coverage also verifies configured sessions can inject runtime memory retrieval and pass retrieved memory plus relevance metadata into the runtime context.
+- API Transport coverage now verifies session listing and detached session history retrieval for browser clients.
 - SessionRepository coverage verifies in-memory repository create/get/list/delete behavior and SessionManager repository usage.
 - HTTP Server Transport coverage verifies server startup, persona listing, session creation, message sending, response JSON, and error JSON through the existing ApiTransport path.
+- HTTP Server Transport coverage verifies CORS headers and OPTIONS preflight for browser-based local calls.
 - API response schema coverage verifies message responses are JSON serializable and frontend-consumable.
 - Persistence repository coverage verifies memory, persona, and knowledge save/retrieve/list/delete behavior without database or engine coupling.
 - Memory Runtime Integration coverage verifies relevant memory retrieval, empty-memory behavior, multiple-memory ordering, RuntimeSession integration, RuntimeContext memory section assembly, prompt rendering, persona identity separation, and no durable record mutation.
 - Memory Candidate Pipeline coverage verifies deterministic extraction, queue add/list/clear, approval, rejection, duplicate handling, RuntimeSession candidate production, no automatic durable memory write, and no MemoryEngine import/call from the candidate pipeline.
 - Memory Promotion coverage verifies approved-only promotion, pending/rejected rejection, data integrity, provenance preservation, no persona mutation, and that the promotion boundary is the only MemoryEngine write connection.
 - Memory Candidate Review Controls coverage verifies candidate listing, status filtering, approval, rejection, clearing, approved-only promotion, stable JSON serialization, missing-boundary behavior, and API architecture boundary preservation.
+- Web Console coverage verifies required static assets exist, use existing API routes, and do not introduce React, Vite, Vue, or Node tooling.
 
 ### Design Decisions
 - `SessionManager` owns temporary session lifecycle only.
@@ -165,13 +178,16 @@ Each development day should have a section:
 - `MemoryPromotionBoundary` owns the only candidate-to-`MemoryRecord` conversion path.
 - `MemoryReviewApiBoundary` is the human-control surface for review actions; it delegates durable writes only to `MemoryPromotionBoundary`.
 - API Transport owns route handling and JSON serialization only; it does not import `MemoryEngine`, call `create_memory()`, or bypass runtime/provider boundaries.
+- Web Console v0.1 is a thin browser console over the existing HTTP API. It owns UI state only and does not own runtime, persona, memory, provider, or persistence logic.
+- Browser support required CORS/OPTIONS at the HTTP wrapper layer; this remains transport plumbing and does not change Runtime behavior.
 
 ### Problems / Notes
 - No persistence, database, frontend, automatic memory persistence, LLM summarization, automatic approval, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
 - Existing Runtime architecture remains intact.
 
 ### Next Session
-- Decide whether memory candidate review controls also need CLI commands alongside the API boundary.
+- Manually verify Web Console v0.1 against a running local API server and Ollama model.
+- Decide whether memory candidate review controls also need CLI or Web Console UI commands alongside the API boundary.
 - Prepare future persistent memory storage through repository boundaries without allowing runtime, session, extractor, or review queue components to write durable memory directly.
 
 ## 2026-07-15
