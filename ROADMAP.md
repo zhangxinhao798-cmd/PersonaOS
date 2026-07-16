@@ -147,9 +147,9 @@ Completed:
 
 Next item:
 
-- Persona Package v1.
+- Sample Persona Package + CLI package loading.
 
-Persona Package v1 should create a file-backed, reviewable persona package format without adding persistence databases or automatic persona reconstruction.
+Sample Persona Package + CLI package loading should make the completed Persona Package v1 boundary usable from the local runtime without bypassing review, activation, or persona lifecycle rules.
 
 Requirements:
 
@@ -206,12 +206,16 @@ default. It remains a replaceable runtime setting, not persona identity.
 
 ## Persona Package v1
 
-Status: Current
+Status: Completed
 
-Planned scope:
+Completed scope:
 
 - Canonical persona package directory format.
 - Package manifest.
+- `PersonaPackageManifest`.
+- `PersonaPackage`.
+- `PersonaPackageValidationResult`.
+- `PersonaPackageLoader`.
 - `PersonaProfile` data.
 - Speech patterns.
 - Thinking patterns.
@@ -222,10 +226,14 @@ Planned scope:
 - Optional knowledge references.
 - Package validation.
 - Package loading.
+- Deterministic package validation.
+- Deterministic package loading.
 - Conversion into existing `PersonaProfile`, `PersonaVersion`, and
   `PersonaLibraryEntry` boundaries.
-- Human review before approval and activation.
-- Active persona selection for the CLI.
+- Conversion to `PersonaProfile`.
+- Conversion to `PersonaVersion`.
+- Conversion to draft `PersonaLibraryEntry`.
+- Human review remains required before approval and activation.
 
 Explicitly deferred:
 
@@ -238,6 +246,24 @@ Explicitly deferred:
 - Avatar generation.
 - Relationship state.
 - Emotion state.
+- Automatic review.
+- Automatic activation.
+- LLM calls.
+
+## Sample Persona Package + CLI package loading
+
+Status: Current
+
+Planned scope:
+
+- Add a sample Persona Package using the Persona Package v1 format.
+- Load the sample package through deterministic package loading.
+- Validate the sample package before use.
+- Convert the loaded package into existing persona profile, version, and draft library entry boundaries.
+- Add CLI package loading.
+- Preserve human review before approval.
+- Preserve explicit activation.
+- Avoid LLM calls and persona reconstruction.
 
 ### Step 2: Persona + Memory Fusion
 
@@ -275,15 +301,15 @@ Progress:
 
 Current focus:
 
-- Persona Package v1.
+- Sample Persona Package + CLI package loading.
 
 Next steps:
 
-1. Define the canonical persona package directory format.
-2. Add package manifest and persona data boundaries.
-3. Add deterministic package validation.
-4. Add deterministic package loading.
-5. Preserve review, versioning, library, activation, and CLI selection boundaries.
+1. Add a sample Persona Package.
+2. Add deterministic sample package loading.
+3. Add CLI package loading.
+4. Preserve review, versioning, library, activation, and CLI selection boundaries.
+5. Avoid LLM calls and persona reconstruction.
 
 ## Phase 2: Memory System
 
@@ -497,4 +523,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is Persona Package v1.
+The immediate next focus is Sample Persona Package + CLI package loading.

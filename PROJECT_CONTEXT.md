@@ -307,6 +307,15 @@ Completed so far:
 - CLI and smoke scripts now use configuration-driven adapter resolution.
 - Live configuration-only switching verified between `qwen3:14b` and `gemma4:12b`.
 - `qwen3:14b` restored as the current default runtime model.
+- Persona Package v1 boundary completed.
+- `PersonaPackageManifest` completed for package metadata.
+- `PersonaPackage` completed as the structured file-backed persona package boundary.
+- `PersonaPackageValidationResult` completed for deterministic package validation output.
+- `PersonaPackageLoader` completed for deterministic package loading.
+- Persona packages can be converted into `PersonaProfile`.
+- Persona packages can be converted into `PersonaVersion`.
+- Persona packages can be converted into draft `PersonaLibraryEntry` records.
+- Persona Package v1 does not perform automatic review, automatic activation, LLM calls, or persona reconstruction.
 - Basic pytest configuration in `pytest.ini` with `pythonpath = .`.
 - Runtime initialization test in `tests/test_runtime.py`.
 - Memory engine tests in `tests/test_memory.py`.
@@ -353,7 +362,7 @@ Current verification status:
 - `tests/test_knowledge.py` verifies knowledge creation, deterministic retrieval, updates, and unrelated-record exclusion.
 - `tests/test_skill.py` verifies skill creation, retrieval, updates, and removal.
 - `tests/test_evolution.py` verifies evolution proposal creation, retrieval, application, and history preservation.
-- Current recorded test status: 216 tests passing.
+- Current recorded test status: 224 tests passing.
 - Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both responded successfully through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected the temporary `gemma4:12b` switch, `qwen3:14b` worked again after restoration, and no durable PersonaOS state was modified.
 
 Current implementation limits:
@@ -363,7 +372,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, and runtime configuration loading boundaries exist, but persistence, production API/frontend orchestration, Persona Package v1, automatic persona reconstruction, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, runtime configuration loading, and Persona Package v1 boundaries exist, but persistence, production API/frontend orchestration, automatic persona reconstruction, automatic package review or activation, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
@@ -557,7 +566,7 @@ Current status: Memory Layer v1 complete.
 - Persona Versioning boundary exists.
 - PersonaLibraryEntry model boundary exists.
 - Persona Library lifecycle, review, activation, and integration verification coverage exist.
-- Next work should define Persona Package v1 as a file-backed, reviewable persona package boundary.
+- Next work should add a sample Persona Package and CLI package loading.
 - Add persona profiles.
 - Support multiple personas.
 - Connect personas to memory scopes, skill permissions, and operating constraints.
@@ -615,11 +624,11 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Define Persona Package v1 data and directory boundaries.
-- Add a package manifest, persona profile data, speech patterns, thinking patterns, values, boundaries, examples, source references, and optional knowledge references.
-- Add deterministic package validation and loading.
-- Convert valid packages into existing `PersonaProfile`, `PersonaVersion`, and `PersonaLibraryEntry` boundaries.
+- Add a sample Persona Package using the Persona Package v1 boundary.
+- Add CLI package loading.
+- Preserve deterministic validation and loading.
+- Preserve conversion into existing `PersonaProfile`, `PersonaVersion`, and draft `PersonaLibraryEntry` boundaries.
 - Preserve human review before approval and activation.
 - Keep persona data independent from LLM/model provider state.
 
-The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, the first interactive local CLI, Runtime Configuration System v1, and live model switching verification. The best next work is small, well-tested backend progress on Persona Package v1 while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, runtime configuration, and model-provider transport responsibilities.
+The project has completed the Persona Import Pipeline boundaries, Persona Versioning data boundary, Persona Library lifecycle foundation, Runtime Context Assembly boundary, structured prompt pipeline, provider registry/configuration data boundary, OllamaAdapter v1, controlled ChatRuntime, RuntimeSession, the first interactive local CLI, Runtime Configuration System v1, live model switching verification, and Persona Package v1. The best next work is small, well-tested backend progress on a sample Persona Package and CLI package loading while preserving the existing boundaries between persona, memory, fusion, knowledge, skill, confidence, evolution, runtime context, prompt formatting, session history, runtime configuration, package loading, and model-provider transport responsibilities.
