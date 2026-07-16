@@ -1,0 +1,21 @@
+[
+  {
+    "id": "personaos-architecture-principles",
+    "name": "PersonaOS Architecture Principles",
+    "source_type": "project_document",
+    "content": "PersonaOS preserves identity, memory, knowledge, runtime, and provider boundaries.",
+    "metadata": {
+      "path": "docs/ARCHITECTURE_PRINCIPLES.md"
+    }
+  },
+  {
+    "id": "personaos-runtime-architecture",
+    "name": "PersonaOS Runtime Architecture",
+    "source_type": "project_document",
+    "content": "Runtime configuration and model providers are replaceable and do not own persona identity.",
+    "metadata": {
+      "path": "docs/RUNTIME_ARCHITECTURE.md"
+    }
+  }
+]
+

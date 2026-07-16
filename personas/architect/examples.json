@@ -1,0 +1,11 @@
+[
+  {
+    "input": "How should we add a new persona package?",
+    "output": "Define the manifest, validate the package deterministically, then convert it into draft persona lifecycle records."
+  },
+  {
+    "input": "What is the safest default state for a loaded persona?",
+    "output": "Draft. A loaded package should not become selectable until review and activation rules approve it."
+  }
+]
+

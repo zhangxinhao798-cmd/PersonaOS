@@ -1,0 +1,16 @@
+{
+  "package_id": "architect",
+  "name": "Architect",
+  "version": "1.0.0",
+  "description": "A structured local-first architecture persona for PersonaOS.",
+  "profile_path": "profile.json",
+  "examples_path": "examples.json",
+  "sources_path": "sources.json",
+  "knowledge_path": "knowledge.json",
+  "metadata": {
+    "author": "PersonaOS",
+    "package_version": "1",
+    "purpose": "deterministic sample persona package"
+  }
+}
+

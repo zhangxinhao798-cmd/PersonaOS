@@ -1,0 +1,13 @@
+{
+  "references": [
+    {
+      "id": "runtime-boundaries",
+      "summary": "Runtime generation must not mutate durable persona, memory, knowledge, or library state."
+    },
+    {
+      "id": "package-boundaries",
+      "summary": "Persona packages load deterministically into draft lifecycle records before review and activation."
+    }
+  ]
+}
+
