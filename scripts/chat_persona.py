@@ -57,6 +57,7 @@ from config.runtime import (  # noqa: E402
 
 
 DEFAULT_PERSONA_PACKAGE_PATH = PROJECT_ROOT / "personas" / "architect"
+DEFAULT_PERSONAS_DIR = PROJECT_ROOT / "personas"
 
 
 @dataclass
@@ -66,6 +67,7 @@ class InteractiveRuntime:
     session: RuntimeSession
     persona_entry: PersonaLibraryEntry
     provider_config: ProviderConfig
+    personas_dir: Path = DEFAULT_PERSONAS_DIR
 
 
 Printer = Callable[[str], None]
@@ -99,6 +101,32 @@ def build_draft_persona_entry(
     )
 
 
+def discover_persona_packages(
+    personas_dir: Path = DEFAULT_PERSONAS_DIR,
+) -> list[PersonaLibraryEntry]:
+    """Return draft entries for valid package directories."""
+
+    if not personas_dir.exists():
+        return []
+
+    loader = PersonaPackageLoader()
+    entries: list[PersonaLibraryEntry] = []
+    for package_path in sorted(personas_dir.iterdir(), key=lambda path: path.name):
+        if not package_path.is_dir():
+            continue
+        if not loader.validate(package_path).is_valid:
+            continue
+        package = loader.load(package_path)
+        entries.append(
+            loader.to_library_entry(
+                package,
+                created_at="2026-07-16",
+                change_note="Discovered from local CLI persona package.",
+            )
+        )
+    return entries
+
+
 def approve_persona_for_cli_runtime(
     entry: PersonaLibraryEntry,
 ) -> PersonaLibraryEntry:
@@ -118,6 +146,16 @@ def approve_persona_for_cli_runtime(
         activated_at="2026-07-16T00:00:00Z",
     )
     return entry
+
+
+def prepare_persona_for_cli_runtime(
+    package_path: Path,
+) -> PersonaLibraryEntry:
+    """Load, approve, and activate a package-derived entry in memory."""
+
+    return approve_persona_for_cli_runtime(
+        build_draft_persona_entry(package_path)
+    )
 
 
 def build_persona_os_context(entry: PersonaLibraryEntry) -> PersonaOSContext:
@@ -173,9 +211,7 @@ def build_runtime(
 ) -> InteractiveRuntime:
     """Wire existing runtime boundaries for the interactive CLI."""
 
-    entry = approve_persona_for_cli_runtime(
-        build_draft_persona_entry(persona_package_path)
-    )
+    entry = prepare_persona_for_cli_runtime(persona_package_path)
     if not entry.is_approved_for_activation():
         raise ChatRuntimeError("Persona is not approved.")
     if not entry.is_active():
@@ -203,7 +239,38 @@ def build_runtime(
         session=session,
         persona_entry=entry,
         provider_config=config,
+        personas_dir=persona_package_path.parent,
     )
+
+
+def switch_persona(
+    runtime: InteractiveRuntime,
+    package_id: str,
+) -> bool:
+    """Switch the active CLI persona to another package in memory."""
+
+    package_path = runtime.personas_dir / package_id
+    if not package_path.is_dir():
+        return False
+
+    entry = prepare_persona_for_cli_runtime(package_path)
+    library = PersonaLibraryEngine()
+    library.add_persona(entry)
+    selector = PersonaSelector(library)
+    adapter = configured_adapter(runtime.provider_config)
+    chat_runtime = ChatRuntime(
+        persona_selector=selector,
+        adapter=adapter,
+        runtime_context_assembler=RuntimeContextAssembler(),
+    )
+    runtime.persona_entry = entry
+    runtime.session = RuntimeSession(
+        id=f"interactive-cli-session-{entry.id or package_id}",
+        persona_entry=entry,
+        persona_os_context=build_persona_os_context(entry),
+        chat_runtime=chat_runtime,
+    )
+    return True
 
 
 def print_startup(runtime: InteractiveRuntime, printer: Printer = print) -> None:
@@ -223,6 +290,10 @@ def print_help(printer: Printer = print) -> None:
     printer("  /history  Show temporary session conversation turns.")
     printer("  /clear    Clear temporary RuntimeSession history.")
     printer("  /status   Show persona, provider, model, and turn count.")
+    printer("  /persona list")
+    printer("            Show valid local persona packages.")
+    printer("  /persona use <package_id>")
+    printer("            Switch the active persona package for this session.")
     printer("  /exit     End the session.")
 
 
@@ -240,9 +311,59 @@ def print_history(session: RuntimeSession, printer: Printer = print) -> None:
 
 def print_status(runtime: InteractiveRuntime, printer: Printer = print) -> None:
     printer(f"Persona: {runtime.persona_entry.name}")
+    printer(f"Persona package: {runtime.persona_entry.id}")
     printer(f"Provider: {runtime.provider_config.provider}")
     printer(f"Model: {runtime.provider_config.model}")
     printer(f"Temporary turns: {runtime.session.turn_count()}")
+
+
+def print_persona_packages(
+    personas_dir: Path,
+    current_persona_id: str,
+    printer: Printer = print,
+) -> None:
+    entries = discover_persona_packages(personas_dir)
+    if not entries:
+        printer("No valid persona packages found.")
+        return
+
+    printer("Available persona packages:")
+    for entry in entries:
+        marker = "*" if entry.id == current_persona_id else " "
+        printer(f"{marker} {entry.id}: {entry.name}")
+
+
+def handle_persona_command(
+    command: str,
+    runtime: InteractiveRuntime,
+    printer: Printer = print,
+) -> bool:
+    parts = command.strip().split()
+    if len(parts) == 2 and parts[1].lower() == "list":
+        print_persona_packages(
+            runtime.personas_dir,
+            runtime.persona_entry.id,
+            printer,
+        )
+        return True
+
+    if len(parts) == 3 and parts[1].lower() == "use":
+        package_id = parts[2]
+        try:
+            switched = switch_persona(runtime, package_id)
+        except PersonaPackageError as exc:
+            printer(f"Persona package loading failed: {exc}")
+            return True
+        if not switched:
+            printer(f"Persona package not found: {package_id}")
+            return True
+        printer(f"Switched persona to: {runtime.persona_entry.name}")
+        return True
+
+    printer("Usage:")
+    printer("  /persona list")
+    printer("  /persona use <package_id>")
+    return True
 
 
 def handle_command(
@@ -269,6 +390,8 @@ def handle_command(
     if normalized == "/status":
         print_status(runtime, printer)
         return True
+    if normalized.startswith("/persona"):
+        return handle_persona_command(command, runtime, printer)
 
     printer(f"Unknown command: {command}")
     printer("Type /help for commands.")

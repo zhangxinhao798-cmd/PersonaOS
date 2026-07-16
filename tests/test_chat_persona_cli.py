@@ -276,9 +276,87 @@ def test_status_displays_persona_provider_model_and_turn_count() -> None:
     chat_persona.handle_command("/status", make_runtime(session), output.append)
 
     assert "Persona: CLI Persona" in output
+    assert "Persona package: cli-persona" in output
     assert "Provider: ollama" in output
     assert "Model: qwen3:14b" in output
     assert "Temporary turns: 1" in output
+
+
+def test_persona_list_displays_available_packages() -> None:
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    output: list[str] = []
+
+    chat_persona.handle_command("/persona list", runtime, output.append)
+
+    assert "Available persona packages:" in output
+    assert any("architect: Architect" in line for line in output)
+
+
+def test_persona_use_unknown_package_prints_readable_error() -> None:
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    output: list[str] = []
+
+    keep_running = chat_persona.handle_command(
+        "/persona use missing-package",
+        runtime,
+        output.append,
+    )
+
+    assert keep_running is True
+    assert "Persona package not found: missing-package" in output
+    assert runtime.persona_entry.name == "CLI Persona"
+
+
+def test_persona_use_switches_to_package_persona(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    runtime.session.history = [{"role": "user", "content": "old history"}]
+    output: list[str] = []
+
+    keep_running = chat_persona.handle_command(
+        "/persona use architect",
+        runtime,
+        output.append,
+    )
+
+    assert keep_running is True
+    assert "Switched persona to: Architect" in output
+    assert runtime.persona_entry.id == "architect"
+    assert runtime.persona_entry.name == "Architect"
+    assert runtime.persona_entry.is_selectable() is True
+    assert runtime.session.turn_count() == 0
+
+
+def test_persona_use_keeps_package_files_unchanged(monkeypatch) -> None:
+    patch_runtime_dependencies(monkeypatch)
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    before = {
+        path: path.read_bytes()
+        for path in Path("personas/architect").glob("*.json")
+    }
+
+    chat_persona.handle_command("/persona use architect", runtime, lambda _line: None)
+
+    after = {
+        path: path.read_bytes()
+        for path in Path("personas/architect").glob("*.json")
+    }
+    assert before == after
+
+
+def test_persona_command_usage_for_invalid_shape() -> None:
+    runtime = make_runtime()
+    output: list[str] = []
+
+    chat_persona.handle_command("/persona", runtime, output.append)
+
+    assert "Usage:" in output
+    assert "  /persona list" in output
+    assert "  /persona use <package_id>" in output
 
 
 def test_normal_input_calls_runtime_session_send_once() -> None:
