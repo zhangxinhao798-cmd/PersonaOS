@@ -29,6 +29,7 @@ from backend.engine.runtime_context_assembler import (  # noqa: E402
     RuntimeContextAssembler,
 )
 from backend.models import (  # noqa: E402
+    PersonaPackage,
     PersonaLibraryEntry,
     ProviderConfig,
 )
@@ -157,6 +158,24 @@ def discover_persona_packages(
             )
         )
     return entries
+
+
+def load_persona_package_by_id(
+    personas_dir: Path,
+    package_id: str,
+) -> PersonaPackage:
+    """Load a valid local persona package by package id."""
+
+    package_id = package_id.strip()
+    if not package_id:
+        raise PersonaPackageError("Persona package id cannot be empty.")
+
+    package_path = personas_dir / package_id
+    if not package_path.is_dir():
+        raise PersonaPackageError(f"Persona package not found: {package_id}")
+
+    loader = PersonaPackageLoader()
+    return loader.load(package_path)
 
 
 def approve_persona_for_cli_runtime(
@@ -337,6 +356,8 @@ def print_help(printer: Printer = print) -> None:
     printer("  /status   Show persona, provider, model, and turn count.")
     printer("  /persona list")
     printer("            Show valid local persona packages.")
+    printer("  /persona info <package_id>")
+    printer("            Show local persona package details.")
     printer("  /persona use <package_id>")
     printer("            Switch the active persona package for this session.")
     printer("  /exit     End the session.")
@@ -375,7 +396,34 @@ def print_persona_packages(
     printer("Available persona packages:")
     for entry in entries:
         marker = "*" if entry.id == current_persona_id else " "
-        printer(f"{marker} {entry.id}: {entry.name}")
+        version = entry.current_version_id.split(":", 1)[1]
+        description = entry.description or ""
+        printer(f"{marker} {entry.id}  {entry.name}  v{version}  {description}")
+
+
+def print_persona_package_info(
+    personas_dir: Path,
+    package_id: str,
+    printer: Printer = print,
+) -> None:
+    """Print deterministic local persona package metadata."""
+
+    package = load_persona_package_by_id(personas_dir, package_id)
+    profile = package.profile
+    printer(f"Package: {package.manifest.package_id}")
+    printer(f"Name: {package.manifest.name}")
+    printer(f"Version: {package.manifest.version}")
+    printer(f"Description: {package.manifest.description}")
+    if profile is not None:
+        printer(f"Style: {profile.style}")
+        printer("Values:")
+        for value in profile.values:
+            printer(f"  - {value}")
+        printer("Boundaries:")
+        for boundary in profile.boundaries:
+            printer(f"  - {boundary}")
+    printer(f"Examples: {len(package.examples)}")
+    printer(f"Sources: {len(package.sources)}")
 
 
 def handle_persona_command(
@@ -390,6 +438,17 @@ def handle_persona_command(
             runtime.persona_entry.id,
             printer,
         )
+        return True
+
+    if len(parts) == 3 and parts[1].lower() == "info":
+        try:
+            print_persona_package_info(
+                runtime.personas_dir,
+                parts[2],
+                printer,
+            )
+        except PersonaPackageError as exc:
+            printer(f"Persona package loading failed: {exc}")
         return True
 
     if len(parts) == 3 and parts[1].lower() == "use":
@@ -407,6 +466,7 @@ def handle_persona_command(
 
     printer("Usage:")
     printer("  /persona list")
+    printer("  /persona info <package_id>")
     printer("  /persona use <package_id>")
     return True
 

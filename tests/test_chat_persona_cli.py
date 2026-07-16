@@ -294,6 +294,7 @@ def test_help_does_not_call_runtime_session_send() -> None:
     assert keep_running is True
     assert session.sent == []
     assert any("/history" in line for line in output)
+    assert any("/persona info <package_id>" in line for line in output)
 
 
 def test_exit_ends_loop() -> None:
@@ -360,7 +361,64 @@ def test_persona_list_displays_available_packages() -> None:
     chat_persona.handle_command("/persona list", runtime, output.append)
 
     assert "Available persona packages:" in output
-    assert any("architect: Architect" in line for line in output)
+    assert any(
+        "architect  Architect  v1.0.0" in line for line in output
+    )
+    assert any(
+        "structured local-first architecture persona" in line
+        for line in output
+    )
+
+
+def test_persona_list_displays_second_sample_package() -> None:
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    output: list[str] = []
+
+    chat_persona.handle_command("/persona list", runtime, output.append)
+
+    assert any(
+        "strategist  Strategist  v1.0.0" in line for line in output
+    )
+    assert any(
+        "decision-focused persona" in line for line in output
+    )
+
+
+def test_persona_info_displays_package_details() -> None:
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    output: list[str] = []
+
+    chat_persona.handle_command("/persona info strategist", runtime, output.append)
+
+    assert "Package: strategist" in output
+    assert "Name: Strategist" in output
+    assert "Version: 1.0.0" in output
+    assert any("decision-focused persona" in line for line in output)
+    assert "Style: practical, comparative, and concise" in output
+    assert "Values:" in output
+    assert "  - explicit tradeoffs" in output
+    assert "Boundaries:" in output
+    assert "  - do not confuse model choice with persona identity" in output
+    assert "Examples: 2" in output
+    assert "Sources: 2" in output
+
+
+def test_persona_info_unknown_package_prints_readable_error() -> None:
+    runtime = make_runtime()
+    runtime.personas_dir = Path("personas")
+    output: list[str] = []
+
+    keep_running = chat_persona.handle_command(
+        "/persona info missing-package",
+        runtime,
+        output.append,
+    )
+
+    assert keep_running is True
+    assert any("Persona package loading failed:" in line for line in output)
+    assert any("missing-package" in line for line in output)
 
 
 def test_persona_use_unknown_package_prints_readable_error() -> None:
@@ -426,6 +484,7 @@ def test_persona_command_usage_for_invalid_shape() -> None:
 
     assert "Usage:" in output
     assert "  /persona list" in output
+    assert "  /persona info <package_id>" in output
     assert "  /persona use <package_id>" in output
 
 

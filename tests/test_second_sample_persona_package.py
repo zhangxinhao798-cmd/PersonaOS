@@ -102,5 +102,5 @@ def test_cli_persona_list_shows_multiple_sample_packages() -> None:
 
     chat_persona.handle_command("/persona list", runtime, output.append)
 
-    assert any("architect: Architect" in line for line in output)
-    assert any("strategist: Strategist" in line for line in output)
+    assert any("architect  Architect  v1.0.0" in line for line in output)
+    assert any("strategist  Strategist  v1.0.0" in line for line in output)
