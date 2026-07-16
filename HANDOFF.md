@@ -199,10 +199,20 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 Relationship Boundary v1 completed.
 
+User-Persona Relationship is now recognized as a core PersonaOS system. The implemented scope is limited to the context boundary: relationship type, interaction style, tone, permissions, lifecycle, and metadata can travel through session and runtime context without changing Persona identity.
+
+Still planned, not implemented:
+
+- Relationship Selection.
+- Relationship Evolution with explicit governance and review.
+- Relationship Memory with a separate relationship-scoped memory boundary.
+- Emotion simulation or automatic relationship generation.
+- Frontend internationalization for Chinese and English through future `frontend/i18n/` language files.
+
 
 ## Next Goal
 
-Decide whether Relationship selection should be exposed through CLI, API, or Web Experience controls, then manually verify Web Experience v0.1 against a running local API server and Ollama model.
+Implement Relationship Selection v1 through the existing API and Web Experience boundaries. Selection must remain explicit, session-scoped, and independent from Persona identity. Do not add relationship evolution, relationship memory, emotion simulation, automatic relationship generation, or frontend internationalization in this step.
 
 Integration Phase Step 1 completed:
 
@@ -423,9 +433,9 @@ Memory Promotion Boundary completed:
 
 ## Next Recommended Phase
 
-Memory candidate review controls.
+Relationship Selection v1.
 
-The next work should expose pending candidates through CLI/API controls so a human can approve, reject, and explicitly promote candidates. Keep RuntimeSession temporary history separate from durable Memory, and preserve persona package selection, expression package loading, review, activation, runtime, repository, and provider boundaries.
+The next work should expose explicit relationship selection through the existing API and Web Experience session-creation flow. Keep Relationship Context separate from Persona identity, Memory, and Emotion. Relationship Evolution, Relationship Memory, automatic relationship generation, and frontend internationalization remain planned work only.
 
 ## Future Considerations
 

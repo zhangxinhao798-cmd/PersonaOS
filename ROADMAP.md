@@ -559,6 +559,49 @@ Possible future directions:
 
 These capabilities belong to future expression and interface layers. They should be built after Runtime Intelligence and core architecture stabilization.
 
+## User-Persona Relationship System
+
+Relationship is a core PersonaOS system describing the interaction context between a user and a persona. It remains separate from Persona identity, Memory, and Emotion.
+
+Completed:
+
+- [x] Relationship Context Boundary v1.
+- [x] `RelationshipContext` model for relationship type, interaction style, tone, permissions, lifecycle, and metadata.
+- [x] Relationship context carried independently through session, runtime context, prompt package, and chat API boundaries.
+- [x] Persona identity and durable memory remain unchanged by relationship context.
+
+Planned:
+
+- [ ] Relationship Selection through explicit session controls.
+- [ ] Relationship Context presets or other reviewable selection sources.
+- [ ] Relationship Evolution through governed, inspectable, and reversible changes.
+- [ ] Relationship Memory through a dedicated relationship-scoped experience boundary.
+- [ ] Separate relationship state for the same persona across different users.
+
+Explicitly deferred:
+
+- Emotion simulation.
+- Automatic relationship generation.
+- Automatic trust or familiarity progression.
+- Durable relationship persistence.
+- Silent mutation of Persona identity.
+
+## Frontend Internationalization
+
+Status: Planned
+
+Frontend internationalization is a future productization direction and does not change Persona, Runtime, or provider architecture.
+
+Planned:
+
+- [ ] Chinese UI support.
+- [ ] English UI support.
+- [ ] A dedicated `frontend/i18n/` language-file boundary for user-facing interface text.
+- [ ] Explicit language selection with a deterministic default and fallback.
+- [ ] Keep UI language independent from active persona identity and model provider.
+
+No frontend internationalization implementation is included in the current phase.
+
 ## Future Persona Experience Systems
 
 These systems are long-term architectural directions, not implemented features. They remain separate from Persona core identity and Runtime Intelligence.
@@ -598,12 +641,13 @@ Avatar Layer:
 
 Relationship Layer:
 
-- Relationship-specific memory.
-- Trust and familiarity progression.
-- Shared experiences.
-- Long-term goals.
-- User-persona relationship state.
-- The same persona may maintain separate relationships with different users.
+- Relationship Context Boundary v1 is complete.
+- Relationship Selection is the next planned interaction capability.
+- Relationship-specific memory remains future work.
+- Governed trust and familiarity progression belongs to future Relationship Evolution.
+- Shared experiences and long-term goals remain future work.
+- The same persona may maintain separate relationships with different users in a future durable relationship system.
+- Emotion simulation and automatic relationship generation are not part of the current boundary.
 
 Emotion Layer:
 
@@ -640,4 +684,4 @@ PersonaOS should grow into a platform where digital minds can remain coherent, u
 
 ## Current Priority
 
-The immediate next focus is memory review UX and future persistence planning after completing API-level Memory Candidate Review Controls v1.
+The immediate next focus is Relationship Selection v1 through existing API and Web Experience boundaries. Frontend Chinese/English internationalization is recorded as a later productization milestone; it is not part of the current implementation scope.

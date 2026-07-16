@@ -165,6 +165,17 @@ LLMResponse
 
 Relationship Boundary v1 is complete. `RelationshipContext` can be carried by `PersonaOSContext`, assembled into `RuntimeContext`, packaged by `PromptBuilder` under an independent relationship section, and attached to temporary sessions through `RuntimeSession`, `ManagedSession`, `SessionManager`, and `ChatApiBoundary`. Relationship context does not modify `PersonaProfile`, `PersonaVersion`, `PersonaLibraryEntry`, `MemoryEngine`, `EvolutionEngine`, or durable memory.
 
+User-Persona Relationship is a core PersonaOS system. It represents the interaction context between a specific user and a persona while preserving the persona's independent identity. The current implementation is limited to Relationship Context Boundary v1. The planned direction is:
+
+- Relationship Selection: Allow an explicit relationship context to be selected for a session without changing persona identity.
+- Relationship Context: Carry relationship type, interaction style, tone, permissions, lifecycle, and metadata through session and runtime boundaries. This boundary is implemented in v1.
+- Relationship Evolution: Future governed, reviewable changes to relationship state over time. This is not implemented and must not be inferred or applied automatically.
+- Relationship Memory: Future relationship-scoped experience records kept separate from persona identity and general memory. This is not implemented.
+
+Relationship Boundary v1 does not provide emotion simulation, automatic relationship generation, trust progression, or durable relationship state.
+
+Frontend internationalization is a future productization direction. The first planned languages are Chinese and English, with UI copy eventually managed through a dedicated `frontend/i18n/` language-file boundary. No frontend internationalization implementation exists yet.
+
 The architecture documentation also describes a future Context Engine. No `ContextEngine` backend class exists yet.
 
 The current Persona layer now supports structured import and version snapshots through explicit data and transformation boundaries:
@@ -396,7 +407,7 @@ Current implementation limits:
 - Memory retrieval, update, and forgetting exist in v1 form, but persistence, advanced ranking, consolidation, and durable lifecycle auditing are not implemented yet.
 - Persona traits influence memory priority in v1 form, but deeper persona-aware retrieval and confidence evaluation are not implemented yet.
 - PersonaMemoryFusion provides persona-aware memory interpretation in v1 form.
-- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, runtime configuration loading, Persona Package v1 boundaries, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, and Expression Runtime Integration v1 exist, but persistence, production API/frontend orchestration, automatic persona reconstruction, automatic package review or activation persistence, voice cloning, TTS, avatar, relationship state, emotion state, and advanced persona-specific memory scopes are not implemented yet.
+- Persona import, versioning, library lifecycle, review, activation, runtime context assembly, structured prompt, adapter, registry, local Ollama transport, controlled chat runtime, temporary session history, interactive CLI, runtime configuration loading, Persona Package v1 boundaries, the sample Architect and Strategist packages, CLI package loading, CLI multi-persona package selection, configurable default persona selection, CLI startup persona override, Expression Package v1, Expression Runtime Integration v1, and Relationship Context Boundary v1 exist. Persistence, automatic persona reconstruction, automatic package review or activation persistence, voice cloning, TTS, avatar, relationship selection UX, relationship evolution, relationship memory, emotion state, frontend internationalization, and advanced persona-specific memory scopes are not implemented yet.
 - Confidence evaluation exists in v1 form, but broader risk analysis and cross-engine confidence behavior are not implemented yet.
 - All six core engines now have v1/foundation implementations.
 - PersonaOS now has an integrated cognitive pipeline for assembling persona, memory, knowledge, confidence, and context output.
@@ -680,9 +691,11 @@ Prioritize the Python backend first. Frontend work is intentionally deferred unl
 
 Recommended immediate tasks:
 
-- Add a SessionManager or Chat API boundary for future Web UI usage.
+- Add Relationship Selection v1 through existing API and Web Experience boundaries.
+- Keep relationship choice explicit and session-scoped; do not generate relationships automatically.
 - Preserve temporary session history as non-durable runtime state.
-- Keep persona, expression, model provider, and session responsibilities separate.
+- Keep persona, relationship, expression, model provider, and session responsibilities separate.
+- Plan frontend Chinese/English language resources under `frontend/i18n/` without coupling language choice to persona identity.
 - Preserve deterministic validation and loading.
 - Preserve conversion into existing `PersonaProfile`, `PersonaVersion`, and draft `PersonaLibraryEntry` boundaries.
 - Preserve human review before approval and activation.
