@@ -25,6 +25,49 @@ Each development day should have a section:
 ### Next Session
 - Recommended next tasks.
 
+## 2026-07-16
+
+### Completed
+- Completed `SessionManager` v1 as the temporary runtime session lifecycle boundary.
+- Added `ManagedSession` for session id, runtime session, active persona reference, context, and metadata.
+- Added session creation, retrieval, listing, deletion, history access, history clearing, message sending, and in-session persona switching.
+- Added `ChatApiBoundary` as the future Web/API/Frontend-facing boundary.
+- Preserved the flow: Chat API Boundary -> SessionManager -> RuntimeSession -> ChatRuntime -> Adapter -> LLMResponse.
+- Confirmed SessionManager does not connect to `MemoryEngine`, generate durable memory, mutate persona records, or modify Evolution state.
+
+### Files Changed
+- `backend/runtime/session_manager.py`
+- `backend/runtime/chat_api.py`
+- `backend/runtime/__init__.py`
+- `tests/test_session_manager.py`
+- `tests/test_chat_api_boundary.py`
+- `CHANGELOG.md`
+- `DAILY_PROGRESS.md`
+- `HANDOFF.md`
+
+### Tests
+- `pytest`
+- `python -m compileall backend tests`
+- Current test status:
+  - 292 passed.
+- SessionManager coverage verifies create, get, list, delete, history preservation, history clearing, persona switching, session isolation, and durable-state preservation.
+- Chat API Boundary coverage verifies requests enter runtime through SessionManager, return standard `LLMResponse`, and do not call providers or adapters directly.
+
+### Design Decisions
+- `SessionManager` owns temporary session lifecycle only.
+- `RuntimeSession` remains the owner of temporary conversation history.
+- Session history remains non-durable and is not `MemoryEngine` memory.
+- Persona switching inside an existing session resets temporary history in v1 to avoid misattributing earlier turns to the new persona.
+- `ChatApiBoundary` is a framework-free Python boundary, not an HTTP server or frontend.
+
+### Problems / Notes
+- No persistence, database, frontend, MemoryEngine connection, automatic memory extraction, relationship state, emotion state, voice, avatar, streaming, or tool calling was introduced.
+- Existing Runtime architecture remains intact.
+
+### Next Session
+- Decide the first Web/API integration shape that can call `ChatApiBoundary` without bypassing SessionManager or Runtime boundaries.
+- Keep durable memory extraction as a separate future review pipeline, not part of SessionManager.
+
 ## 2026-07-15
 
 ### Completed
@@ -341,7 +384,7 @@ Each development day should have a section:
 - CLI multi-persona package selection creates an in-memory switching boundary without durable package mutation.
 - Expression Package v1 separates text expression style from Persona Core identity.
 - Expression Runtime Integration carries expression guidance into prompts without mutating PersonaProfile.
-- The next boundary should prepare SessionManager or Chat API behavior for future Web UI usage.
+- SessionManager and Chat API Boundary now prepare PersonaOS for future Web UI usage.
 - Expression Layer capabilities remain future interface extensions and are not part of Runtime Intelligence implementation.
 
 ### Problems / Notes
@@ -358,7 +401,7 @@ Each development day should have a section:
 - No production API/frontend runtime, streaming, tool calling, persistence, automatic durable memory writes, voice, avatar, emotion, or relationship logic has been introduced.
 
 ### Next Session
-- Add a SessionManager or Chat API boundary for future Web UI usage.
+- Build future Web/API integration on top of `ChatApiBoundary`.
 - Preserve temporary `RuntimeSession` history as non-durable state.
 - Preserve deterministic package validation and loading.
 - Preserve review, versioning, library, activation, selector, expression, runtime, session, and provider boundaries.

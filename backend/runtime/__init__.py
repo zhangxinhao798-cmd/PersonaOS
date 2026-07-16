@@ -17,3 +17,12 @@ from backend.runtime.session import (
     RuntimeSessionError,
     RuntimeSessionGenerationError,
 )
+from backend.runtime.chat_api import ChatApiBoundary
+from backend.runtime.session_manager import (
+    DuplicateSessionError,
+    InvalidSessionError,
+    ManagedSession,
+    SessionManager,
+    SessionManagerError,
+    SessionNotFoundError,
+)

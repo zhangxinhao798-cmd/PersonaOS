@@ -198,7 +198,7 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Temporary conversation history is not durable `MemoryEngine` memory.
 - Runtime configuration selects provider, model, endpoint, and options without changing persona identity.
 - Sample Persona Package + CLI package loading makes the package boundary usable from the local runtime while preserving review, activation, and persona lifecycle boundaries.
-- The next backend boundary should be a SessionManager or Chat API boundary.
+- SessionManager and Chat API Boundary are now completed backend boundaries for future Web/API usage.
 - Documented future Expression Layer direction including voice, speech style, TTS, and multimodal interface possibilities.
 - Expression capabilities remain future architectural directions only.
 
@@ -280,14 +280,20 @@ PersonaOS is currently in its early foundation stage. The project is architectur
 - Added Expression Package v1 models and deterministic loader.
 - Added sample expression packages under `expressions/architect` and `expressions/strategist`.
 - Integrated expression guidance into `RuntimeContext`, `PromptPackage`, and rendered prompts.
-- Current phase is SessionManager or Chat API boundary preparation.
-- Current recorded verification status: 273 tests passing.
+- Added `SessionManager` v1 for temporary runtime session lifecycle management.
+- Added `ManagedSession` as the in-memory session reference boundary.
+- Added `ChatApiBoundary` as the provider-independent entry point for future Web/API/Frontend chat calls.
+- Added session lifecycle tests for create, get, list, delete, history management, persona switching, session isolation, and durable-state preservation.
+- Added Chat API boundary tests verifying requests enter `RuntimeSession`/`ChatRuntime` without direct provider or adapter calls.
+- Confirmed SessionManager does not connect to `MemoryEngine`, create durable memory, mutate persona records, or change Runtime architecture.
+- Current phase is SessionManager and Chat API Boundary v1 completed.
+- Current recorded verification status: 292 tests passing.
 - Manual live smoke tests passed with local Ollama reachable, `qwen3:14b` and `gemma4:12b` responding, usage metadata returned, temporary conversation history working, CLI commands working, `LLMResponse.model` reflecting the configured model, and no durable PersonaOS state mutation.
 - Persistent storage, consolidation, advanced retrieval ranking, skill execution, advanced knowledge indexing, and deeper integration flows are not implemented yet.
 
 ### Next Immediate Tasks
 
-- Add a SessionManager or Chat API boundary for future Web UI usage.
+- Add configuration-backed session/API entry usage for future Web UI integration.
 - Preserve deterministic package validation and loading.
 - Preserve review, activation, versioning, library, selector, expression, runtime, session, and provider boundaries.
 - Keep provider switching simple and model-independent.

@@ -36,6 +36,8 @@ Live configuration-only model switching between `qwen3:14b` and `gemma4:12b` has
 `qwen3:14b` has been restored as the current default runtime model.
 Persona Package v1 boundary is complete.
 Sample Architect Persona Package and CLI package loading are complete.
+SessionManager v1 is complete.
+Chat API Boundary v1 is complete.
 
 Current completed integration state:
 
@@ -92,6 +94,12 @@ Current completed integration state:
 - CLI now loads its default persona from the sample package.
 - CLI startup performs in-memory review approval and activation before runtime selection.
 - CLI no longer constructs a hard-coded runtime guide persona in script code.
+- `SessionManager` added for temporary runtime session lifecycle management.
+- `ManagedSession` added as the in-memory session reference boundary.
+- SessionManager supports create, get, list, delete, history access, history clearing, message sending, and persona switching.
+- `ChatApiBoundary` added as the provider-independent entry point for future Web/API/Frontend calls.
+- Chat API Boundary delegates to `SessionManager` and does not call Ollama, adapters, engines, or prompt components directly.
+- SessionManager and Chat API Boundary do not connect to `MemoryEngine`, generate durable memory, mutate persona records, or change Evolution state.
 
 ## Architecture Rules
 
@@ -110,7 +118,7 @@ Do not merge engine responsibilities.
 
 Current recorded full-suite status before Step 2 was 47 tests passing.
 
-Latest recorded verification status is 273 tests passing.
+Latest recorded verification status is 292 tests passing.
 
 Manual live smoke test status: local Ollama was reachable at the configured endpoint, `qwen3:14b` and `gemma4:12b` both returned valid responses through configuration-only switching, `LLMResponse.model` reflected the configured model, CLI `/status` reflected `gemma4:12b` during the temporary switch, `qwen3:14b` worked after restoration, and the smoke tests did not modify durable persona or memory state.
 
@@ -125,12 +133,12 @@ Codex environment note: during recent Integration Phase work, `pytest` was unava
 
 ## Current Phase
 
-Persona package selection and expression runtime integration verified.
+SessionManager and Chat API Boundary v1 completed.
 
 
 ## Next Goal
 
-SessionManager or Chat API boundary.
+Prepare future Web/API integration on top of `ChatApiBoundary` without introducing persistence or bypassing Runtime boundaries.
 
 Integration Phase Step 1 completed:
 
@@ -261,11 +269,22 @@ Persona package selection UX and Expression Layer foundation completed:
 10. Preserved PersonaProfile, persona lifecycle, runtime provider, voice, avatar, relationship, and emotion boundaries.
 11. Verified 273 automated tests passing.
 
+SessionManager and Chat API Boundary completed:
+
+1. Added `ManagedSession`.
+2. Added `SessionManager` for temporary session lifecycle management.
+3. Added session creation, retrieval, listing, deletion, history access, history clearing, message sending, and persona switching.
+4. Added `ChatApiBoundary` as a framework-independent API entry boundary.
+5. Preserved provider/model independence by routing requests through `SessionManager` and existing runtime boundaries.
+6. Confirmed session history remains temporary and is not durable `MemoryEngine` memory.
+7. Confirmed no persona profile, persona version, persona library entry, memory record, knowledge record, or evolution state mutation.
+8. Verified 292 automated tests passing.
+
 ## Next Recommended Phase
 
-SessionManager or Chat API boundary.
+Future Web/API integration using `ChatApiBoundary`.
 
-The next work should prepare PersonaOS for Web/API usage by adding a SessionManager or Chat API boundary while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, and provider boundaries.
+The next work should expose `ChatApiBoundary` through a minimal transport layer only after the boundary is stable, while preserving RuntimeSession temporary history, persona package selection, expression package loading, review, activation, runtime, and provider boundaries.
 
 ## Future Considerations
 
@@ -300,4 +319,4 @@ Read these files first:
 3. DAILY_PROGRESS.md
 4. HANDOFF.md
 
-Then continue from Expression Runtime Integration completion toward a SessionManager or Chat API boundary.
+Then continue from SessionManager and Chat API Boundary completion toward a minimal API transport or Web UI integration that does not introduce persistence or durable memory writes.
